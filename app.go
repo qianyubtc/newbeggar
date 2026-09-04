@@ -205,6 +205,7 @@ func (a *App) routes() {
 	m.HandleFunc("POST /manage/unbind", a.handleManageUnbind)
 	m.HandleFunc("POST /manage/verify", a.handleManageVerify)
 	m.HandleFunc("POST /manage/password", a.handleManagePassword)
+	m.HandleFunc("POST /skin", a.handleSkin)
 	m.HandleFunc("POST /manage/donation/{id}/{action}", a.handleManageDonation)
 	m.HandleFunc("POST /manage/site/{id}/{action}", a.handleManageSite)
 	m.HandleFunc("/", a.handleRoot) // 主站 / 与子站 /{slug}，以及 404

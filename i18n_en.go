@@ -3,8 +3,9 @@ package main
 // 英文：其它语言查不到时也回落到这里。key 是中文原文（模板/代码里的 T "…"），占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["en"] = map[string]string{
+		"换个形象":      "Change look",
 		"🪙 钢镚丢进去了！": "🪙 Coin tossed!",
-		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "I just tossed this poor soul a free coin 🪙 Go on, toss one too — give them a meal today",
+		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "I just tossed this poor soul a free coin Go on, toss one too — give them a meal today",
 		"👉 扫码，你也丢一个": "👉 Scan and toss one too",
 		"我丢了个钢镚 🪙":   "I tossed a coin 🪙",
 		"你的 X 用户名":   "Your X username",

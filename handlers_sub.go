@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -267,7 +268,8 @@ func (a *App) handleNewPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	site := &Site{Slug: f.Slug, Name: prof.Name, Slogan: f.Slogan, Story: f.Story, Avatar: "🥣", XURL: "https://x.com/" + prof.Handle,
-		XHandle: prof.Handle, XName: prof.Name, XAvatar: prof.AvatarFile, XID: prof.XID, Listed: !a.cfg.SubsiteReview, PassHash: hashPassword(pw), Currency: a.cfg.Currency}
+		XHandle: prof.Handle, XName: prof.Name, XAvatar: prof.AvatarFile, XID: prof.XID, Skin: int64(randBytes(1)[0]) % skinCount,
+		Listed: !a.cfg.SubsiteReview, PassHash: hashPassword(pw), Currency: a.cfg.Currency}
 	id, err := a.st.CreateSite(site)
 	if errors.Is(err, ErrSlugTaken) {
 		bad(a.T(r, "路径 %s 已被占用（@%s 可能已经开过站，忘了口令可在登录页用 X 找回）", f.Slug, prof.Handle))
@@ -826,6 +828,36 @@ func (a *App) handleManageVerify(w http.ResponseWriter, r *http.Request) {
 		a.flash(w, "校验通过：币安 Key 可用，到账会自动确认")
 	}
 	http.Redirect(w, r, "/manage#payment", http.StatusFound)
+}
+
+// skinCount 形象数量（templates/sprite.html 里的 sprite / sprite1..7）。
+const skinCount = 8
+
+// handleSkin 站长在自己的碗页面点「换个形象」：随机换一个并保存，返回新的编号。
+func (a *App) handleSkin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	site := a.currentSite(r)
+	if site == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(`{"ok":false}`))
+		return
+	}
+	if !a.lim.allow("skin:"+strconv.FormatInt(site.ID, 10), 60, time.Minute) {
+		w.WriteHeader(http.StatusTooManyRequests)
+		w.Write([]byte(`{"ok":false}`))
+		return
+	}
+	next := site.Skin
+	for i := 0; i < 8 && next == site.Skin; i++ { // 随机换一个，别换成原来那个
+		next = int64(randBytes(1)[0]) % skinCount
+	}
+	if err := a.st.SetSiteSkin(site.ID, next); err != nil {
+		a.logf("[error] 换形象: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"ok":false}`))
+		return
+	}
+	fmt.Fprintf(w, `{"ok":true,"skin":%d}`, next)
 }
 
 func (a *App) handleManagePassword(w http.ResponseWriter, r *http.Request) {

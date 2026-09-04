@@ -3,8 +3,9 @@ package main
 // 西班牙语（中性拉美 / 国际）。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["es"] = map[string]string{
+		"换个形象":      "Cambiar aspecto",
 		"🪙 钢镚丢进去了！": "🪙 ¡Moneda lanzada!",
-		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Le tiré una moneda gratis a este pobre 🪙 Tírale una tú también, que hoy coma",
+		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "Le tiré una moneda gratis a este pobre Tírale una tú también, que hoy coma",
 		"👉 扫码，你也丢一个": "👉 Escanea y tira una tú",
 		"我丢了个钢镚 🪙":   "Yo tiré una moneda 🪙",
 		"你的 X 用户名":   "Tu usuario de X",

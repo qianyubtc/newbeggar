@@ -3,8 +3,9 @@ package main
 // 土耳其语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["tr"] = map[string]string{
+		"换个形象":      "Görünümü değiştir",
 		"🪙 钢镚丢进去了！": "🪙 Jeton atıldı!",
-		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Bu zavallıya bedava bir jeton attım 🪙 Sen de at, bugün karnı doysun",
+		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "Bu zavallıya bedava bir jeton attım Sen de at, bugün karnı doysun",
 		"👉 扫码，你也丢一个": "👉 Okut ve sen de at",
 		"我丢了个钢镚 🪙":   "Bir jeton attım 🪙",
 		"你的 X 用户名":   "X kullanıcı adın",

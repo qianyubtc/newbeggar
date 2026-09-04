@@ -28,6 +28,7 @@ type Site struct {
 	XName        string // X 昵称（站名锁定为它）
 	XAvatar      string // 本地缓存的头像文件名
 	XID          string // X 数字用户 ID（改名后仍能认出同一人）
+	Skin         int64  // 小人形象编号 0..7
 	Listed       bool   // 是否收录进榜单
 	Coins        int64  // 钢镚总数
 	Wishes       string // 愿望清单 JSON
@@ -241,6 +242,7 @@ var migrations = []string{
 	`ALTER TABLE sites ADD COLUMN x_name TEXT NOT NULL DEFAULT ''`,
 	`ALTER TABLE sites ADD COLUMN x_avatar TEXT NOT NULL DEFAULT ''`,
 	`ALTER TABLE sites ADD COLUMN x_id TEXT NOT NULL DEFAULT ''`,
+	`ALTER TABLE sites ADD COLUMN skin INTEGER NOT NULL DEFAULT 0`,
 	`ALTER TABLE sites ADD COLUMN listed INTEGER NOT NULL DEFAULT 1`,
 	`ALTER TABLE sites ADD COLUMN coins INTEGER NOT NULL DEFAULT 0`,
 	`ALTER TABLE sites ADD COLUMN wishes TEXT NOT NULL DEFAULT ''`,
@@ -313,14 +315,14 @@ func (s *Store) SetMeta(key, value string) error {
 
 // ---------- sites ----------
 
-const siteCols = `id, slug, name, slogan, story, avatar, x_url, x_handle, x_name, x_avatar, x_id, listed, coins, wishes, pass_hash, pay_mode, bpg_account_id, binance_uid, receive_link, pay_id, currency, created_from, status, created_at, updated_at`
+const siteCols = `id, slug, name, slogan, story, avatar, x_url, x_handle, x_name, x_avatar, x_id, skin, listed, coins, wishes, pass_hash, pay_mode, bpg_account_id, binance_uid, receive_link, pay_id, currency, created_from, status, created_at, updated_at`
 
 type scanner interface{ Scan(dest ...any) error }
 
 func scanSite(sc scanner) (*Site, error) {
 	var s Site
 	var listed int
-	err := sc.Scan(&s.ID, &s.Slug, &s.Name, &s.Slogan, &s.Story, &s.Avatar, &s.XURL, &s.XHandle, &s.XName, &s.XAvatar, &s.XID, &listed, &s.Coins, &s.Wishes,
+	err := sc.Scan(&s.ID, &s.Slug, &s.Name, &s.Slogan, &s.Story, &s.Avatar, &s.XURL, &s.XHandle, &s.XName, &s.XAvatar, &s.XID, &s.Skin, &listed, &s.Coins, &s.Wishes,
 		&s.PassHash, &s.PayMode, &s.BPGAccountID, &s.BinanceUID, &s.ReceiveLink, &s.PayID, &s.Currency, &s.CreatedFrom, &s.Status, &s.CreatedAt, &s.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -431,9 +433,9 @@ func (s *Store) CreateSite(site *Site) (int64, error) {
 	if site.Listed {
 		listed = 1
 	}
-	res, err := s.db.Exec(`INSERT INTO sites(slug,name,slogan,story,avatar,x_url,x_handle,x_name,x_avatar,x_id,listed,pass_hash,pay_mode,bpg_account_id,binance_uid,receive_link,pay_id,currency,created_from,status,created_at,updated_at)
-		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'manual','','','','',?,0,'active',?,?)`,
-		site.Slug, site.Name, site.Slogan, site.Story, site.Avatar, site.XURL, site.XHandle, site.XName, site.XAvatar, site.XID, listed, site.PassHash, site.Currency, now, now)
+	res, err := s.db.Exec(`INSERT INTO sites(slug,name,slogan,story,avatar,x_url,x_handle,x_name,x_avatar,x_id,skin,listed,pass_hash,pay_mode,bpg_account_id,binance_uid,receive_link,pay_id,currency,created_from,status,created_at,updated_at)
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,'manual','','','','',?,0,'active',?,?)`,
+		site.Slug, site.Name, site.Slogan, site.Story, site.Avatar, site.XURL, site.XHandle, site.XName, site.XAvatar, site.XID, site.Skin, listed, site.PassHash, site.Currency, now, now)
 	if err != nil {
 		if isUniqueErr(err) {
 			if strings.Contains(err.Error(), "xhandle") {
@@ -454,6 +456,12 @@ func (s *Store) UpdateSiteProfile(id int64, name, slogan, story, avatar, xURL st
 func (s *Store) UpdateSitePayment(id int64, mode, accountID, uid, link, payID string) error {
 	_, err := s.db.Exec(`UPDATE sites SET pay_mode=?, bpg_account_id=?, binance_uid=?, receive_link=?, pay_id=?, updated_at=? WHERE id=?`,
 		mode, accountID, uid, link, payID, ms(), id)
+	return err
+}
+
+// SetSiteSkin 换小人形象（站长自己点「换个形象」）。
+func (s *Store) SetSiteSkin(id, skin int64) error {
+	_, err := s.db.Exec(`UPDATE sites SET skin=?, updated_at=? WHERE id=?`, skin, ms(), id)
 	return err
 }
 

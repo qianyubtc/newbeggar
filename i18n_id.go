@@ -3,8 +3,9 @@ package main
 // 印尼语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["id"] = map[string]string{
+		"换个形象":      "Ganti tampilan",
 		"🪙 钢镚丢进去了！": "🪙 Koin dilempar!",
-		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Aku baru lempar koin gratis buat orang malang ini 🪙 Kamu juga dong, biar dia makan hari ini",
+		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "Aku baru lempar koin gratis buat orang malang ini Kamu juga dong, biar dia makan hari ini",
 		"👉 扫码，你也丢一个": "👉 Pindai dan lempar satu juga",
 		"我丢了个钢镚 🪙":   "Aku lempar koin 🪙",
 		"你的 X 用户名":   "Nama pengguna X kamu",

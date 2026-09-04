@@ -3,8 +3,9 @@ package main
 // 法语：key 是中文原文，占位符 %s/%d 顺序须与中文一致。查不到回落英文。
 func init() {
 	translations["fr"] = map[string]string{
+		"换个形象":      "Changer de look",
 		"🪙 钢镚丢进去了！": "🪙 Pièce lancée !",
-		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Je viens de lancer une pièce gratuite à ce pauvre 🪙 Lance-en une aussi, qu'il mange aujourd'hui",
+		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "Je viens de lancer une pièce gratuite à ce pauvre Lance-en une aussi, qu'il mange aujourd'hui",
 		"👉 扫码，你也丢一个": "👉 Scanne et lance la tienne",
 		"我丢了个钢镚 🪙":   "J'ai lancé une pièce 🪙",
 		"你的 X 用户名":   "Ton pseudo X",

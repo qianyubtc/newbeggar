@@ -6,7 +6,10 @@
   {{if not .Site.Listed}}<div class="notice">{{T "🕵️ 这个站还没被丐帮收录，暂不进榜。"}}{{if and .Me (eq .Me.ID .Site.ID)}}{{T "主站站长审核后会收录。"}}{{end}}</div>{{end}}
   <section class="card px" id="topcard">
     <div class="char-top">
-      <div class="sprite-wrap">{{template "sprite"}}</div>
+      <div class="sprite-col">
+        <div class="sprite-wrap" id="spriteWrap">{{template "skin" .Site.Skin}}</div>
+        {{if and .Me (eq .Me.ID .Site.ID)}}<button class="skinbtn" type="button" id="skinBtn" title="{{T "换个形象"}}">🎭 {{T "换个形象"}}</button>{{end}}
+      </div>
       <div class="char-info">
         <div class="lvrow"><span class="lv">Lv.{{$lv.Lv}}<b>{{$lv.Title}}</b></span>{{if .SectTitle}}<span class="lv gold">{{T .SectTitle}}{{if .Position}} {{T "· 榜 #"}}{{.Position}}{{end}}</span>{{end}}</div>
         <h1 class="pname">{{if .Site.AvatarURL}}<img class="xavatar" src="{{.Site.AvatarURL}}" alt="">{{else}}{{.Site.Avatar}} {{end}}{{.Site.Name}}</h1>
@@ -14,8 +17,10 @@
         <div class="bar xp"><span style="width:{{$lv.Pct}}%"></span></div>
         <div class="barlabel">{{T "饱食度"}} <b>{{satiety .Stats.TodayE8}}%</b><span>{{if eq (satiety .Stats.TodayE8) 0}}{{T "今天还没吃饭"}}{{else}}{{T "今天有人投币了"}}{{end}}</span></div>
         <div class="bar hp"><span style="width:{{satiety .Stats.TodayE8}}%"></span></div>
-        {{if .Site.XLabel}}<a class="xpill" href="https://x.com/{{.Site.XLabel}}" target="_blank" rel="noopener">𝕏 @{{.Site.XLabel}}</a>{{end}}
-        <button class="xpill sharebtn" type="button" id="shareBtn" title="{{T "分享这个碗"}}">{{template "shareicon"}}<span>{{T "分享"}}</span></button>
+        <div class="pillrow">
+          {{if .Site.XLabel}}<a class="xpill" href="https://x.com/{{.Site.XLabel}}" target="_blank" rel="noopener">𝕏 <span>@{{.Site.XLabel}}</span></a>{{end}}
+          <button class="xpill sharebtn" type="button" id="shareBtn" title="{{T "分享这个碗"}}">{{template "shareicon"}}<span>{{T "分享"}}</span></button>
+        </div>
       </div>
     </div>
     {{if .Site.Slogan}}<div class="dialog"><span class="typer" data-text="{{.Site.Slogan}}">{{.Site.Slogan}}</span><span class="cursor">▼</span></div>{{end}}
@@ -113,6 +118,7 @@
 </div>
 {{if .Ready}}<div class="fab" id="fab"><a class="btn" href="#donate" id="fabBtn">{{T "💸 投币施舍"}}</a></div>{{end}}
 <div id="toast" class="toast" hidden></div>
+{{if and .Me (eq .Me.ID .Site.ID)}}<div id="skinPool" hidden aria-hidden="true">{{range $i := .Skins}}<span data-skin="{{$i}}">{{template "skin" $i}}</span>{{end}}</div>{{end}}
 <div id="shareBox" hidden>
   <h2 id="shareTitle">{{T "🖼 分享这个碗"}}</h2>
   <div class="kv" style="margin-top:10px"><span class="k">{{T "链接"}}</span><span class="v"><span class="code">{{.ShareURL}}</span><button type="button" class="copy" data-copy="{{.ShareURL}}">{{T "复制"}}</button></span></div>
@@ -120,7 +126,8 @@
   <div class="btns"><button class="btn" type="button" id="posterBtn">{{T "生成海报"}}</button></div>
   <div class="sharebox" id="posterBox" hidden style="margin-top:12px">
     <img id="posterImg" alt="{{T "分享海报"}}">
-    <div class="hint">{{T "长按图片保存，或"}} <a id="posterDl" download="beggar-poster.png">{{T "下载"}}</a></div>
+    <div class="btns"><a class="btn sec" id="posterDl" download="beggar-poster.png">{{T "💾 保存海报"}}</a></div>
+    <div class="hint center">{{T "手机上也可以长按图片保存"}}</div>
   </div>
 </div>
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="modal-box"><button class="modal-x" type="button" id="modalX" aria-label="{{T "关闭"}}">✕</button><div id="modalForm" hidden></div><div id="modalBody" hidden></div></div></div>
@@ -186,6 +193,14 @@
   var db=document.getElementById('donateBtn'),fb=document.getElementById('fabBtn');if(db)db.addEventListener('click',openDonate);if(fb)fb.addEventListener('click',openDonate);
   if(location.hash==='#donate')openDonate();
   document.getElementById('modalX').addEventListener('click',closeModal);
+  // 站长换形象：随机换一个并保存，前端直接替换 SVG
+  (function(){var kb=document.getElementById('skinBtn'),wrap=document.getElementById('spriteWrap'),pool=document.getElementById('skinPool');if(!kb||!wrap||!pool)return;
+    kb.addEventListener('click',function(){kb.disabled=true;
+      fetch('/skin',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
+        if(j.ok){var el=pool.querySelector('[data-skin="'+j.skin+'"] svg');
+          if(el){wrap.innerHTML=el.outerHTML;wrap.classList.add('jump');setTimeout(function(){wrap.classList.remove('jump')},900)}
+          if(window.sfx)sfx.click()}
+        kb.disabled=false}).catch(function(){kb.disabled=false})})})();
   // 分享：弹窗里复制链接 + 生成像素海报
   (function(){var sb=document.getElementById('shareBtn'),box=document.getElementById('shareBox');if(!sb||!box)return;
     var mode='site',ttl=document.getElementById('shareTitle');
@@ -202,8 +217,8 @@
       t:{ bowl:{{T "碗里已有"}}, donors:{{T "施主"}}, people:{{T "人"}}, coins:{{T "钢镚"}}, today:{{T "今日"}}, exp:"EXP", sat:{{T "饱食度"}},
           beg:{{T "大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏"}},
           scan:{{T "👉 扫码，一毛也是爱"}},
-          begCoin:{{T "我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃"}},
-          scanCoin:{{T "👉 扫码，你也丢一个"}}, coinStamp:{{T "我丢了个钢镚 🪙"}}, tag:{{T "#赛博丐帮"}}, foot:{{T "发条推就能开自己的碗"}} }};
+          begCoin:{{T "我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃"}},
+          scanCoin:{{T "👉 扫码，你也丢一个"}}, coinStamp:{{T "我给他丢了个钢镚"}}, tag:{{T "#赛博丐帮"}}, foot:{{T "发条推就能开自己的碗"}} }};
     pb.addEventListener('click',function(){pb.disabled=true;var oldT=pb.textContent;pb.textContent='…';
       var coinEl=document.querySelector('.coinrow .px-coin')||document.querySelector('.px-coin');
       var need=1+(D.qr?1:0)+(D.avatar?1:0)+(coinEl?1:0),n=0,sp=new Image(),qr=new Image(),av=new Image(),ci=new Image();
@@ -223,12 +238,19 @@
         if(line)out.push(line);out.slice(0,max||3).forEach(function(l,i){c.fillText(l,x,y+i*lh)});return Math.min(out.length,max||3)}
       function chip(c,t,bg,fg,x,y){c.font='18px Pixel, sans-serif';var w=c.measureText(t).width+22;px(c,x,y,w,32,'#1e1e2e');px(c,x+3,y+3,w-6,26,bg);
         c.fillStyle=fg;c.textBaseline='middle';c.fillText(t,x+11,y+16);c.textBaseline='top';return w}
-      function draw(){var W=640,H=1000,cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
+      function draw(){var W=640,coin=mode==='coin',dy=coin?76:0,H=1000+dy,cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
         (document.fonts&&document.fonts.load?document.fonts.load('24px Pixel'):Promise.resolve()).then(function(){
           var PF='Pixel, sans-serif',UI='-apple-system, PingFang SC, sans-serif';
           px(c,0,0,W,H,'#f4eedd');for(var y=0;y<H;y+=32)for(var x=(y/32%2)*16;x<W;x+=32)px(c,x,y,16,16,'#e9e1ca');
           px(c,0,0,W,60,'#1e1e2e');c.fillStyle='#ffcc00';c.font='26px '+PF;c.textBaseline='middle';c.textAlign='center';
           c.fillText('🥣 '+fit(c,D.title,W-120,26,PF),W/2,31);c.textAlign='left';c.textBaseline='top';
+          if(coin){ // 大横幅：我给他丢了个钢镚
+            px(c,32,84,W-64,64,'#1e1e2e');px(c,36,88,W-72,56,'#ffcc00');
+            c.textBaseline='middle';c.textAlign='center';c.font='30px '+PF;c.fillStyle='#1e1e2e';
+            var st=fit(c,D.t.coinStamp,W-160,30,PF),stw=c.measureText(st).width;
+            if(ci.complete&&ci.naturalWidth)c.drawImage(ci,W/2-stw/2-42,116-15,30,30);
+            c.fillText(st,W/2+18,117);c.textAlign='left';c.textBaseline='top'}
+          c.save();if(coin)c.translate(0,dy);
           // 角色卡（照搬站点页）
           frame(c,32,92,W-64,436);
           if(sp.complete&&sp.naturalWidth)c.drawImage(sp,52,112,150,206);
@@ -257,9 +279,6 @@
             px(c,52,424,W-104,72,'#1e1e2e');px(c,56,428,W-112,64,'#fff');
             c.fillStyle='#1e1e2e';c.textBaseline='middle';c.fillText(fit(c,D.slogan,W-180,24,UI),76,460);
             c.font='16px '+PF;c.fillStyle='#4a4954';c.fillText('▼',W-84,464);c.textBaseline='top'}
-          if(mode==='coin'){c.font='17px '+PF;var st=D.t.coinStamp,sw2=c.measureText(st).width+24;
-            px(c,W-56-sw2,96,sw2,36,'#1e1e2e');px(c,W-53-sw2,99,sw2-6,30,'#ffcc00');
-            c.fillStyle='#1e1e2e';c.textBaseline='middle';c.fillText(st,W-44-sw2,114);c.textBaseline='top'}
           // 碗（金色）+ 右侧两个小格
           px(c,32,548,W-64,118,'#1e1e2e');px(c,36,552,W-72,110,'#ffcc00');
           c.fillStyle='#1e1e2e';c.font='16px '+PF;c.fillText(D.t.bowl,56,566);
@@ -284,6 +303,7 @@
           c.fillText(fit(c,D.url.replace(/^https?:\/\//,''),W-140,17,PF),70,899);c.textBaseline='top';
           c.fillStyle='#4a4954';c.font='16px '+PF;
           c.fillText(D.t.tag+'  ·  '+D.t.foot,32,962);
+          c.restore();
           var u=cv.toDataURL('image/png');document.getElementById('posterImg').src=u;document.getElementById('posterDl').href=u;
           document.getElementById('posterBox').hidden=false;pb.textContent=oldT;pb.disabled=false;
         })}

@@ -18,7 +18,7 @@
   <h2>{{T "🖼 分享卡片"}}</h2>
   <p class="hint" style="margin:0 0 10px">{{T "生成一张像素分享图，发到 X 或朋友圈，顺便帮乞丐吆喝。"}}</p>
   <button class="btn sec" type="button" id="shareBtn">{{T "生成分享卡"}}</button>
-  <div class="sharebox" id="sharebox" hidden><img id="shareImg" alt="{{T "分享卡"}}"><div class="hint">{{T "长按图片保存，或"}} <a id="shareDl" download="beggar-card.png">{{T "下载"}}</a></div></div>
+  <div class="sharebox" id="sharebox" hidden><img id="shareImg" alt="{{T "分享卡"}}"><div class="btns"><a class="btn sec" id="shareDl" download="beggar-card.png">{{T "💾 保存图片"}}</a></div><div class="hint center">{{T "手机上也可以长按图片保存"}}</div></div>
 </section>
 {{if .SubsitesEnabled}}
 <section class="card px center" style="margin-top:16px">

@@ -29,13 +29,14 @@ type sitePage struct {
 	MyCoins                                                             int64
 	CoinsPerDay                                                         int64
 	Ready                                                               bool
-	Exp                                                                 int64  // 钱 + 钢镚折算，袋位按它算
-	Position                                                            int    // 综合名次
-	SectTitle                                                           string // 丐帮职位
-	CoinExp                                                             int64  // 一个钢镚 = 多少 EXP
-	MoneyExp                                                            int64  // 1 U = 多少 EXP
-	ShareURL                                                            string // 本站完整地址（复制/海报用）
-	QR                                                                  string // 本站地址二维码（base64 PNG，海报用）
+	Exp                                                                 int64   // 钱 + 钢镚折算，袋位按它算
+	Position                                                            int     // 综合名次
+	SectTitle                                                           string  // 丐帮职位
+	CoinExp                                                             int64   // 一个钢镚 = 多少 EXP
+	MoneyExp                                                            int64   // 1 U = 多少 EXP
+	ShareURL                                                            string  // 本站完整地址（复制/海报用）
+	QR                                                                  string  // 本站地址二维码（base64 PNG，海报用）
+	Skins                                                               []int64 // 可选形象编号（站长换形象用）
 	Err                                                                 string
 	Nick                                                                string
 	XHandle                                                             string
@@ -137,6 +138,9 @@ func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, sit
 		} else {
 			a.ensureXProfile(site.XHandle) // 后台补抓，下次刷新就有
 		}
+	}
+	for i := int64(0); i < skinCount; i++ {
+		p.Skins = append(p.Skins, i)
 	}
 	p.ShareURL = a.cfg.BaseURL + site.Path()
 	if png, err := qrcode.Encode(p.ShareURL, qrcode.Medium, 300); err == nil {
