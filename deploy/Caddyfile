@@ -1,0 +1,6 @@
+# Caddy 反代片段：追加到 /etc/caddy/Caddyfile 后 sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
+beggar.example.com {
+    reverse_proxy 127.0.0.1:8124
+    encode gzip
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+}

@@ -1,0 +1,42 @@
+{{define "title"}}排行榜 · {{.SiteTitle}}{{end}}
+{{define "content"}}
+<div class="layout cols2">
+  <section class="card px">
+    <h2>🏆 全站施主榜 <span class="sub">HIGH SCORE · 所有要饭站加起来</span></h2>
+    <div class="toggle" data-for="donors"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+    <div class="wk donors-all">{{template "gdonorlist" .Donors}}</div>
+    <div class="wk donors-week" hidden>{{template "gdonorlist" .DonorsWeek}}</div>
+  </section>
+  <div style="display:grid;gap:18px">
+  <section class="card px">
+    <h2>🥣 乞丐榜 <span class="sub">要到最多的要饭站</span></h2>
+    <div class="toggle" data-for="beggars"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+    <div class="wk beggars-all">{{template "gsitelist" (dict "Rows" .Sites "By" "amount" "Me" .MeID)}}</div>
+    <div class="wk beggars-week" hidden>{{template "gsitelist" (dict "Rows" .SitesWeek "By" "amount" "Me" .MeID)}}</div>
+  </section>
+  <section class="card px">
+    <h2>🪙 人气榜 <span class="sub">收到钢镚最多（免费投）</span></h2>
+    {{template "gsitelist" (dict "Rows" .Popular "By" "coins" "Me" .MeID)}}
+  </section>
+  </div>
+</div>
+{{end}}
+{{define "gdonorlist"}}{{if .}}<ul class="list">
+  {{range $i, $r := .}}<li class="item">
+    <div class="rank{{if lt $i 3}} m{{end}}">{{rankBadge $i}}</div>
+    {{$h := handleOf $r.NickKey}}{{$f := xav $h}}{{if $f}}<img class="av img" src="/a/{{$f}}" alt="">{{else}}<div class="av" style="--h:{{hue $r.NickKey}}">{{initial $r.Nickname}}</div>{{end}}
+    <div class="body"><div class="name"><span>{{$r.Nickname}}</span>{{if $h}}<span class="xh" title="施主自己填的 X，未经验证">@{{$h}}</span>{{end}}</div><div class="sub">{{donorTier $r.TotalE8}} · {{$r.Count}} 次 · 施舍过 {{$r.Sites}} 个乞丐</div></div>
+    <div class="amtv num accent">{{fmtAmt $r.TotalE8}}</div>
+  </li>{{end}}
+</ul>{{else}}<div class="empty"><div class="ico">👑</div>榜上无人</div>{{end}}{{end}}
+{{define "gsitelist"}}{{if .Rows}}<ul class="list">
+  {{range $i, $s := .Rows}}<li class="item">
+    <div class="rank{{if lt $i 3}} m{{end}}">{{rankBadge $i}}</div>
+    {{if $s.AvatarURL}}<img class="av img" src="{{$s.AvatarURL}}" alt="">{{else}}<div class="av sq">{{$s.Avatar}}</div>{{end}}
+    <div class="body"><div class="name"><span><a href="{{$s.Path}}">{{$s.Name}}</a></span>{{if eq $s.ID $.Me}}<span class="me">就是我</span>{{end}}</div><div class="sub">{{if $s.Title}}{{$s.Title}} · {{end}}{{(level $s.Exp).Title}} · {{$s.Donors}} 位施主 · 钢镚 {{$s.Coins}}</div></div>
+    <div class="amtv num{{if ne $.By "coins"}} accent{{end}}">{{if eq $.By "coins"}}🪙 {{$s.Coins}}{{else}}{{fmtAmt $s.TotalE8}}{{end}}</div>
+  </li>{{end}}
+</ul>{{else}}<div class="empty"><div class="ico">🏚</div>还没有人上榜</div>{{end}}{{end}}
+{{define "scripts"}}<script>
+document.querySelectorAll('.toggle').forEach(function(tg){var k=tg.dataset.for;tg.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){tg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelector('.'+k+'-all').hidden=b.dataset.w!=='all';document.querySelector('.'+k+'-week').hidden=b.dataset.w!=='week'})})});
+</script>{{end}}

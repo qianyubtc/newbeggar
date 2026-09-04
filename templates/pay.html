@@ -1,0 +1,10 @@
+{{define "title"}}给 {{.Site.Name}} 施舍 {{.D.Amount}} {{.D.Currency}} · {{.SiteTitle}}{{end}}
+{{define "content"}}
+<div class="narrow">
+<section class="card px">
+  {{if .Err}}<div class="notice bad" style="margin-bottom:12px">{{.Err}}</div>{{end}}
+  {{template "paypanel" .Panel}}
+  <div class="hint center" style="margin-top:12px"><a href="{{.Site.Path}}">先回去看看</a></div>
+</section>
+</div>
+{{end}}

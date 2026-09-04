@@ -1,0 +1,15 @@
+# 私有配置与数据
+config.env
+*.db
+*.db-wal
+*.db-shm
+# 构建产物
+/beggar
+/beggar-linux-amd64
+/dist/
+# 本机工具链 / 编辑器
+.toolchain/
+.claude/
+.DS_Store
+# 背景音乐（可选，自备 AAC 循环片段；仓库不附带）
+/static/bgm.m4a

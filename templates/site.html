@@ -1,0 +1,182 @@
+{{define "title"}}{{.Site.Name}} 在要饭 · {{.SiteTitle}}{{end}}
+{{define "content"}}
+{{$lv := level .Exp}}
+<div class="layout">
+<aside class="col-l">
+  {{if not .Site.Listed}}<div class="notice">🕵️ 这个站还没被丐帮收录，暂不进榜。{{if and .Me (eq .Me.ID .Site.ID)}}主站站长审核后会收录。{{end}}</div>{{end}}
+  <section class="card px" id="topcard">
+    <div class="char-top">
+      <div class="sprite-wrap">{{template "sprite"}}</div>
+      <div class="char-info">
+        <div class="lvrow"><span class="lv">Lv.{{$lv.Lv}}<b>{{$lv.Title}}</b></span>{{if .SectTitle}}<span class="lv gold">{{.SectTitle}}{{if .Position}} · 榜 #{{.Position}}{{end}}</span>{{end}}</div>
+        <h1 class="pname">{{if .Site.AvatarURL}}<img class="xavatar" src="{{.Site.AvatarURL}}" alt="">{{else}}{{.Site.Avatar}} {{end}}{{.Site.Name}}</h1>
+        <div class="barlabel">EXP <b>{{.Exp}}</b>{{if $lv.Next}}<span>升{{$lv.NextT}}要 {{$lv.Next}}</span>{{else}}<span>满级</span>{{end}}</div>
+        <div class="bar xp"><span style="width:{{$lv.Pct}}%"></span></div>
+        <div class="barlabel">饱食度 <b>{{satiety .Stats.TodayE8}}%</b><span>{{if eq (satiety .Stats.TodayE8) 0}}今天还没吃饭{{else}}今天有人投币了{{end}}</span></div>
+        <div class="bar hp"><span style="width:{{satiety .Stats.TodayE8}}%"></span></div>
+        {{if .Site.XLabel}}<a class="xpill" href="https://x.com/{{.Site.XLabel}}" target="_blank" rel="noopener">𝕏 @{{.Site.XLabel}}</a>{{end}}
+      </div>
+    </div>
+    {{if .Site.Slogan}}<div class="dialog"><span class="typer" data-text="{{.Site.Slogan}}">{{.Site.Slogan}}</span><span class="cursor">▼</span></div>{{end}}
+    <div class="coinrow">
+      <button type="button" class="btn sec sm coinbtn" id="coinbtn" data-site="{{.Site.Slug}}" {{if ge .MyCoins .CoinsPerDay}}disabled{{end}}>{{template "coin"}}<span id="coinTxt">{{if ge .MyCoins .CoinsPerDay}}今天丢过了{{else}}丢个钢镚（免费）{{end}}</span></button>
+      {{if .Ready}}<a class="btn sm" id="donateBtn" href="#donate">💸 投币施舍</a>{{else}}<span class="hint" style="margin:0">还没摆碗，暂不能投币{{if and .Me (eq .Me.ID .Site.ID)}}，<a href="/manage#payment">去配置</a>{{end}}</span>{{end}}
+    </div>
+    <div class="coins hint" style="margin-top:8px">钢镚 <b class="pf coinN">{{.Coins}}</b> · 今日 <b id="coinT" class="pf">{{.CoinsToday}}</b> · 每 0.1 U = {{.MoneyExp | div10}} EXP · 每个钢镚 = {{.CoinExp}} EXP</div>
+  </section>
+
+  <section class="stats">
+    <div class="stat main px">{{template "bowlicon"}}<div style="min-width:0"><div class="k">碗里已有</div><div class="v num bowlv"><span>{{fmtAmt .Stats.TotalE8}}<small>{{.Site.Currency}}</small></span><span class="bowlcoins">{{template "coin"}}<b class="coinN">{{.Coins}}</b><small>钢镚</small></span></div></div></div>
+    <div class="stat px"><div class="k">施主</div><div class="v num">{{.Stats.Donors}}<small>人</small></div></div>
+    <div class="stat px"><div class="k">今日进账</div><div class="v num">+{{fmtAmt .Stats.TodayE8}}</div></div>
+  </section>
+
+  <section class="card px donate-card" id="donate">
+    <h2>🕹️ 投币施舍</h2>
+    {{if .Ready}}
+    <div class="insert blink">▶ INSERT COIN ◀</div>
+    <form method="post" action="/donate" id="f">
+      <input type="hidden" name="site" value="{{.Site.Slug}}">
+      <div class="grid2">
+        <div><label for="nick">玩家名（上榜用，可留空）</label><input id="nick" name="nickname" maxlength="20" placeholder="匿名施主" value="{{.Nick}}" autocomplete="nickname"></div>
+        <div><label for="xh">你的 X（可选，显示头像）</label><input id="xh" name="x_handle" maxlength="16" placeholder="@name" value="{{.XHandle}}" autocapitalize="off"></div>
+      </div>
+      <label>投多少 {{.Site.Currency}}</label>
+      <div class="amounts" id="amounts">
+        {{range .Presets}}<button type="button" class="amt-btn" data-v="{{.}}">{{template "coin"}}{{.}}</button>{{end}}
+        <button type="button" class="amt-btn" data-v="">✏️ 自定义</button>
+      </div>
+      <input name="amount" id="amount" inputmode="decimal" autocomplete="off" placeholder="输入金额，最多两位小数" value="{{.Amount}}" required style="margin-top:10px">
+      <label for="msg">对乞丐喊话 <span class="count" id="cnt">0/80</span></label>
+      <textarea id="msg" name="message" maxlength="80" rows="2" placeholder="例如：别买烟了，去吃饭">{{.Message}}</textarea>
+      {{if .Err}}<div class="err">{{.Err}}</div>{{end}}
+      <button class="btn" type="submit" id="cta" style="margin-top:16px">投币 💸</button>
+      <div class="hint" style="margin-top:10px">{{if eq .Site.PayMode "gateway"}}币安 App 扫码 / 一键唤起支付，到账后自动刻上功德簿。{{else}}通过币安 Pay 直接转给站长，提交后由站长确认上榜。{{end}}最少 {{.MinAmount}}，最多 {{.MaxAmount}}。留言里不能放链接和联系方式。</div>
+    </form>
+    {{else}}
+    <div class="notice">这位乞丐还没摆碗（未配置收款方式），暂时收不了钱。{{if and .Me (eq .Me.ID .Site.ID)}}<a href="/manage#payment">去后台配置 →</a>{{end}}</div>
+    {{end}}
+  </section>
+</aside>
+
+<main class="col-r">
+  <section class="card px">
+    <div class="tabs four" role="tablist">
+      <button class="tab on" type="button" role="tab" id="t-popular" aria-controls="p-popular" aria-selected="true" data-t="popular">人气榜</button>
+      <button class="tab" type="button" role="tab" id="t-feed" aria-controls="p-feed" aria-selected="false" data-t="feed">功德簿</button>
+      <button class="tab" type="button" role="tab" id="t-donors" aria-controls="p-donors" aria-selected="false" data-t="donors">施主榜</button>
+      <button class="tab" type="button" role="tab" id="t-beggars" aria-controls="p-beggars" aria-selected="false" data-t="beggars">乞丐榜</button>
+    </div>
+    <div class="panel" id="p-feed" role="tabpanel" aria-labelledby="t-feed">
+      {{if .Feed}}<ul class="list feed">
+        {{range .Feed}}<li class="item">
+          {{template "avatar" .}}
+          <div class="body"><div class="name"><span>{{if .Blocked}}已屏蔽的施主{{else}}{{.Nickname}}{{end}}</span>{{if and .XHandle (not .Blocked)}}<span class="xh" title="施主自己填的 X，未经验证">@{{.XHandle}}</span>{{end}}</div><div class="sub">{{ago .PaidAt}} 投币</div></div>
+          <div class="amtv num accent">+{{fmtAmt .ActualE8}}</div>
+          {{if .Blocked}}{{else if .MsgBlocked}}<div class="bubble blocked">***</div>{{else if .Message}}<div class="bubble">{{.Message}}</div>{{end}}
+          {{if and .Reply (not .Blocked)}}<div class="bubble reply">🥣 站长：{{.Reply}}</div>{{end}}
+        </li>{{end}}
+      </ul>{{else}}<div class="empty"><div class="ico">📜</div>功德簿空空如也，第一枚硬币会刻在这里</div>{{end}}
+    </div>
+    <div class="panel" id="p-donors" role="tabpanel" aria-labelledby="t-donors">
+      <div class="toggle" data-for="donors"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+      <div class="hint" style="margin:-4px 0 8px">HIGH SCORE · 给 {{.Site.Name}} 投币最多的人 · 🏁 首位施主 💎 单笔最大 🔥 常客</div>
+      <div class="wk donors-all">{{template "donorlist" (dict "Rows" .Rank "Badges" .Badges)}}</div>
+      <div class="wk donors-week" hidden>{{template "donorlist" (dict "Rows" .RankWeek "Badges" .Badges)}}</div>
+    </div>
+    <div class="panel" id="p-beggars" role="tabpanel" aria-labelledby="t-beggars">
+      <div class="toggle" data-for="beggars"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+      <div class="hint" style="margin:-4px 0 8px">丐帮排名 · 要到最多的要饭站</div>
+      <div class="wk beggars-all">{{template "sitelist" (dict "Rows" .Subsites "Me" .MeID "Here" .Site.ID "By" "amount")}}</div>
+      <div class="wk beggars-week" hidden>{{template "sitelist" (dict "Rows" .SubsitesWeek "Me" .MeID "Here" .Site.ID "By" "amount")}}</div>
+    </div>
+    <div class="panel on" id="p-popular" role="tabpanel" aria-labelledby="t-popular">
+      <div class="hint" style="margin:-4px 0 8px">人气榜 · 收到钢镚最多的要饭站（钢镚免费，不用花钱）</div>
+      {{template "sitelist" (dict "Rows" .Popular "Me" .MeID "Here" .Site.ID "By" "coins")}}
+    </div>
+  </section>
+  {{if and .SubsitesEnabled (not .Me)}}
+  <section class="card px cta">
+    <h2 style="justify-content:center">🏚 想自己要饭？</h2>
+    <p>用 X 账号发一条推就能开自己的要饭站：独立地址、自己的碗、功德簿和施主榜，钱直接进你的币安账户。</p>
+    <a class="btn sec" href="/new">用 X 开通我的要饭站 →</a>
+  </section>
+  {{end}}
+</main>
+</div>
+{{if .Ready}}<div class="fab" id="fab"><a class="btn" href="#donate" id="fabBtn">💸 投币施舍</a></div>{{end}}
+<div id="toast" class="toast" hidden></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="modal-box"><button class="modal-x" type="button" id="modalX" aria-label="关闭">✕</button><div id="modalForm" hidden></div><div id="modalBody" hidden></div></div></div>
+{{end}}
+{{define "avatar"}}{{$f := xav .XHandle}}{{if and $f (not .Blocked)}}<img class="av img" src="/a/{{$f}}" alt="">{{else}}<div class="av" style="--h:{{hue .NickKey}}">{{if .Blocked}}✕{{else}}{{initial .Nickname}}{{end}}</div>{{end}}{{end}}
+{{define "donorlist"}}{{if .Rows}}<ul class="list">
+  {{range $i, $r := .Rows}}<li class="item">
+    <div class="rank{{if lt $i 3}} m{{end}}">{{rankBadge $i}}</div>
+    {{$h := handleOf $r.NickKey}}{{$f := xav $h}}{{if $f}}<img class="av img" src="/a/{{$f}}" alt="">{{else}}<div class="av" style="--h:{{hue $r.NickKey}}">{{initial $r.Nickname}}</div>{{end}}
+    <div class="body"><div class="name"><span>{{$r.Nickname}}</span>{{if $h}}<span class="xh" title="施主自己填的 X，未经验证">@{{$h}}</span>{{end}}{{with index $.Badges $r.NickKey}}<span class="badge">{{.}}</span>{{end}}</div><div class="sub">{{donorTier $r.TotalE8}} · {{$r.Count}} 次</div></div>
+    <div class="amtv num accent">{{fmtAmt $r.TotalE8}}</div>
+  </li>{{end}}
+</ul>{{else}}<div class="empty"><div class="ico">👑</div>榜上无人，第一个投币的就是首席施主</div>{{end}}{{end}}
+{{define "sitelist"}}{{if .Rows}}<ul class="list">
+  {{range $i, $s := .Rows}}<li class="item">
+    <div class="rank{{if lt $i 3}} m{{end}}">{{rankBadge $i}}</div>
+    {{if $s.AvatarURL}}<img class="av img" src="{{$s.AvatarURL}}" alt="">{{else}}<div class="av sq">{{$s.Avatar}}</div>{{end}}
+    <div class="body"><div class="name"><span><a href="{{$s.Path}}">{{$s.Name}}</a></span>{{if eq $s.ID $.Me}}<span class="me">就是我</span>{{else if eq $s.ID $.Here}}<span class="me here">本站</span>{{end}}</div><div class="sub">{{if $s.Title}}{{$s.Title}} · {{end}}{{(level $s.Exp).Title}} · {{$s.Donors}} 位施主 · 钢镚 {{$s.Coins}}</div></div>
+    <div class="amtv num{{if ne $.By "coins"}} accent{{end}}">{{if eq $.By "coins"}}🪙 {{$s.Coins}}{{else}}{{fmtAmt $s.TotalE8}}{{end}}</div>
+  </li>{{end}}
+</ul>{{else}}<div class="empty"><div class="ico">🏚</div>还没有人上榜</div>{{end}}{{end}}
+{{define "scripts"}}<script>
+(function(){
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  function show(t){tabs.forEach(function(x){var on=x.dataset.t===t;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false')});panels.forEach(function(p){p.classList.toggle('on',p.id==='p-'+t)})}
+  tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.t);try{history.replaceState(null,'','#'+t.dataset.t)}catch(e){}})});
+  var h=location.hash.replace('#','');if(['donors','beggars','feed','popular'].indexOf(h)>=0)show(h);
+  document.querySelectorAll('.toggle').forEach(function(tg){var k=tg.dataset.for;tg.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){tg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelector('.'+k+'-all').hidden=b.dataset.w!=='all';document.querySelector('.'+k+'-week').hidden=b.dataset.w!=='week'})})});
+
+  var ty=document.querySelector('.typer');
+  if(ty&&!matchMedia('(prefers-reduced-motion: reduce)').matches){var full=ty.dataset.text,i=0;ty.textContent='';(function step(){ty.textContent=full.slice(0,++i);if(i<full.length)setTimeout(step,55)})()}
+
+  var toast=document.getElementById('toast'),tt;
+  function say(m){toast.textContent=m;toast.hidden=false;clearTimeout(tt);tt=setTimeout(function(){toast.hidden=true},2200)}
+  var cb=document.getElementById('coinbtn');
+  if(cb){cb.addEventListener('click',function(){cb.disabled=true;var fd=new FormData();fd.append('site',cb.dataset.site);
+    fetch('/coin',{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(j){
+      if(j.ok&&j.added){document.querySelectorAll('.coinN').forEach(function(el){el.textContent=j.total});document.getElementById('coinT').textContent=j.today;
+        var c=document.createElement('div');c.className='flycoin';c.textContent='🪙';var r=cb.getBoundingClientRect();c.style.left=(r.left+r.width/2)+'px';c.style.top=r.top+'px';document.body.appendChild(c);setTimeout(function(){c.remove()},900);
+        var sw=document.querySelector('.char-top .sprite-wrap');if(sw){sw.classList.add('jump');setTimeout(function(){sw.classList.remove('jump')},900)}
+        if(window.sfx)sfx.coin();say('叮！钢镚 +1');if(j.mine>=j.per_day){document.getElementById('coinTxt').textContent='今天丢过了'}else{cb.disabled=false}}
+      else{if(window.sfx)sfx.fail();say(j.msg||'没丢进去');if(j.mine>=j.per_day){document.getElementById('coinTxt').textContent='今天丢过了'}else{cb.disabled=false}}
+    }).catch(function(){if(window.sfx)sfx.fail();say('网络开小差了');cb.disabled=false})})}
+
+  var f=document.getElementById('f');if(!f)return;
+  var btns=f.querySelectorAll('.amt-btn'),amt=document.getElementById('amount'),cta=document.getElementById('cta'),msg=document.getElementById('msg'),cnt=document.getElementById('cnt');
+  var cur={{.Site.Currency}};
+  function sel(b){btns.forEach(function(x){x.classList.remove('on')});if(b)b.classList.add('on')}
+  function custom(){return f.querySelector('.amt-btn[data-v=""]')}
+  function label(){cta.textContent=amt.value?'投币 '+amt.value+' '+cur+' 💸':'投币 💸'}
+  function sync(){var hit=null;btns.forEach(function(b){if(b.dataset.v&&b.dataset.v===amt.value)hit=b});sel(hit||(amt.value?custom():null));amt.style.display=(hit&&hit.dataset.v)?'none':'';label()}
+  btns.forEach(function(b){b.addEventListener('click',function(){if(b.dataset.v){amt.value=b.dataset.v;sync()}else{amt.value='';sel(b);amt.style.display='';amt.focus();label()}})});
+  amt.addEventListener('input',function(){var hit=null;btns.forEach(function(b){if(b.dataset.v&&b.dataset.v===amt.value)hit=b});sel(hit||custom());label()});
+  function count(){cnt.textContent=msg.value.length+'/80'}msg.addEventListener('input',count);count();
+  if(amt.value){sync()}else if(btns.length>1){btns[Math.min(1,btns.length-2)].click()}
+
+  // 投币：按钮打开弹窗（表单从页面移进弹窗），异步下单后同一弹窗切到付款面板，不离开本站
+  document.documentElement.classList.add('js');
+  var modal=document.getElementById('modal'),mform=document.getElementById('modalForm'),mbody=document.getElementById('modalBody'),donateSec=document.getElementById('donate'),stopPanel=null,paidDone=false;
+  function openDonate(ev){if(ev)ev.preventDefault();if(donateSec.parentNode!==mform)mform.appendChild(donateSec);mform.hidden=false;mbody.hidden=true;modal.hidden=false;var n=document.getElementById('nick');if(n&&!n.value&&!matchMedia('(max-width:899px)').matches)n.focus()}
+  function closeModal(){modal.hidden=true;if(stopPanel){stopPanel();stopPanel=null}if(paidDone){location.href=location.pathname+'#feed';location.reload()}}
+  var db=document.getElementById('donateBtn'),fb=document.getElementById('fabBtn');if(db)db.addEventListener('click',openDonate);if(fb)fb.addEventListener('click',openDonate);
+  if(location.hash==='#donate')openDonate();
+  document.getElementById('modalX').addEventListener('click',closeModal);
+  modal.addEventListener('click',function(ev){if(ev.target===modal)closeModal()});
+  f.addEventListener('submit',function(ev){if(!window.fetch)return;ev.preventDefault();var fd=new FormData(f);fd.append('ajax','1');cta.disabled=true;var old=cta.textContent;cta.textContent='下单中…';
+    var errEl=f.querySelector('.err');if(!errEl){errEl=document.createElement('div');errEl.className='err';cta.parentNode.insertBefore(errEl,cta)}errEl.textContent='';
+    fetch('/donate',{method:'POST',body:fd}).then(function(r){return r.text().then(function(t){return {ok:r.ok,text:t}})}).then(function(res){cta.disabled=false;cta.textContent=old;
+      if(!res.ok){errEl.textContent=res.text;return}
+      mbody.innerHTML=res.text;mform.hidden=true;mbody.hidden=false;modal.hidden=false;modal.querySelector('.modal-box').scrollTop=0;var pp=mbody.querySelector('.paypanel');if(pp){stopPanel=window.initPayPanel(pp,function(){paidDone=true})}
+    }).catch(function(){cta.disabled=false;cta.textContent=old;errEl.textContent='网络开小差了，再试一次'})});
+
+  var fab=document.getElementById('fab'),top=document.getElementById('topcard');
+  if(fab&&top&&'IntersectionObserver' in window){new IntersectionObserver(function(es){fab.classList.toggle('show',!es[0].isIntersecting&&es[0].boundingClientRect.top<0)},{threshold:0}).observe(top)}
+})();
+</script>{{end}}

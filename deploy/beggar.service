@@ -1,0 +1,24 @@
+# systemd 单元：sudo cp deploy/beggar.service /etc/systemd/system/ && sudo systemctl enable --now beggar
+[Unit]
+Description=newbeggar (赛博要饭)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=beggar
+Group=beggar
+WorkingDirectory=/opt/beggar
+Environment=TZ=Asia/Shanghai
+UMask=0077
+ExecStart=/opt/beggar/beggar -config /opt/beggar/config.env
+Restart=always
+RestartSec=3
+# 安全加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/beggar
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
