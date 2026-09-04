@@ -1,24 +1,30 @@
 {{define "title"}}排行榜 · {{.SiteTitle}}{{end}}
 {{define "content"}}
-<div class="layout cols2">
-  <section class="card px" id="donors">
-    <h2>🏆 全站施主榜 <span class="sub">HIGH SCORE · 所有要饭站加起来 · {{.PgDonors.Total}} 人</span></h2>
-    <div class="toggle" data-for="donors"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
-    <div class="wk donors-all">{{template "gdonorlist" (dict "Rows" .Donors "Start" .PgDonors.Offset)}}{{template "pager" .PgDonors}}</div>
-    <div class="wk donors-week" hidden>{{template "gdonorlist" (dict "Rows" .DonorsWeek "Start" .PgDonorsWeek.Offset)}}{{template "pager" .PgDonorsWeek}}</div>
+<div style="max-width:760px;margin:0 auto">
+  <section class="card px">
+    <div class="tabs" role="tablist">
+      <button class="tab on" type="button" role="tab" id="t-donors" aria-controls="p-donors" aria-selected="true" data-t="donors">🏆 施主榜</button>
+      <button class="tab" type="button" role="tab" id="t-beggars" aria-controls="p-beggars" aria-selected="false" data-t="beggars">🥣 乞丐榜</button>
+      <button class="tab" type="button" role="tab" id="t-popular" aria-controls="p-popular" aria-selected="false" data-t="popular">🪙 人气榜</button>
+    </div>
+    <div class="panel on" id="p-donors" role="tabpanel" aria-labelledby="t-donors">
+      <div class="hint" style="margin-bottom:8px">HIGH SCORE · 所有要饭站加起来 · 共 {{.PgDonors.Total}} 位施主</div>
+      <div class="toggle" data-for="donors"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+      <div class="wk donors-all">{{template "gdonorlist" (dict "Rows" .Donors "Start" .PgDonors.Offset)}}{{template "pager" .PgDonors}}</div>
+      <div class="wk donors-week" hidden>{{template "gdonorlist" (dict "Rows" .DonorsWeek "Start" .PgDonorsWeek.Offset)}}{{template "pager" .PgDonorsWeek}}</div>
+    </div>
+    <div class="panel" id="p-beggars" role="tabpanel" aria-labelledby="t-beggars">
+      <div class="hint" style="margin-bottom:8px">要到最多的要饭站 · 共 {{.PgSites.Total}} 个</div>
+      <div class="toggle" data-for="beggars"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+      <div class="wk beggars-all">{{template "gsitelist" (dict "Rows" .Sites "By" "amount" "Me" .MeID "Start" .PgSites.Offset)}}{{template "pager" .PgSites}}</div>
+      <div class="wk beggars-week" hidden>{{template "gsitelist" (dict "Rows" .SitesWeek "By" "amount" "Me" .MeID "Start" .PgSitesWeek.Offset)}}{{template "pager" .PgSitesWeek}}</div>
+    </div>
+    <div class="panel" id="p-popular" role="tabpanel" aria-labelledby="t-popular">
+      <div class="hint" style="margin-bottom:8px">收到钢镚最多（免费投）· 共 {{.PgPopular.Total}} 个</div>
+      {{template "gsitelist" (dict "Rows" .Popular "By" "coins" "Me" .MeID "Start" .PgPopular.Offset)}}{{template "pager" .PgPopular}}
+    </div>
   </section>
-  <div style="display:grid;gap:18px">
-  <section class="card px" id="beggars">
-    <h2>🥣 乞丐榜 <span class="sub">要到最多的要饭站 · {{.PgSites.Total}} 个</span></h2>
-    <div class="toggle" data-for="beggars"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
-    <div class="wk beggars-all">{{template "gsitelist" (dict "Rows" .Sites "By" "amount" "Me" .MeID "Start" .PgSites.Offset)}}{{template "pager" .PgSites}}</div>
-    <div class="wk beggars-week" hidden>{{template "gsitelist" (dict "Rows" .SitesWeek "By" "amount" "Me" .MeID "Start" .PgSitesWeek.Offset)}}{{template "pager" .PgSitesWeek}}</div>
-  </section>
-  <section class="card px" id="popular">
-    <h2>🪙 人气榜 <span class="sub">收到钢镚最多（免费投）</span></h2>
-    {{template "gsitelist" (dict "Rows" .Popular "By" "coins" "Me" .MeID "Start" .PgPopular.Offset)}}{{template "pager" .PgPopular}}
-  </section>
-  </div>
+  {{if ne .HomePath "/"}}<div class="center" style="margin-top:14px"><a class="btn sec" href="{{.HomePath}}">← 回到刚才看的碗</a></div>{{end}}
 </div>
 {{end}}
 {{define "gdonorlist"}}{{if .Rows}}<ul class="list">
@@ -38,7 +44,13 @@
   </li>{{end}}
 </ul>{{else}}<div class="empty"><div class="ico">🏚</div>还没有人上榜</div>{{end}}{{end}}
 {{define "scripts"}}<script>
-document.querySelectorAll('.toggle').forEach(function(tg){var k=tg.dataset.for;tg.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){tg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelector('.'+k+'-all').hidden=b.dataset.w!=='all';document.querySelector('.'+k+'-week').hidden=b.dataset.w!=='week'})})});
-// 翻页链接带 #xxx-week 锚点时，回来自动切到「本周」并定位到该榜
-(function(){var m=/^#(donors|beggars)-week$/.exec(location.hash);if(!m)return;var tg=document.querySelector('.toggle[data-for="'+m[1]+'"] button[data-w="week"]');if(tg){tg.click();var sec=document.getElementById(m[1]);if(sec)sec.scrollIntoView()}})();
+(function(){
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  function show(t){tabs.forEach(function(x){var on=x.dataset.t===t;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false')});panels.forEach(function(p){p.classList.toggle('on',p.id==='p-'+t)})}
+  tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.t);try{history.replaceState(null,'','#'+t.dataset.t)}catch(e){}})});
+  document.querySelectorAll('.toggle').forEach(function(tg){var k=tg.dataset.for;tg.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){tg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelector('.'+k+'-all').hidden=b.dataset.w!=='all';document.querySelector('.'+k+'-week').hidden=b.dataset.w!=='week'})})});
+  // 锚点决定打开哪个榜：#beggars / #donors-week（翻页链接带着它，翻完回来还在原来的榜和「本周」）
+  var m=/^#(donors|beggars|popular)(-week)?$/.exec(location.hash);
+  if(m){show(m[1]);if(m[2]){var wb=document.querySelector('.toggle[data-for="'+m[1]+'"] button[data-w="week"]');if(wb)wb.click()}}
+})();
 </script>{{end}}

@@ -244,7 +244,7 @@ footer a{color:var(--muted)}
 {{if .HasBGM}}<audio id="bgm" src="/static/bgm.m4a" loop preload="none" playsinline></audio>{{end}}
 <div class="page">
 <nav class="nav">
-  <a class="brand" href="/">{{template "coin"}}<span>{{.SiteTitle}}</span></a>
+  <a class="brand" href="{{.HomePath}}"{{if ne .HomePath "/"}} title="回到刚才看的碗"{{end}}>{{template "coin"}}<span>{{.SiteTitle}}</span></a>
   <span class="sp"></span>
   <button class="sfx" id="sfxBtn" type="button" aria-label="声音开关" title="声音">🔊</button>
   <a class="link navrank" href="/rank" aria-label="排行榜" title="排行榜"><span>排行榜</span></a>

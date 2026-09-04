@@ -75,6 +75,12 @@ func (a *App) handleRoot(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, site *Site, errMsg, nick, xh, amount, message string) {
 	visitor := a.visitor(w, r)
+	// 记住「现在在逛哪个碗」：之后点左上角站名、看完排行榜都回到这里，而不是一律跳回总舵
+	if site.IsMain() {
+		a.setCookie(w, "bhome", "", -1)
+	} else {
+		a.setCookie(w, "bhome", site.Slug, 24*3600)
+	}
 	p := sitePage{Base: a.base(r), Site: site, Presets: a.cfg.PresetAmounts,
 		Ready: site.PaymentReady(), Err: errMsg, Nick: nick, XHandle: xh, Amount: amount, Message: message,
 		MinAmount: fmtE8(a.cfg.MinAmountE8), MaxAmount: fmtE8(a.cfg.MaxAmountE8), CoinsPerDay: a.cfg.CoinsPerDay}
@@ -525,7 +531,7 @@ type rankPage struct {
 	PgDonors, PgDonorsWeek, PgSites, PgSitesWeek, PgPopular Pager
 }
 
-const rankPageSize = 35
+const rankPageSize = 10
 
 var rankParams = []string{"da", "dw", "ba", "bw", "pp"}
 

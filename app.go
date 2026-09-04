@@ -54,6 +54,7 @@ type Base struct {
 	MeID            int64  // Me 的 ID（模板里比较用，未登录为 0）
 	InApp           bool   // App 内置浏览器（X/微信等）
 	HasBGM          bool   // static/bgm.m4a 存在才渲染背景音乐
+	HomePath        string // 左上角站名点回哪：刚才浏览的子站（cookie bhome），否则主站
 	NoIndex         bool   // 未收录的子站不让搜索引擎收录
 	Desc            string // 页面描述（站点页用站名 + 口号）
 	OGImage         string // 分享缩略图（站点页用 X 头像）
@@ -218,6 +219,10 @@ func (a *App) base(r *http.Request) Base {
 		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r)}
 	if b.Me != nil {
 		b.MeID = b.Me.ID
+	}
+	b.HomePath = "/"
+	if s := cookieVal(r, "bhome"); s != "" && validSlug(s) {
+		b.HomePath = "/" + s
 	}
 	return b
 }
