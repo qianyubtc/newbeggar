@@ -532,6 +532,30 @@ func xHandle(link string) string {
 	return link
 }
 
+// 访客标识：<随机>.<签发时间>.<签名>，只有本站页面能发放，防止脚本自造 cookie 刷钢镚。
+func signVisitor(secret []byte, id string, issued int64) string {
+	payload := id + "." + strconv.FormatInt(issued, 10)
+	m := hmac.New(sha256.New, secret)
+	m.Write([]byte("bv:" + payload))
+	return payload + "." + hex.EncodeToString(m.Sum(nil))[:16]
+}
+
+// parseVisitor 校验访客标识，返回签发时间；无效返回 0。
+func parseVisitor(secret []byte, v string) int64 {
+	parts := strings.Split(v, ".")
+	if len(parts) != 3 || len(parts[0]) != 24 {
+		return 0
+	}
+	issued, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil || issued <= 0 || issued > time.Now().Unix()+300 {
+		return 0
+	}
+	if !hmac.Equal([]byte(signVisitor(secret, parts[0], issued)), []byte(v)) {
+		return 0
+	}
+	return issued
+}
+
 func hashToken(t string) string {
 	h := sha256.Sum256([]byte(t))
 	return hex.EncodeToString(h[:])

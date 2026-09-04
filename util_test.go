@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -160,7 +162,7 @@ func TestCoinCaps(t *testing.T) {
 		t.Fatal(err)
 	}
 	add := func(v, ip string) (bool, string) {
-		ok, msg, err := st.AddCoin(1, v, ip, "2000-01-01", 2, 3)
+		ok, msg, err := st.AddCoin(1, v, ip, "2000-01-01", 2, 3, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -187,5 +189,49 @@ func TestCoinCaps(t *testing.T) {
 	total, today, _ := st.CoinStats(1)
 	if total != 4 || today != 0 {
 		t.Errorf("计数: total=%d today=%d（today 按当前日期查，测试用固定日期）", total, today)
+	}
+}
+
+// TestVisitorCookie 访客标识必须由本站签发，脚本自造的 24 位字符串无效。
+func TestVisitorCookie(t *testing.T) {
+	sec := []byte("test-secret")
+	v := signVisitor(sec, "0123456789abcdef01234567", 1700000000)
+	if parseVisitor(sec, v) != 1700000000 {
+		t.Error("自己签的应通过")
+	}
+	for _, bad := range []string{"", "0123456789abcdef01234567", v + "x", "0123456789abcdef01234567.1700000000.deadbeefdeadbeef"} {
+		if parseVisitor(sec, bad) != 0 {
+			t.Errorf("伪造的应拒绝: %q", bad)
+		}
+	}
+	if parseVisitor([]byte("other"), v) != 0 {
+		t.Error("换密钥应拒绝")
+	}
+}
+
+// TestCoinIPTotal 一个 IP 挨个站刷：全站总量上限拦得住。
+func TestCoinIPTotal(t *testing.T) {
+	st, err := openStore(filepath.Join(t.TempDir(), "s.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	for i := 0; i < 5; i++ {
+		if _, err := st.db.Exec(`INSERT INTO sites(slug,name,pass_hash,created_at,updated_at) VALUES(?,'s','',0,0)`, fmt.Sprintf("s%d", i)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got := 0
+	for site := int64(1); site <= 5; site++ {
+		for v := 0; v < 3; v++ { // 每站换 cookie 丢 3 次
+			if ok, _, err := st.AddCoin(site, fmt.Sprintf("v%d-%d", site, v), "ip1", "2000-01-01", 1, 2, 4); err != nil {
+				t.Fatal(err)
+			} else if ok {
+				got++
+			}
+		}
+	}
+	if got != 4 {
+		t.Errorf("全站总量上限 4，实际记了 %d", got)
 	}
 }

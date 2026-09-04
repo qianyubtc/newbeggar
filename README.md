@@ -147,7 +147,7 @@ cp config.example.env config.env
 | | `ORDER_TTL` | `900` | 网关订单有效期（秒） |
 | 子站 | `SUBSITES_ENABLED` | `true` | 是否开放开站 |
 | | `SUBSITE_REVIEW` | `true` | 新站默认「未收录」（不进榜、noindex），主站站长后台收录。防广告站蹭曝光 |
-| 钢镚 | `COINS_PER_DAY` / `COINS_IP_CAP` | `1` / `20` | 每人每站每天几个；每 IP 每站每天上限 |
+| 钢镚 | `COINS_PER_DAY` / `COINS_IP_CAP` / `COINS_IP_TOTAL` | `1` / `3` / `30` | 每人每站每天几个；每 IP 每站每天上限；每 IP 每天全站总上限（0 不限）|
 | 经验 | `MONEY_EXP` / `COIN_EXP` | `10` / `1` | EXP = 钱(U) × MONEY_EXP + 钢镚 × COIN_EXP |
 | X | `X_TWEET_API` / `X_AVATAR_API` | 公开接口 | 读推文与头像的接口，一般不用改；测试时指向 mock |
 | | `AVATAR_DIR` | `./avatars` | 头像缓存目录 |
@@ -215,6 +215,7 @@ sudo cp deploy/beggar.service /etc/systemd/system/ && sudo systemctl enable --no
 - 开站验证码一次性、24 小时有效，且**绑定生成它的浏览器**，别人看到推文里的码也用不了；找回口令按 X 数字 ID 校验，旧用户名被别人注册也接管不了；主站口令不走 X 找回。
 - 收款链接只接受 `binance.com`，X 只接受 `x.com` / `twitter.com`。
 - 所有 POST 做同源校验，请求体 64 KB 上限，安全响应头齐全；施舍、自报、开站、绑 Key、登录、钢镚均按 IP 限流；反代后只信配置的头且取最后一跳。
+- 钢镚防刷：访客标识是本站 HMAC 签名下发的 cookie（脚本自造无效，必须真开过页面），叠加「每人每站每天」「每 IP 每站每天」「每 IP 每天全站总量」三重上限。
 - 施主头像抓取有域名白名单、不跟随跳转、先解码校验再落盘，页面只引用本站文件。
 - 留言 / 名号 / 口号经 html/template 转义，留言 80 字、名号 20 字。
 

@@ -300,7 +300,7 @@ func newEnvWith(t *testing.T, mod func(*Config)) *env {
 		SiteTitle: "赛博要饭", RepoURL: "https://example.com/repo", MainName: "芊羽Wing", MainSlogan: "行行好", MainAvatar: "🥣",
 		BPGURL: gw.srv.URL, BPGKey: gw.secret, Currency: "USDT", PresetAmounts: []string{"0.1", "1"},
 		MinAmountE8: 10000000, MaxAmountE8: 1000000000000, OrderTTL: 900, SubsitesEnabled: true,
-		XTweetAPI: x.srv.URL, XAvatarAPI: x.srv.URL, AvatarDir: filepath.Join(t.TempDir(), "avatars"), CoinsPerDay: 1, CoinsIPCap: 20, CoinExp: 1, MoneyExp: 10}
+		XTweetAPI: x.srv.URL, XAvatarAPI: x.srv.URL, AvatarDir: filepath.Join(t.TempDir(), "avatars"), CoinsPerDay: 1, CoinsIPCap: 3, CoinsIPTotal: 30, CoinExp: 1, MoneyExp: 10}
 	if mod != nil {
 		mod(cfg)
 	}

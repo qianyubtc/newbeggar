@@ -46,13 +46,14 @@ type Config struct {
 	TrustHeader     string // 反代传真实 IP 的头：X-Forwarded-For（取最后一跳）或 CF-Connecting-IP
 
 	// X（推特）：发推验证 / 头像抓取的接口基址，测试时可指向 mock
-	XTweetAPI   string
-	XAvatarAPI  string
-	AvatarDir   string
-	CoinsPerDay int64 // 每人每站每天可丢的钢镚数
-	CoinsIPCap  int64 // 每 IP 每站每天上限（防脚本）
-	CoinExp     int64 // 一个钢镚 = 多少 EXP
-	MoneyExp    int64 // 1 个币 = 多少 EXP（默认 10，即 0.1 U = 1 EXP）
+	XTweetAPI    string
+	XAvatarAPI   string
+	AvatarDir    string
+	CoinsPerDay  int64 // 每人每站每天可丢的钢镚数
+	CoinsIPCap   int64 // 每 IP 每站每天上限（防脚本）
+	CoinsIPTotal int64 // 每 IP 每天全站总上限，0 = 不限
+	CoinExp      int64 // 一个钢镚 = 多少 EXP
+	MoneyExp     int64 // 1 个币 = 多少 EXP（默认 10，即 0.1 U = 1 EXP）
 }
 
 func loadConfig(path string) (*Config, error) {
@@ -137,11 +138,17 @@ func loadConfig(path string) (*Config, error) {
 	if c.CoinsPerDay, err = getInt("COINS_PER_DAY", 1); err != nil {
 		return nil, err
 	}
-	if c.CoinsIPCap, err = getInt("COINS_IP_CAP", 20); err != nil {
+	if c.CoinsIPCap, err = getInt("COINS_IP_CAP", 3); err != nil {
+		return nil, err
+	}
+	if c.CoinsIPTotal, err = getInt("COINS_IP_TOTAL", 30); err != nil {
 		return nil, err
 	}
 	if c.CoinsPerDay < 1 || c.CoinsPerDay > 100 || c.CoinsIPCap < c.CoinsPerDay {
 		return nil, errors.New("COINS_PER_DAY / COINS_IP_CAP 不合理")
+	}
+	if c.CoinsIPTotal < 0 || (c.CoinsIPTotal > 0 && c.CoinsIPTotal < c.CoinsIPCap) {
+		return nil, errors.New("COINS_IP_TOTAL 不能小于 COINS_IP_CAP（0 表示不限）")
 	}
 	if c.CoinExp, err = getInt("COIN_EXP", 1); err != nil {
 		return nil, err

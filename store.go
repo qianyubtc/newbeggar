@@ -544,7 +544,7 @@ func (s *Store) SitePositions(moneyExp, coinExp int64) (map[int64]int, error) {
 // ---------- 钢镚 ----------
 
 // AddCoin 丢一个钢镚：每人（visitor cookie）每站每天 perDay 个，每 IP 每站每天 ipCap 个。
-func (s *Store) AddCoin(siteID int64, visitor, ip, day string, perDay, ipCap int64) (bool, string, error) {
+func (s *Store) AddCoin(siteID int64, visitor, ip, day string, perDay, ipCap, ipTotal int64) (bool, string, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return false, "", err
@@ -556,6 +556,15 @@ func (s *Store) AddCoin(siteID int64, visitor, ip, day string, perDay, ipCap int
 	}
 	if ipN >= ipCap {
 		return false, "这个网络今天丢得够多了", nil
+	}
+	if ipTotal > 0 { // 全站总量：防止一个 IP 挨个站刷
+		var allN int64
+		if err := tx.QueryRow(`SELECT COALESCE(SUM(n),0) FROM coins WHERE day=? AND ip=?`, day, ip).Scan(&allN); err != nil {
+			return false, "", err
+		}
+		if allN >= ipTotal {
+			return false, "这个网络今天丢得够多了", nil
+		}
 	}
 	var n int64
 	err = tx.QueryRow(`SELECT n FROM coins WHERE site_id=? AND visitor=? AND day=?`, siteID, visitor, day).Scan(&n)

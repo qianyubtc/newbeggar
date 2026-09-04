@@ -269,7 +269,7 @@ func (a *App) handleCoin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(v)
 	}
-	if !a.lim.allow("coin:"+a.ip(r), 60, time.Minute) {
+	if !a.lim.allow("coin:"+a.ip(r), 15, time.Minute) {
 		reply(429, map[string]any{"ok": false, "msg": a.T(r, "手速太快了")})
 		return
 	}
@@ -280,11 +280,11 @@ func (a *App) handleCoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	visitor := cookieVal(r, "bv")
-	if len(visitor) != 24 { // 访客标识只在打开页面时发放；跨站脚本发的请求带不上，直接拒
+	if parseVisitor(a.session, visitor) == 0 { // 访客标识由本站页面签发；伪造或跨站脚本发的请求直接拒
 		reply(403, map[string]any{"ok": false, "msg": a.T(r, "请先打开要饭页再丢")})
 		return
 	}
-	added, msg, err := a.st.AddCoin(site.ID, visitor, a.ip(r), today(), a.cfg.CoinsPerDay, a.cfg.CoinsIPCap)
+	added, msg, err := a.st.AddCoin(site.ID, visitor, a.ip(r), today(), a.cfg.CoinsPerDay, a.cfg.CoinsIPCap, a.cfg.CoinsIPTotal)
 	if err != nil {
 		a.logf("[error] 丢钢镚: %v", err)
 		reply(500, map[string]any{"ok": false, "msg": a.T(r, "服务器开小差了")})

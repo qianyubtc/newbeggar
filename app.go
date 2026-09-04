@@ -370,8 +370,8 @@ func savedNick(r *http.Request) string {
 // visitor 访客标识（钢镚去重用），没有就发一个。
 func (a *App) visitor(w http.ResponseWriter, r *http.Request) string {
 	v := cookieVal(r, "bv")
-	if len(v) != 24 {
-		v = randHex(12)
+	if parseVisitor(a.session, v) == 0 {
+		v = signVisitor(a.session, randHex(12), time.Now().Unix())
 		a.setCookie(w, "bv", v, 365*24*3600)
 	}
 	return v
