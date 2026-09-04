@@ -1,7 +1,8 @@
 {{define "title"}}{{T "后台 ·"}} {{.Site.Name}} · {{T .SiteTitle}}{{end}}
 {{define "content"}}
 <div class="narrow" style="max-width:720px">
-{{if .Welcome}}<div class="notice ok" style="margin-bottom:12px">{{T "🎉 开张大吉！你的要饭站"}} <a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> {{T "已上线"}}{{if not .Site.Listed}}{{T "（待主站站长收录后进榜）"}}{{end}}。<b>{{T "下一步："}}</b>{{T "到下面「收款方式」填上币安 UID（十秒钟），不然施主没法给你钱。"}} {{T "以后从 %s 进来（X 用户名 %s + 你的口令），忘了口令可以再发推找回。" (printf "<a href=\"%s\">%s</a>" .LoginURL (T "站长登录") | safeHTML) .Site.Slug | safeHTML}}</div>{{end}}
+{{if .Welcome}}<div class="notice ok" style="margin-bottom:12px">{{T "🎉 开张大吉！你的要饭站"}} <a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> {{T "已上线"}}{{if not .Site.Listed}}{{T "（待主站站长收录后进榜）"}}{{end}}。<b>{{T "下一步："}}</b>{{T "到下面「收款方式」填上币安 UID（十秒钟），不然施主没法给你钱。"}} <div class="btns" style="margin-top:10px"><a class="btn sm" target="_blank" rel="noopener" href="https://x.com/intent/post?text={{T "我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮" (printf "%s%s" .BaseURL .Site.Path) | urlquery}}">{{T "🐦 发推宣布开张（链接是你自己的碗）"}}</a></div>
+  {{T "以后从 %s 进来（X 用户名 %s + 你的口令），忘了口令可以再发推找回。" (printf "<a href=\"%s\">%s</a>" .LoginURL (T "站长登录") | safeHTML) .Site.Slug | safeHTML}}</div>{{end}}
 {{if .Flash}}<div class="notice ok" style="margin-bottom:12px">{{T .Flash}}</div><div class="toast" id="flashToast" aria-hidden="true">✅ {{T .Flash}}</div>{{end}}
 {{if .Err}}<div class="notice bad" style="margin-bottom:12px">{{T .Err}}</div>{{end}}
 

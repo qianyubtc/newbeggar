@@ -3,6 +3,23 @@ package main
 // 西班牙语（中性拉美 / 国际）。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["es"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 ¡Moneda lanzada!",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Le tiré una moneda gratis a este pobre 🪙 Tírale una tú también, que hoy coma",
+		"👉 扫码，你也丢一个": "👉 Escanea y tira una tú",
+		"我丢了个钢镚 🪙":   "Yo tiré una moneda 🪙",
+		"你的 X 用户名":   "Tu usuario de X",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(opcional: así el enlace del tuit apunta a tu propio cuenco)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 Anúncialo en X (con el enlace de tu cuenco)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "Mi cuenco ya está abierto 🥣 %s Una monedita, por favor~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "¡Señores y señoras, ustedes sí que tienen dinero! ¿Me regalan unas monedas a este pobre? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Escanea, cada centavo cuenta",
+		"分享这个碗":                                "Comparte este cuenco",
+		"分享":                                   "Compartir",
+		"🖼 分享这个碗":                              "🖼 Comparte este cuenco",
+		"链接":                                   "Enlace",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Crea un póster pixelado para X; con el QR pueden darte propina.",
+		"生成海报":           "Crear póster",
+		"分享海报":           "Póster",
 		"本站开源，欢迎 Star ⭐": "Este sitio es de código abierto ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Mendigo Cyber",

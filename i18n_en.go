@@ -3,6 +3,23 @@ package main
 // 英文：其它语言查不到时也回落到这里。key 是中文原文（模板/代码里的 T "…"），占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["en"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 Coin tossed!",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "I just tossed this poor soul a free coin 🪙 Go on, toss one too — give them a meal today",
+		"👉 扫码，你也丢一个": "👉 Scan and toss one too",
+		"我丢了个钢镚 🪙":   "I tossed a coin 🪙",
+		"你的 X 用户名":   "Your X username",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(optional — with it, the link in your tweet points at your own bowl)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 Announce it on X (link is your own bowl)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "My bowl is open 🥣 %s Spare a coin, kind strangers~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "Kind sirs and madams, you all look wealthy! Spare a little change for this poor soul? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Scan it — every cent counts",
+		"分享这个碗":                                "Share this bowl",
+		"分享":                                   "Share",
+		"🖼 分享这个碗":                              "🖼 Share this bowl",
+		"链接":                                   "Link",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Generate a pixel poster for X or your friends — scan the QR to tip you.",
+		"生成海报":           "Make poster",
+		"分享海报":           "Share poster",
 		"本站开源，欢迎 Star ⭐": "This site is open source — star it ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Cyber Beggar",

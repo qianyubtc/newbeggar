@@ -34,6 +34,8 @@ type sitePage struct {
 	SectTitle                                                           string // 丐帮职位
 	CoinExp                                                             int64  // 一个钢镚 = 多少 EXP
 	MoneyExp                                                            int64  // 1 U = 多少 EXP
+	ShareURL                                                            string // 本站完整地址（复制/海报用）
+	QR                                                                  string // 本站地址二维码（base64 PNG，海报用）
 	Err                                                                 string
 	Nick                                                                string
 	XHandle                                                             string
@@ -135,6 +137,10 @@ func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, sit
 		} else {
 			a.ensureXProfile(site.XHandle) // 后台补抓，下次刷新就有
 		}
+	}
+	p.ShareURL = a.cfg.BaseURL + site.Path()
+	if png, err := qrcode.Encode(p.ShareURL, qrcode.Medium, 300); err == nil {
+		p.QR = base64.StdEncoding.EncodeToString(png)
 	}
 	p.Exp = expOf(p.Stats.TotalE8, p.Coins, a.cfg.MoneyExp, a.cfg.CoinExp)
 	p.CoinExp, p.MoneyExp = a.cfg.CoinExp, a.cfg.MoneyExp

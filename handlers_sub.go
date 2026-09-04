@@ -23,6 +23,7 @@ type newPage struct {
 	Purpose   string // new | reset
 	Code      string
 	Texts     []string // 可选的发推话术（含验证码），页面上可编辑
+	SiteBase  string   // 裸域名，前端把链接换成「域名/用户名」用
 	IntentURL string
 	TweetURL  string
 	Err       string
@@ -39,6 +40,14 @@ type verifyProfile struct {
 	AvatarURL  string `json:"avatar_url"`
 	AvatarFile string `json:"avatar_file"`
 	SiteID     int64  `json:"site_id,omitempty"`
+}
+
+// shuffleTexts 打乱话术顺序（页面用第一条当默认）。
+func shuffleTexts(t []string) {
+	for i := len(t) - 1; i > 0; i-- {
+		j := int(randBytes(1)[0]) % (i + 1)
+		t[i], t[j] = t[j], t[i]
+	}
 }
 
 // tweetTexts 发推话术模板，第一条为默认；都带验证码和站点链接（顺便传播）。
@@ -92,7 +101,8 @@ func (a *App) startVerify(w http.ResponseWriter, r *http.Request, purpose, errMs
 		a.setCookie(w, "xvp_"+purpose, code, 24*3600)
 	}
 	texts := a.tweetTexts(a.lang(r), code, purpose)
-	a.render(w, http.StatusOK, "new", newPage{Base: a.base(r), Step: 1, Purpose: purpose, Code: code, Texts: texts, IntentURL: intentFor(texts[0]), Err: errMsg})
+	shuffleTexts(texts) // 每个人进来默认看到的话术不同，避免 X 上清一色同一句
+	a.render(w, http.StatusOK, "new", newPage{Base: a.base(r), Step: 1, Purpose: purpose, Code: code, Texts: texts, SiteBase: shortURL(a.cfg.BaseURL), IntentURL: intentFor(texts[0]), Err: errMsg})
 }
 
 // ownsVerify 当前浏览器是否持有这个验证码的密钥。

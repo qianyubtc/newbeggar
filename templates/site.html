@@ -15,6 +15,7 @@
         <div class="barlabel">{{T "饱食度"}} <b>{{satiety .Stats.TodayE8}}%</b><span>{{if eq (satiety .Stats.TodayE8) 0}}{{T "今天还没吃饭"}}{{else}}{{T "今天有人投币了"}}{{end}}</span></div>
         <div class="bar hp"><span style="width:{{satiety .Stats.TodayE8}}%"></span></div>
         {{if .Site.XLabel}}<a class="xpill" href="https://x.com/{{.Site.XLabel}}" target="_blank" rel="noopener">𝕏 @{{.Site.XLabel}}</a>{{end}}
+        <button class="xpill sharebtn" type="button" id="shareBtn" title="{{T "分享这个碗"}}">{{template "shareicon"}}<span>{{T "分享"}}</span></button>
       </div>
     </div>
     {{if .Site.Slogan}}<div class="dialog"><span class="typer" data-text="{{.Site.Slogan}}">{{.Site.Slogan}}</span><span class="cursor">▼</span></div>{{end}}
@@ -112,6 +113,16 @@
 </div>
 {{if .Ready}}<div class="fab" id="fab"><a class="btn" href="#donate" id="fabBtn">{{T "💸 投币施舍"}}</a></div>{{end}}
 <div id="toast" class="toast" hidden></div>
+<div id="shareBox" hidden>
+  <h2 id="shareTitle">{{T "🖼 分享这个碗"}}</h2>
+  <div class="kv" style="margin-top:10px"><span class="k">{{T "链接"}}</span><span class="v"><span class="code">{{.ShareURL}}</span><button type="button" class="copy" data-copy="{{.ShareURL}}">{{T "复制"}}</button></span></div>
+  <div class="hint" style="margin-top:10px">{{T "生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。"}}</div>
+  <div class="btns"><button class="btn" type="button" id="posterBtn">{{T "生成海报"}}</button></div>
+  <div class="sharebox" id="posterBox" hidden style="margin-top:12px">
+    <img id="posterImg" alt="{{T "分享海报"}}">
+    <div class="hint">{{T "长按图片保存，或"}} <a id="posterDl" download="beggar-poster.png">{{T "下载"}}</a></div>
+  </div>
+</div>
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="modal-box"><button class="modal-x" type="button" id="modalX" aria-label="{{T "关闭"}}">✕</button><div id="modalForm" hidden></div><div id="modalBody" hidden></div></div></div>
 {{end}}
 {{define "avatar"}}{{$f := xav .XHandle}}{{if and $f (not .Blocked)}}<img class="av img" src="/a/{{$f}}" alt="">{{else}}<div class="av" style="--h:{{hue .NickKey}}">{{if .Blocked}}✕{{else}}{{initial .Nickname}}{{end}}</div>{{end}}{{end}}
@@ -131,7 +142,7 @@
     <div class="amtv num{{if ne $.By "coins"}} accent{{end}}">{{if eq $.By "coins"}}{{template "coin"}} {{$s.Coins}}{{else}}{{fmtAmt $s.TotalE8}}{{end}}</div>
   </li>{{end}}
 </ul>{{else}}<div class="empty"><div class="ico">🏚</div>{{T "还没有人上榜"}}</div>{{end}}{{end}}
-{{define "scripts"}}<script>
+{{define "scripts"}}{{$lv := level .Exp}}<script>
 (function(){
   var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
   function show(t){tabs.forEach(function(x){var on=x.dataset.t===t;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false')});panels.forEach(function(p){p.classList.toggle('on',p.id==='p-'+t)})}
@@ -151,7 +162,7 @@
       if(j.ok&&j.added){document.querySelectorAll('.coinN').forEach(function(el){el.textContent=j.total});document.getElementById('coinT').textContent=j.today;
         var c=document.createElement('div');c.className='flycoin';c.textContent='🪙';var r=cb.getBoundingClientRect();c.style.left=(r.left+r.width/2)+'px';c.style.top=r.top+'px';document.body.appendChild(c);setTimeout(function(){c.remove()},900);
         var sw=document.querySelector('.char-top .sprite-wrap');if(sw){sw.classList.add('jump');setTimeout(function(){sw.classList.remove('jump')},900)}
-        if(window.sfx)sfx.coin();say({{T "叮！钢镚 +1"}});if(j.mine>=j.per_day){document.getElementById('coinTxt').textContent={{T "今天丢过了"}}}else{cb.disabled=false}}
+        if(window.sfx)sfx.coin();say({{T "叮！钢镚 +1"}});if(window.openShare)setTimeout(function(){window.openShare('coin')},700);if(j.mine>=j.per_day){document.getElementById('coinTxt').textContent={{T "今天丢过了"}}}else{cb.disabled=false}}
       else{if(window.sfx)sfx.fail();say(j.msg||{{T "没丢进去"}});if(j.mine>=j.per_day){document.getElementById('coinTxt').textContent={{T "今天丢过了"}}}else{cb.disabled=false}}
     }).catch(function(){if(window.sfx)sfx.fail();say({{T "网络开小差了"}});cb.disabled=false})})}
 
@@ -175,6 +186,108 @@
   var db=document.getElementById('donateBtn'),fb=document.getElementById('fabBtn');if(db)db.addEventListener('click',openDonate);if(fb)fb.addEventListener('click',openDonate);
   if(location.hash==='#donate')openDonate();
   document.getElementById('modalX').addEventListener('click',closeModal);
+  // 分享：弹窗里复制链接 + 生成像素海报
+  (function(){var sb=document.getElementById('shareBtn'),box=document.getElementById('shareBox');if(!sb||!box)return;
+    var mode='site',ttl=document.getElementById('shareTitle');
+    window.openShare=function(m){mode=m||'site';ttl.textContent=mode==='coin'?{{T "🪙 钢镚丢进去了！"}}:{{T "🖼 分享这个碗"}};
+      var pbx=document.getElementById('posterBox');if(pbx)pbx.hidden=true;
+      if(box.parentNode!==mbody){mbody.innerHTML='';mbody.appendChild(box)}box.hidden=false;mform.hidden=true;mbody.hidden=false;modal.hidden=false;modal.querySelector('.modal-box').scrollTop=0};
+    sb.addEventListener('click',function(){window.openShare('site')});
+    var pb=document.getElementById('posterBtn');if(!pb)return;
+    var D={title:{{T .SiteTitle}},site:{{.Site.Name}},handle:{{.Site.XLabel}},slogan:{{.Site.Slogan}},avatar:{{.Site.AvatarURL}},emoji:{{.Site.Avatar}},
+      title2:{{T .SectTitle}},lv:{{$lv.Title}},lvn:{{$lv.Lv}},exp:{{.Exp}},pct:{{$lv.Pct}},next:{{if $lv.Next}}{{T "升%s要 %s" (T $lv.NextT) $lv.Next}}{{else}}{{T "满级"}}{{end}},
+      sat:{{satiety .Stats.TodayE8}},satTip:{{if eq (satiety .Stats.TodayE8) 0}}{{T "今天还没吃饭"}}{{else}}{{T "今天有人投币了"}}{{end}},
+      amt:{{fmtAmt .Stats.TotalE8}},cur:{{.Site.Currency}},donors:{{.Stats.Donors}},coins:{{.Coins}},today:{{fmtAmt .Stats.TodayE8}},
+      url:{{.ShareURL}},qr:{{.QR}},
+      t:{ bowl:{{T "碗里已有"}}, donors:{{T "施主"}}, people:{{T "人"}}, coins:{{T "钢镚"}}, today:{{T "今日"}}, exp:"EXP", sat:{{T "饱食度"}},
+          beg:{{T "大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏"}},
+          scan:{{T "👉 扫码，一毛也是爱"}},
+          begCoin:{{T "我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃"}},
+          scanCoin:{{T "👉 扫码，你也丢一个"}}, coinStamp:{{T "我丢了个钢镚 🪙"}}, tag:{{T "#赛博丐帮"}}, foot:{{T "发条推就能开自己的碗"}} }};
+    pb.addEventListener('click',function(){pb.disabled=true;var oldT=pb.textContent;pb.textContent='…';
+      var coinEl=document.querySelector('.coinrow .px-coin')||document.querySelector('.px-coin');
+      var need=1+(D.qr?1:0)+(D.avatar?1:0)+(coinEl?1:0),n=0,sp=new Image(),qr=new Image(),av=new Image(),ci=new Image();
+      function go(){if(++n>=need)draw()}
+      sp.onload=go;sp.onerror=go;qr.onload=go;qr.onerror=go;av.onload=go;av.onerror=go;ci.onload=go;ci.onerror=go;
+      if(coinEl)ci.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(coinEl));
+      sp.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(document.querySelector('.sprite')));
+      if(D.qr)qr.src='data:image/png;base64,'+D.qr;
+      if(D.avatar)av.src=D.avatar;
+      function px(c,x,y,w,h,f){c.fillStyle=f;c.fillRect(x,y,w,h)}
+      function frame(c,x,y,w,h,bg){px(c,x,y,w,h,'#1e1e2e');px(c,x+4,y+4,w-8,h-8,bg||'#fffbf0')}
+      function bar(c,x,y,w,pct,col){px(c,x,y,w,20,'#1e1e2e');px(c,x+3,y+3,w-6,14,'#fff');
+        var n=Math.max(0,Math.min(100,pct)),seg=12,gap=2,cw=Math.floor((w-6+gap)/seg)-gap,fillW=Math.round((w-6)*n/100),dx=x+3;
+        for(var i=0;i<seg;i++){var sx=dx+i*(cw+gap);if(sx+cw-x-3>fillW)break;px(c,sx,y+3,cw,14,col)}}
+      function fit(c,t,maxW,size,fam){c.font=size+'px '+fam;while(c.measureText(t).width>maxW&&size>11){size--;c.font=size+'px '+fam}while(c.measureText(t).width>maxW&&t.length>1){t=t.slice(0,-2)+'…'}return t}
+      function wrap(c,t,x,y,maxW,lh,max){var line='',out=[];for(var i=0;i<t.length;i++){var s2=line+t[i];if(c.measureText(s2).width>maxW&&line){out.push(line);line=t[i]}else line=s2}
+        if(line)out.push(line);out.slice(0,max||3).forEach(function(l,i){c.fillText(l,x,y+i*lh)});return Math.min(out.length,max||3)}
+      function chip(c,t,bg,fg,x,y){c.font='18px Pixel, sans-serif';var w=c.measureText(t).width+22;px(c,x,y,w,32,'#1e1e2e');px(c,x+3,y+3,w-6,26,bg);
+        c.fillStyle=fg;c.textBaseline='middle';c.fillText(t,x+11,y+16);c.textBaseline='top';return w}
+      function draw(){var W=640,H=1000,cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
+        (document.fonts&&document.fonts.load?document.fonts.load('24px Pixel'):Promise.resolve()).then(function(){
+          var PF='Pixel, sans-serif',UI='-apple-system, PingFang SC, sans-serif';
+          px(c,0,0,W,H,'#f4eedd');for(var y=0;y<H;y+=32)for(var x=(y/32%2)*16;x<W;x+=32)px(c,x,y,16,16,'#e9e1ca');
+          px(c,0,0,W,60,'#1e1e2e');c.fillStyle='#ffcc00';c.font='26px '+PF;c.textBaseline='middle';c.textAlign='center';
+          c.fillText('🥣 '+fit(c,D.title,W-120,26,PF),W/2,31);c.textAlign='left';c.textBaseline='top';
+          // 角色卡（照搬站点页）
+          frame(c,32,92,W-64,436);
+          if(sp.complete&&sp.naturalWidth)c.drawImage(sp,52,112,150,206);
+          var bx=224,bw=W-bx-56;
+          var w1=chip(c,'Lv.'+D.lvn+' '+D.lv,'#1e1e2e','#ffcc00',bx,116);
+          if(D.title2)chip(c,D.title2,'#ffcc00','#1e1e2e',bx+w1+8,116);
+          var ny=162;
+          if(av.complete&&av.naturalWidth){px(c,bx,ny,52,52,'#1e1e2e');c.drawImage(av,bx+3,ny+3,46,46);
+            c.fillStyle='#1e1e2e';c.font='30px '+PF;c.fillText(fit(c,D.site,bw-64,30,PF),bx+64,ny+12)}
+          else{c.fillStyle='#1e1e2e';c.font='30px '+PF;c.fillText(fit(c,(D.emoji||'')+' '+D.site,bw,30,PF),bx,ny+12)}
+          // EXP
+          c.font='16px '+PF;c.fillStyle='#4a4954';c.fillText(D.t.exp,bx,230);
+          c.fillStyle='#1e1e2e';c.fillText(''+D.exp,bx+52,230);
+          c.fillStyle='#4a4954';var nx=fit(c,D.next,bw-120,16,PF);c.fillText(nx,bx+bw-c.measureText(nx).width,230);
+          bar(c,bx,252,bw,D.pct,'#4caf50');
+          // 饱食度
+          c.font='16px '+PF;c.fillStyle='#4a4954';c.fillText(D.t.sat,bx,288);
+          c.fillStyle='#1e1e2e';c.fillText(D.sat+'%',bx+72,288);
+          c.fillStyle='#4a4954';var sx2=fit(c,D.satTip,bw-140,16,PF);c.fillText(sx2,bx+bw-c.measureText(sx2).width,288);
+          bar(c,bx,310,bw,D.sat,'#e05b4b');
+          // X pill
+          if(D.handle){c.font='19px '+PF;var t='𝕏 @'+D.handle,tw=c.measureText(t).width+24;
+            px(c,bx,346,tw,36,'#1e1e2e');px(c,bx+3,349,tw-6,30,'#fff');c.fillStyle='#1e1e2e';c.textBaseline='middle';c.fillText(t,bx+12,364);c.textBaseline='top'}
+          // 对话框（▶ 标签 + 口号）
+          if(D.slogan){px(c,52,396,34,28,'#1e1e2e');px(c,55,399,28,22,'#ffcc00');c.fillStyle='#1e1e2e';c.font='14px '+PF;c.fillText('▶',63,404);
+            px(c,52,424,W-104,72,'#1e1e2e');px(c,56,428,W-112,64,'#fff');
+            c.fillStyle='#1e1e2e';c.textBaseline='middle';c.fillText(fit(c,D.slogan,W-180,24,UI),76,460);
+            c.font='16px '+PF;c.fillStyle='#4a4954';c.fillText('▼',W-84,464);c.textBaseline='top'}
+          if(mode==='coin'){c.font='17px '+PF;var st=D.t.coinStamp,sw2=c.measureText(st).width+24;
+            px(c,W-56-sw2,96,sw2,36,'#1e1e2e');px(c,W-53-sw2,99,sw2-6,30,'#ffcc00');
+            c.fillStyle='#1e1e2e';c.textBaseline='middle';c.fillText(st,W-44-sw2,114);c.textBaseline='top'}
+          // 碗（金色）+ 右侧两个小格
+          px(c,32,548,W-64,118,'#1e1e2e');px(c,36,552,W-72,110,'#ffcc00');
+          c.fillStyle='#1e1e2e';c.font='16px '+PF;c.fillText(D.t.bowl,56,566);
+          c.font='42px '+PF;var amt=fit(c,D.amt,280,42,PF);c.fillText(amt,56,588);
+          var aw=c.measureText(amt).width;c.font='17px '+PF;c.fillText(D.cur,56+aw+10,612);
+          if(ci.complete&&ci.naturalWidth)c.drawImage(ci,56,632,18,18);
+          c.font='17px '+PF;c.fillText(D.coins+' '+D.t.coins,80,633);
+          var sw=170,sx=W-56-sw;
+          [[D.t.donors,D.donors+' '+D.t.people],[D.t.today,'+'+D.today]].forEach(function(s,i){var y=568+i*46;
+            px(c,sx,y,sw,38,'#1e1e2e');px(c,sx+3,y+3,sw-6,32,'#fff');
+            c.fillStyle='#4a4954';c.font='14px '+PF;c.textBaseline='middle';c.fillText(s[0],sx+12,y+20);
+            c.fillStyle='#1e1e2e';c.font='19px '+PF;c.fillText(fit(c,s[1],sw-c.measureText(s[0]).width-40,19,PF),sx+16+c.measureText(s[0]).width+8,y+19);c.textBaseline='top'});
+          // 喊话 + 二维码
+          frame(c,32,688,W-64,246);
+          var tx=32+20;
+          if(qr.complete&&qr.naturalWidth){c.drawImage(qr,52,712,150,150);tx=222}
+          c.fillStyle='#1e1e2e';c.font='23px '+UI;
+          var lines=wrap(c,mode==='coin'?D.t.begCoin:D.t.beg,tx,714,W-tx-56,34,4);
+          c.fillStyle='#b8820a';c.font='19px '+PF;c.fillText(fit(c,mode==='coin'?D.t.scanCoin:D.t.scan,W-tx-56,19,PF),tx,714+lines*34+14);
+          px(c,52,878,W-104,40,'#1e1e2e');px(c,55,881,W-110,34,'#ffcc00');
+          c.fillStyle='#1e1e2e';c.font='17px '+PF;c.textBaseline='middle';
+          c.fillText(fit(c,D.url.replace(/^https?:\/\//,''),W-140,17,PF),70,899);c.textBaseline='top';
+          c.fillStyle='#4a4954';c.font='16px '+PF;
+          c.fillText(D.t.tag+'  ·  '+D.t.foot,32,962);
+          var u=cv.toDataURL('image/png');document.getElementById('posterImg').src=u;document.getElementById('posterDl').href=u;
+          document.getElementById('posterBox').hidden=false;pb.textContent=oldT;pb.disabled=false;
+        })}
+    })})();
   modal.addEventListener('click',function(ev){if(ev.target===modal)closeModal()});
   f.addEventListener('submit',function(ev){if(!window.fetch)return;ev.preventDefault();var fd=new FormData(f);fd.append('ajax','1');cta.disabled=true;var old=cta.textContent;cta.textContent='下单中…';
     var errEl=f.querySelector('.err');if(!errEl){errEl=document.createElement('div');errEl.className='err';cta.parentNode.insertBefore(errEl,cta)}errEl.textContent='';

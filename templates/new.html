@@ -11,6 +11,8 @@
   <div class="steps">
     <div class="step">
       <h2>{{T "发一条推文，带上验证码"}} <span class="code">{{.Code}}</span></h2>
+      {{if ne .Purpose "reset"}}<label for="preHandle">{{T "你的 X 用户名"}} <span class="hint" style="display:inline">{{T "（选填。填了推文里的链接就直接指向你自己的碗）"}}</span></label>
+      <input id="preHandle" maxlength="15" placeholder="qianyuwing" autocapitalize="off" autocomplete="off" style="margin-bottom:10px">{{end}}
       <label>{{T "推文内容（可以随便改，只要保留验证码）"}}<span class="count"><button type="button" class="copy" id="nextText">{{T "换一条"}}</button></span></label>
       <textarea id="tweetText" rows="4" maxlength="280">{{index .Texts 0}}</textarea>
       <div class="btns">
@@ -75,8 +77,12 @@
 {{define "scripts"}}<script>
 var TEXTS={{.Texts}};
 (function(){var ta=document.getElementById('tweetText'),link=document.getElementById('intent'),nx=document.getElementById('nextText');if(!ta||!link)return;var i=0;
+  var BASE={{.SiteBase}},ph=document.getElementById('preHandle');
+  function withHandle(t){var h=ph?ph.value.trim().replace(/^@/,'').toLowerCase():'';if(!h||!/^[a-z0-9_]{1,15}$/.test(h))return t;
+    var i=t.lastIndexOf(BASE);return i<0?t:t.slice(0,i)+BASE+'/'+h+t.slice(i+BASE.length)}
   var INAPP={{.InApp}},ua=navigator.userAgent,isAndroid=!INAPP&&/Android/i.test(ua),isIOS=!INAPP&&/iPhone|iPad|iPod/i.test(ua),alt=document.getElementById('intentAlt');
   function web(){return 'https://x.com/intent/post?text='+encodeURIComponent(ta.value)}
+  if(ph)ph.addEventListener('input',function(){ta.value=withHandle(TEXTS[i]);sync()});
   function sync(){var w=web();if(alt)alt.href=w;
     // Android：intent:// 直接拉起 X App 的编辑器，没装则由 Chrome 回退到网页版；其它平台：网页版 intent（新标签，本页保留）
     link.href=isAndroid?'intent://post?message='+encodeURIComponent(ta.value)+'#Intent;scheme=twitter;package=com.twitter.android;S.browser_fallback_url='+encodeURIComponent(w)+';end':w}
@@ -86,6 +92,6 @@ var TEXTS={{.Texts}};
     function onHide(){gone=true}document.addEventListener('visibilitychange',onHide,{once:true});window.addEventListener('pagehide',onHide,{once:true});
     location.href='twitter://post?message='+encodeURIComponent(ta.value);
     setTimeout(function(){if(!gone&&!document.hidden&&alt)alt.hidden=false},2000)});
-  if(nx)nx.addEventListener('click',function(){i=(i+1)%TEXTS.length;ta.value=TEXTS[i];sync()});
+  if(nx)nx.addEventListener('click',function(){i=(i+1)%TEXTS.length;ta.value=withHandle(TEXTS[i]);sync()});
 })();
 </script>{{end}}

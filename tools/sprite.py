@@ -104,6 +104,18 @@ TROPHY = [
     "...KKKK...",
     "..KKKKKK..",
 ]
+# 分享（三个点连线）
+SHARE = [
+    ".....KK",
+    "....KKKK",
+    "..K.KKKK",
+    ".KKK.KK.",
+    "KKKK....",
+    ".KKK.KK.",
+    "..K.KKKK",
+    "....KKKK",
+    ".....KK.",
+]
 # 钥匙（登录）
 KEY = [
     "..KKKK......",
@@ -155,6 +167,7 @@ def main():
           '<g class="spk-body">%s</g><g class="spk-w1">%s</g><g class="spk-w2">%s</g><g class="spk-x">%s</g></svg>{{end}}'
           % (rects(SPEAKER), layer(SPK_WAVE), layer(SPK_WAVE2), layer(SPK_X)))
     print('{{define "trophy"}}<svg class="px-trophy" viewBox="0 0 10 9" width="18" height="16" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(TROPHY))
+    print('{{define "shareicon"}}<svg class="px-share" viewBox="0 0 8 9" width="14" height="16" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(SHARE))
     print('{{define "keyicon"}}<svg class="px-key" viewBox="0 0 12 5" width="19" height="8" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(KEY))
 
 

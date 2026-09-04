@@ -3,6 +3,23 @@ package main
 // 越南语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["vi"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 Đã thả xu!",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Mình vừa thả cho người này một đồng xu miễn phí 🪙 Bạn cũng thả một đồng đi",
+		"👉 扫码，你也丢一个": "👉 Quét mã và thả một đồng",
+		"我丢了个钢镚 🪙":   "Mình đã thả xu 🪙",
+		"你的 X 用户名":   "Tên người dùng X của bạn",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(tuỳ chọn — điền vào thì link trong tweet trỏ tới bát của bạn)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 Đăng lên X (link là bát của bạn)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "Bát của mình đã mở 🥣 %s Xin ít tiền lẻ~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "Các anh các chị giàu có ơi! Cho kẻ khốn khổ này xin ít tiền lẻ được không? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Quét mã đi, một xu cũng quý",
+		"分享这个碗":                                "Chia sẻ bát này",
+		"分享":                                   "Chia sẻ",
+		"🖼 分享这个碗":                              "🖼 Chia sẻ bát này",
+		"链接":                                   "Liên kết",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Tạo poster pixel để đăng lên X; quét QR là ủng hộ được.",
+		"生成海报":           "Tạo poster",
+		"分享海报":           "Poster",
 		"本站开源，欢迎 Star ⭐": "Trang này là mã nguồn mở ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Ăn Xin Cyber",

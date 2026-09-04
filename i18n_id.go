@@ -3,6 +3,23 @@ package main
 // 印尼语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["id"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 Koin dilempar!",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Aku baru lempar koin gratis buat orang malang ini 🪙 Kamu juga dong, biar dia makan hari ini",
+		"👉 扫码，你也丢一个": "👉 Pindai dan lempar satu juga",
+		"我丢了个钢镚 🪙":   "Aku lempar koin 🪙",
+		"你的 X 用户名":   "Nama pengguna X kamu",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(opsional — kalau diisi, tautan di tweet mengarah ke mangkukmu)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 Umumkan di X (tautan ke mangkukmu)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "Mangkukku sudah buka 🥣 %s Sedekahnya dong~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "Bapak ibu yang kaya raya! Sedekah receh untuk orang malang ini dong? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Pindai, seceng pun berarti",
+		"分享这个碗":                                "Bagikan mangkuk ini",
+		"分享":                                   "Bagikan",
+		"🖼 分享这个碗":                              "🖼 Bagikan mangkuk ini",
+		"链接":                                   "Tautan",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Buat poster piksel untuk X; scan QR langsung bisa kasih tip.",
+		"生成海报":           "Buat poster",
+		"分享海报":           "Poster",
 		"本站开源，欢迎 Star ⭐": "Situs ini open source ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Pengemis Cyber",

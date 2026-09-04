@@ -3,6 +3,23 @@ package main
 // 葡萄牙语（巴西）。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["pt"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 Moeda lançada!",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Joguei uma moeda grátis pra esse coitado 🪙 Joga uma também, pra ele comer hoje",
+		"👉 扫码，你也丢一个": "👉 Escaneie e jogue a sua",
+		"我丢了个钢镚 🪙":   "Eu joguei uma moeda 🪙",
+		"你的 X 用户名":   "Seu usuário do X",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(opcional: assim o link do tuíte aponta para a sua tigela)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 Anunciar no X (link da sua tigela)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "Minha tigela está aberta 🥣 %s Um trocadinho, por favor~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "Senhores e senhoras, vocês são gente rica! Uma trocadinho para este pobre coitado? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Escaneie, cada centavo conta",
+		"分享这个碗":                                "Compartilhe esta tigela",
+		"分享":                                   "Compartilhar",
+		"🖼 分享这个碗":                              "🖼 Compartilhe esta tigela",
+		"链接":                                   "Link",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Crie um pôster pixelado para o X; pelo QR dá para te pagar.",
+		"生成海报":           "Criar pôster",
+		"分享海报":           "Pôster",
 		"本站开源，欢迎 Star ⭐": "Este site é open source ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Mendigo Cyber",

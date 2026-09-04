@@ -3,6 +3,23 @@ package main
 // 德语：key 是中文原文，占位符 %s/%d 顺序须与中文一致。查不到回落英文。
 func init() {
 	translations["de"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 Münze eingeworfen!",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Ich hab dem armen Kerl eine Gratis-Münze zugeworfen 🪙 Wirf auch eine, dann isst er heute",
+		"👉 扫码，你也丢一个": "👉 Scannen und selbst eine werfen",
+		"我丢了个钢镚 🪙":   "Ich hab eine Münze geworfen 🪙",
+		"你的 X 用户名":   "Dein X-Name",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(optional – dann zeigt der Link im Tweet auf deinen eigenen Napf)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 Auf X ankündigen (Link zu deinem Napf)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "Mein Napf ist offen 🥣 %s Ein bisschen Kleingeld bitte~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "Werte Damen und Herren, ihr seid doch reich! Ein bisschen Kleingeld für den armen Kerl? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Scannen — jeder Cent zählt",
+		"分享这个碗":                                "Napf teilen",
+		"分享":                                   "Teilen",
+		"🖼 分享这个碗":                              "🖼 Napf teilen",
+		"链接":                                   "Link",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Erstelle ein Pixel-Poster für X — per QR kann man dir spenden.",
+		"生成海报":           "Poster erstellen",
+		"分享海报":           "Poster",
 		"本站开源，欢迎 Star ⭐": "Diese Seite ist Open Source ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Cyber-Bettler",

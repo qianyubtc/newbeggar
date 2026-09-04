@@ -3,6 +3,23 @@ package main
 // 法语：key 是中文原文，占位符 %s/%d 顺序须与中文一致。查不到回落英文。
 func init() {
 	translations["fr"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 Pièce lancée !",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Je viens de lancer une pièce gratuite à ce pauvre 🪙 Lance-en une aussi, qu'il mange aujourd'hui",
+		"👉 扫码，你也丢一个": "👉 Scanne et lance la tienne",
+		"我丢了个钢镚 🪙":   "J'ai lancé une pièce 🪙",
+		"你的 X 用户名":   "Ton pseudo X",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(facultatif : le lien du tweet pointera vers ton propre bol)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 Annoncer sur X (lien vers ton bol)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "Mon bol est ouvert 🥣 %s Une petite pièce svp~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "Messieurs dames, vous avez l'air riches ! Un peu de monnaie pour ce pauvre bougre ? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Scannez, chaque centime compte",
+		"分享这个碗":                                "Partager ce bol",
+		"分享":                                   "Partager",
+		"🖼 分享这个碗":                              "🖼 Partager ce bol",
+		"链接":                                   "Lien",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Créez une affiche pixel pour X ; le QR permet de vous donner.",
+		"生成海报":           "Créer l'affiche",
+		"分享海报":           "Affiche",
 		"本站开源，欢迎 Star ⭐": "Ce site est open source ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Cyber Mendiant",

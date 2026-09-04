@@ -3,6 +3,23 @@ package main
 // 土耳其语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["tr"] = map[string]string{
+		"🪙 钢镚丢进去了！": "🪙 Jeton atıldı!",
+		"我刚给这个可怜人丢了个钢镚 🪙 免费的，你也来一个呗，让他今天有饭吃": "Bu zavallıya bedava bir jeton attım 🪙 Sen de at, bugün karnı doysun",
+		"👉 扫码，你也丢一个": "👉 Okut ve sen de at",
+		"我丢了个钢镚 🪙":   "Bir jeton attım 🪙",
+		"你的 X 用户名":   "X kullanıcı adın",
+		"（选填。填了推文里的链接就直接指向你自己的碗）":              "(isteğe bağlı — yazarsan tweetteki bağlantı kendi kasene gider)",
+		"🐦 发推宣布开张（链接是你自己的碗）":                   "🐦 X'te duyur (bağlantı kendi kasen)",
+		"我的碗开好了 🥣 %s 行行好，赏口饭吃～ #赛博丐帮":          "Kasem açıldı 🥣 %s Biraz bozukluk lütfen~ #CyberBeggars",
+		"大哥哥大姐姐们，你们都是有钱的人啊！谁有那多余的零钱给我这可怜的人啊 🙏": "Beyler hanımlar, hepiniz zenginsiniz! Bu zavallıya biraz bozukluk? 🙏",
+		"👉 扫码，一毛也是爱":                           "👉 Okut, her kuruş kıymetli",
+		"分享这个碗":                                "Bu kaseyi paylaş",
+		"分享":                                   "Paylaş",
+		"🖼 分享这个碗":                              "🖼 Bu kaseyi paylaş",
+		"链接":                                   "Bağlantı",
+		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "X için piksel poster oluştur; QR ile sana bağış yapabilirler.",
+		"生成海报":           "Poster oluştur",
+		"分享海报":           "Poster",
 		"本站开源，欢迎 Star ⭐": "Bu site açık kaynak ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Siber Dilenci",
