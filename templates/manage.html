@@ -74,6 +74,9 @@
       <form method="post" action="/manage/payment">
         <label for="payIdIn">币安 UID</label>
         <input id="payIdIn" name="pay_id" inputmode="numeric" maxlength="60" value="{{.Site.PayID}}" placeholder="例如 12345678" required>
+        <label for="rlIn">收款链接 <span class="hint" style="display:inline">（选填。填了施主就能扫码 / 一键唤起币安 App；不填也能按 UID 转账）</span></label>
+        <input id="rlIn" name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/…">
+        <div class="hint" style="margin-top:-4px">怎么拿：币安 App 收款页「保存图片」，用任意二维码识别工具（微信扫一扫、相册识图都行）读出图片里的链接，贴到这里。</div>
         <button class="btn" type="submit" style="margin-top:14px">保存</button>
       </form>
       {{if .HasGateway}}
@@ -166,7 +169,10 @@
     <div><label>Secret Key</label><input name="api_secret" type="password" maxlength="128" required autocomplete="new-password"></div>
   </div>
   <div class="grid2">
-    <div><label>币安 UID <span class="hint" style="display:inline">（App 头像页可见）</span></label><input name="uid" inputmode="numeric" maxlength="20" value="{{.Site.BinanceUID}}" required></div></div>
+    <div><label>币安 UID <span class="hint" style="display:inline">（App 头像页可见）</span></label><input name="uid" inputmode="numeric" maxlength="20" value="{{.Site.BinanceUID}}" required></div>
+    <div><label>收款链接 <span class="hint" style="display:inline">（选填，填了施主能扫码）</span></label><input name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/…"></div>
+  </div>
+  <div class="hint" style="margin-top:-4px">收款链接怎么拿：币安 App 收款页「保存图片」，用任意二维码识别工具读出图片里的链接。</div>
   </div>
   <button class="btn" type="submit" style="margin-top:14px">绑定并校验</button>
 </form>
