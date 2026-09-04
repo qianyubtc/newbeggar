@@ -34,6 +34,7 @@
 - [开发与测试](#开发与测试)
 - [常见问题](#常见问题)
 - [技术栈](#技术栈)
+- [支持本项目](#支持本项目)
 - [License](#license)
 
 ## 它是什么
@@ -247,6 +248,15 @@ python3 tools/sprite.py > templates/sprite.html  # 从字符网格重新生成�
 ## 技术栈
 
 Go 1.27 · 标准库 `net/http` + `html/template`（模板、字体、静态资源全部 `embed`）· SQLite（[modernc.org/sqlite](https://gitlab.com/cznic/sqlite)，无 CGO）· [BinancePayTool Go SDK](https://github.com/qianyubtc/BinancePayTool/tree/main/sdk/go) · [go-qrcode](https://github.com/skip2/go-qrcode) · 无前端框架，手写 CSS/JS · 像素字体 [缝合怪像素字体](https://github.com/TakWolf/fusion-pixel-font)（OFL）
+
+## 支持本项目
+
+如果这个项目帮到了你，欢迎 Star / 提 Issue / 交 PR，或者去[作者的碗](https://newbeggar.com)里丢个钢镚。
+
+还没有币安账号的话，用作者的邀请链接注册就是最好的支持（你省手续费的同时还支持了作者），邀请码 **QY333**：
+
+- 官方域名：<https://accounts.binance.com/register?ref=QY333>
+- 备用镜像（部分地区）：<https://www.bsmkweb.click/register?ref=QY333>
 
 ## License
 
