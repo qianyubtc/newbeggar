@@ -52,8 +52,9 @@
   </form>
 </section>
 
-<section class="card px" id="payment" style="margin-bottom:12px">
-  <h2>💰 收款方式</h2>
+<details class="card px fold" id="payment" style="margin-bottom:12px"{{if or .Site.IsMain (not .Site.PaymentReady)}} open{{end}}>
+  <summary><h2>💰 收款方式 <span class="sub">{{if .Site.IsMain}}config.env 配置{{else if eq .Site.PayMode "gateway"}}已绑币安 Key · 自动确认{{else if .Site.PaymentReady}}直接转账 · UID {{.Site.PayID}}{{else}}⚠️ 还没摆碗，点开设置{{end}}</span><span class="caret" aria-hidden="true">▸</span></h2></summary>
+
   {{if .Site.IsMain}}
     <div class="hint">主站的收款方式在服务器 config.env 里配置。当前：{{if eq .Site.PayMode "gateway"}}BinancePayTool 网关自动确认（默认账号）{{else}}直接转账{{if .Site.PayID}}，Pay ID {{.Site.PayID}}{{end}}{{end}}。</div>
     {{if eq .Site.PayMode "gateway"}}<form method="post" action="/manage/verify" style="margin-top:10px"><button class="btn sec sm" type="submit">校验网关默认账号</button></form>{{end}}
@@ -86,7 +87,7 @@
       {{end}}
     {{end}}
   {{end}}
-</section>
+</details>
 
 
 <section class="card px" id="donations" style="margin-bottom:12px">
@@ -172,6 +173,7 @@
 {{end}}
 {{define "scripts"}}<script>
 (function(){var t=document.getElementById('flashToast');if(!t)return;setTimeout(function(){t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(function(){t.remove()},450)},3500)})();
+(function(){var d=document.getElementById('payment');if(d&&location.hash==='#payment')d.open=true})();
 (function(){var m=document.getElementById('pwModal'),b=document.getElementById('pwBtn'),x=document.getElementById('pwX');if(!m)return;
   function open(){m.hidden=false;var i=document.getElementById('pw1');if(i)setTimeout(function(){i.focus()},50)}function close(){m.hidden=true}
   if(b)b.addEventListener('click',open);if(x)x.addEventListener('click',close);

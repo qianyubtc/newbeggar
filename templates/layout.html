@@ -156,6 +156,9 @@ textarea{resize:vertical;min-height:70px}
 .time{font-size:12px;color:var(--muted);white-space:nowrap}
 .me{font-size:10px;color:var(--ink);background:var(--gold);border:2px solid var(--ink);padding:0 5px;flex:none}
 .empty{text-align:center;color:var(--muted);padding:24px 12px;font-size:14px}
+.fold>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}.fold>summary::-webkit-details-marker{display:none}
+.fold>summary h2{margin:0;display:flex;align-items:center;gap:8px}.fold>summary .caret{margin-left:auto;font-size:18px;transition:transform .15s}.fold[open]>summary .caret{transform:rotate(90deg)}
+.fold[open]>summary h2{margin-bottom:12px}
 .pager{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;font-family:var(--pf);font-size:14px}
 .pager a,.pager span.cur,.pager span.dis{display:inline-flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;padding:0 10px;border:3px solid var(--ink);background:#fff;color:var(--ink);text-decoration:none;box-shadow:2px 2px 0 var(--ink)}
 .pager span.cur{background:var(--gold)}.pager span.dis{opacity:.4;box-shadow:none}
