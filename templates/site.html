@@ -26,9 +26,8 @@
   </section>
 
   <section class="stats">
-    <div class="stat main px">{{template "bowlicon"}}<div style="min-width:0"><div class="k">碗里已有</div><div class="v num bowlv"><span>{{fmtAmt .Stats.TotalE8}}<small>{{.Site.Currency}}</small></span><span class="bowlcoins">{{template "coin"}}<b class="coinN">{{.Coins}}</b><small>钢镚</small></span></div></div></div>
-    <div class="stat px"><div class="k">施主</div><div class="v num">{{.Stats.Donors}}<small>人</small></div></div>
-    <div class="stat px"><div class="k">今日进账</div><div class="v num">+{{fmtAmt .Stats.TodayE8}}</div></div>
+    <div class="stat main px">{{template "bowlicon"}}<div style="min-width:0;flex:1"><div class="k">碗里已有</div><div class="v num bowlv"><span>{{fmtAmt .Stats.TotalE8}}<small>{{.Site.Currency}}</small></span><span class="bowlcoins">{{template "coin"}}<b class="coinN">{{.Coins}}</b><small>钢镚</small></span></div></div>
+      <div class="sub2"><span><i>施主</i><b class="num">{{.Stats.Donors}}</b><small>人</small></span><span><i>今日</i><b class="num">+{{fmtAmt .Stats.TodayE8}}</b></span></div></div>
   </section>
 
   <section class="card px donate-card" id="donate">
