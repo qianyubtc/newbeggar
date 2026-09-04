@@ -77,10 +77,9 @@
         <button class="btn" type="submit" style="margin-top:14px">保存</button>
       </form>
       {{if .HasGateway}}
-      <details style="margin-top:22px"><summary style="cursor:pointer;font-size:15px;font-family:var(--pf)">方式二：绑定币安只读 API Key（进阶：到账自动确认上榜，不用你盯着）</summary>
-        <div class="hint" style="margin:8px 0 4px">施主付完钱自动上榜，你不用手动确认。Key 只要「允许读取」权限，拿不走钱；本站不保存 Key，只交给收款网关加密存储。</div>
-        {{template "bindform" .}}
-      </details>
+      <h2 style="font-size:15px;margin-top:22px">方式二：绑定币安只读 API Key（到账自动确认上榜）</h2>
+      <div class="hint" style="margin:6px 0 4px">施主付完钱自动上榜，你不用手动确认。Key 只要「允许读取」权限，拿不走钱；本站不保存 Key，只交给收款网关加密存储。</div>
+      {{template "bindform" .}}
       {{end}}
     {{end}}
   {{end}}
