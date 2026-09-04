@@ -155,12 +155,6 @@
 {{end}}
 </div>
 {{end}}
-{{define "pager"}}{{if gt .Pages 1}}<nav class="pager" aria-label="分页">
-  {{if .HasPrev}}<a href="{{.URL .Prev}}">‹ 上一页</a>{{else}}<span class="dis">‹ 上一页</span>{{end}}
-  {{range .Nums}}{{if eq . $.Page}}<span class="cur">{{.}}</span>{{else}}<a href="{{$.URL .}}">{{.}}</a>{{end}}{{end}}
-  {{if .HasNext}}<a href="{{.URL .Next}}">下一页 ›</a>{{else}}<span class="dis">下一页 ›</span>{{end}}
-  <span class="hint" style="margin-left:auto">{{.Page}}/{{.Pages}} 页</span>
-</nav>{{end}}{{end}}
 {{define "bindform"}}
 <form method="post" action="/manage/bind" autocomplete="off">
   <div class="hint" style="margin-bottom:8px">币安 App → 账户 → API 管理 → 创建 API：<b>只勾「允许读取」</b>，其它权限都不要，<b>不用设 IP 白名单</b>（只读 Key 拿不走钱）。Key 只用来读取你的收款流水，服务端加密存储，永不展示。</div>
@@ -173,7 +167,6 @@
     <div><label>收款链接 <span class="hint" style="display:inline">（选填，填了施主能扫码）</span></label><input name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/…"></div>
   </div>
   <div class="hint" style="margin-top:-4px">收款链接怎么拿：币安 App 收款页「保存图片」，用任意二维码识别工具读出图片里的链接。</div>
-  </div>
   <button class="btn" type="submit" style="margin-top:14px">绑定并校验</button>
 </form>
 {{end}}

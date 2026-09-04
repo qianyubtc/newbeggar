@@ -517,33 +517,50 @@ func (a *App) handleDonationStatus(w http.ResponseWriter, r *http.Request) {
 
 type rankPage struct {
 	Base
-	Donors     []DonorRow
-	DonorsWeek []DonorRow
-	Sites      []SiteRow
-	SitesWeek  []SiteRow
-	Popular    []SiteRow
+	Donors                                                  []DonorRow
+	DonorsWeek                                              []DonorRow
+	Sites                                                   []SiteRow
+	SitesWeek                                               []SiteRow
+	Popular                                                 []SiteRow
+	PgDonors, PgDonorsWeek, PgSites, PgSitesWeek, PgPopular Pager
+}
+
+const rankPageSize = 35
+
+var rankParams = []string{"da", "dw", "ba", "bw", "pp"}
+
+func pageOf[T any](p Pager, rows []T) []T {
+	lo := p.Offset()
+	if lo >= len(rows) {
+		return nil
+	}
+	hi := lo + p.Size
+	if hi > len(rows) {
+		hi = len(rows)
+	}
+	return rows[lo:hi]
 }
 
 func (a *App) handleRank(w http.ResponseWriter, r *http.Request) {
 	p := rankPage{Base: a.base(r)}
 	var err error
-	if p.Donors, err = a.st.GlobalDonorRank(100, 0); err != nil {
+	if p.Donors, err = a.st.GlobalDonorRank(2000, 0); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.DonorsWeek, err = a.st.GlobalDonorRank(100, weekStart()); err != nil {
+	if p.DonorsWeek, err = a.st.GlobalDonorRank(2000, weekStart()); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.Sites, err = a.st.SubsiteRank(100, false, "amount"); err != nil {
+	if p.Sites, err = a.st.SubsiteRank(2000, false, "amount"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.SitesWeek, err = a.st.SubsiteRank(100, false, "week"); err != nil {
+	if p.SitesWeek, err = a.st.SubsiteRank(2000, false, "week"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.Popular, err = a.st.SubsiteRank(100, false, "coins"); err != nil {
+	if p.Popular, err = a.st.SubsiteRank(2000, false, "coins"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -555,5 +572,12 @@ func (a *App) handleRank(w http.ResponseWriter, r *http.Request) {
 	a.decorate(p.Sites, positions)
 	a.decorate(p.SitesWeek, positions)
 	a.decorate(p.Popular, positions)
+	pg := func(param, anchor string, n int) Pager {
+		return newPagerAt(r, "/rank", rankParams, param, anchor, n, rankPageSize)
+	}
+	p.PgDonors, p.PgDonorsWeek = pg("da", "#donors", len(p.Donors)), pg("dw", "#donors-week", len(p.DonorsWeek))
+	p.PgSites, p.PgSitesWeek, p.PgPopular = pg("ba", "#beggars", len(p.Sites)), pg("bw", "#beggars-week", len(p.SitesWeek)), pg("pp", "#popular", len(p.Popular))
+	p.Donors, p.DonorsWeek = pageOf(p.PgDonors, p.Donors), pageOf(p.PgDonorsWeek, p.DonorsWeek)
+	p.Sites, p.SitesWeek, p.Popular = pageOf(p.PgSites, p.Sites), pageOf(p.PgSitesWeek, p.SitesWeek), pageOf(p.PgPopular, p.Popular)
 	a.render(w, http.StatusOK, "rank", p)
 }

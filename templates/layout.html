@@ -330,3 +330,9 @@ window.sfx=(function(){var ctx,on=true,C=window.AudioContext||window.webkitAudio
 {{block "scripts" .}}{{end}}
 </body>
 </html>{{end}}
+{{define "pager"}}{{if gt .Pages 1}}<nav class="pager" aria-label="分页">
+  {{if .HasPrev}}<a href="{{.URL .Prev}}">‹ 上一页</a>{{else}}<span class="dis">‹ 上一页</span>{{end}}
+  {{range .Nums}}{{if eq . $.Page}}<span class="cur">{{.}}</span>{{else}}<a href="{{$.URL .}}">{{.}}</a>{{end}}{{end}}
+  {{if .HasNext}}<a href="{{.URL .Next}}">下一页 ›</a>{{else}}<span class="dis">下一页 ›</span>{{end}}
+  <span class="hint" style="margin-left:auto">{{.Page}}/{{.Pages}} 页</span>
+</nav>{{end}}{{end}}

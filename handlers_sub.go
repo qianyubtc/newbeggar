@@ -502,8 +502,9 @@ func (a *App) ownerSite(w http.ResponseWriter, r *http.Request) (*Site, bool) {
 
 const managePageSize = 5
 
-// Pager 后台列表分页：?dp=2#donations 这种，页码从 1 起。
+// Pager 列表分页：?dp=2#donations 这种，页码从 1 起。
 type Pager struct {
+	Path   string // 页面路径（/manage、/rank）
 	Param  string // 查询参数名
 	Anchor string // 跳回的锚点
 	Page   int
@@ -514,7 +515,12 @@ type Pager struct {
 }
 
 func newPager(r *http.Request, param, anchor string, total, size int) Pager {
-	pg := Pager{Param: param, Anchor: anchor, Total: total, Size: size, Page: 1}
+	return newPagerAt(r, "/manage", []string{"dp", "sp", "mp"}, param, anchor, total, size)
+}
+
+// newPagerAt path 页面上的分页；siblings 是同页其它列表的分页参数，翻页时原样带上。
+func newPagerAt(r *http.Request, path string, siblings []string, param, anchor string, total, size int) Pager {
+	pg := Pager{Path: path, Param: param, Anchor: anchor, Total: total, Size: size, Page: 1}
 	pg.Pages = (total + size - 1) / size
 	if pg.Pages < 1 {
 		pg.Pages = 1
@@ -526,7 +532,7 @@ func newPager(r *http.Request, param, anchor string, total, size int) Pager {
 		pg.Page = pg.Pages
 	}
 	q := url.Values{}
-	for _, k := range []string{"dp", "sp", "mp"} {
+	for _, k := range siblings {
 		if k != param && r.URL.Query().Get(k) != "" {
 			q.Set(k, r.URL.Query().Get(k))
 		}
@@ -566,7 +572,7 @@ func (p Pager) URL(n int) string {
 	if q != "" {
 		q = "?" + q
 	}
-	return "/manage" + q + p.Anchor
+	return p.Path + q + p.Anchor
 }
 
 // Nums 要显示的页码：当前页前后各 2 页。

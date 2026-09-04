@@ -110,6 +110,7 @@ func (a *App) loadTemplates() error {
 		"sectTitle":   sectTitle,
 		"statusText":  statusText,
 		"inc":         func(i int) int { return i + 1 },
+		"add":         func(a, b int) int { return a + b },
 		"div10":       func(v int64) string { return fmtE8(v * 10000000) },
 		"xav":         a.xAvatar,
 		"handleOf":    handleOf,
