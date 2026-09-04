@@ -56,6 +56,7 @@ type Base struct {
 	HasBGM          bool   // static/bgm.m4a 存在才渲染背景音乐
 	HomePath        string // 左上角站名点回哪：刚才浏览的子站（cookie bhome），否则主站
 	Lang            string // 当前语言代码
+	LangShort       string // 当前语言短标签（导航栏显示）
 	Langs           []langInfo
 	NoIndex         bool   // 未收录的子站不让搜索引擎收录
 	Desc            string // 页面描述（站点页用站名 + 口号）
@@ -250,6 +251,7 @@ func (a *App) base(r *http.Request) Base {
 		b.MeID = b.Me.ID
 	}
 	b.Lang, b.Langs = a.lang(r), langs
+	b.LangShort = shortOf(b.Lang)
 	b.HomePath = "/"
 	if s := cookieVal(r, "bhome"); s != "" && validSlug(s) {
 		b.HomePath = "/" + s

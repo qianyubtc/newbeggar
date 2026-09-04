@@ -11,11 +11,21 @@ import (
 // 多语言：模板与代码里的中文原文就是 key，按语言查表；查不到回落英文，再回落中文。
 // 各语言表在 i18n_<lang>.go 里注册（translations[lang][中文] = 译文），占位符用 %s / %d。
 
-type langInfo struct{ Code, Name string }
+type langInfo struct{ Code, Name, Short string }
 
 var langs = []langInfo{
-	{"zh", "中文"}, {"en", "English"}, {"ja", "日本語"}, {"ko", "한국어"}, {"ru", "Русский"}, {"es", "Español"},
-	{"pt", "Português"}, {"fr", "Français"}, {"de", "Deutsch"}, {"vi", "Tiếng Việt"}, {"id", "Bahasa Indonesia"}, {"tr", "Türkçe"},
+	{"zh", "中文", "中"}, {"en", "English", "EN"}, {"ja", "日本語", "日"}, {"ko", "한국어", "한"}, {"ru", "Русский", "RU"}, {"es", "Español", "ES"},
+	{"pt", "Português", "PT"}, {"fr", "Français", "FR"}, {"de", "Deutsch", "DE"}, {"vi", "Tiếng Việt", "VI"}, {"id", "Bahasa Indonesia", "ID"}, {"tr", "Türkçe", "TR"},
+}
+
+// shortOf 当前语言的短标签，导航栏上显示（比地球图标更直观：一眼看出现在是哪种语言）。
+func shortOf(code string) string {
+	for _, l := range langs {
+		if l.Code == code {
+			return l.Short
+		}
+	}
+	return "中"
 }
 
 var translations = map[string]map[string]string{}

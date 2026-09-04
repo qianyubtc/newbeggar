@@ -31,7 +31,9 @@ a{color:var(--blue)}
 @media(min-width:900px){.page{padding-bottom:40px}}
 .px{border:4px solid transparent;border-image:var(--frame) 2 / 4px stretch;image-rendering:pixelated;background-clip:padding-box}
 .nav{display:flex;align-items:center;gap:6px;height:64px}
-.langsel{display:inline-flex;align-items:center;gap:2px;font-size:16px;flex:none;position:relative}.langsel select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.langsel{display:inline-flex;align-items:center;flex:none;position:relative;cursor:pointer}.langsel select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.langcur{display:inline-flex;align-items:center;gap:2px;font-family:var(--pf);font-size:14px;line-height:1;color:var(--ink);background:#fff;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:5px 6px;min-width:34px;justify-content:center}
+.langcur i{font-style:normal;font-size:9px;opacity:.6}
 .sfx{background:none;border:0;font-size:18px;line-height:1;padding:8px 6px;cursor:pointer;min-width:36px;min-height:36px;opacity:.85;flex:none}.sfx.off{opacity:.45}
 .sfx.idle{animation:sfxnudge 1.2s ease-in-out infinite}@keyframes sfxnudge{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}@media(prefers-reduced-motion:reduce){.sfx.idle{animation:none}}
 .nav>*{flex:none}.nav .brand{flex:0 1 auto;min-width:0}.nav .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -252,7 +254,7 @@ footer a{color:var(--muted)}
 <nav class="nav">
   <a class="brand" href="{{.HomePath}}"{{if ne .HomePath "/"}} title="{{T "回到刚才看的碗"}}"{{end}}>{{template "coin"}}<span>{{T .SiteTitle}}</span></a>
   <span class="sp"></span>
-  <label class="langsel" title="Language"><span aria-hidden="true">🌐</span><select onchange="location.href='/lang?to='+encodeURIComponent(this.value)" aria-label="Language">{{range .Langs}}<option value="{{.Code}}"{{if eq .Code $.Lang}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
+  <label class="langsel" title="Language / 语言"><span class="langcur" aria-hidden="true">{{.LangShort}}<i>▾</i></span><select onchange="location.href='/lang?to='+encodeURIComponent(this.value)" aria-label="Language">{{range .Langs}}<option value="{{.Code}}"{{if eq .Code $.Lang}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
   <button class="sfx" id="sfxBtn" type="button" aria-label="{{T "声音开关"}}" title="{{T "声音"}}">🔊</button>
   <a class="link navrank" href="/rank" aria-label="{{T "排行榜"}}" title="{{T "排行榜"}}"><span>{{T "排行榜"}}</span></a>
   {{if .Me}}<a class="link" href="/manage">{{T "我的后台"}}</a>{{else}}<a class="link" href="/login"><span class="hide-sm">{{T "站长"}}</span>{{T "登录"}}</a>{{end}}
