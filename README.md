@@ -9,9 +9,12 @@
 [![Payments](https://img.shields.io/badge/payments-BinancePayTool-F0B90B?logo=binance&logoColor=white)](https://github.com/qianyubtc/BinancePayTool)
 [![SQLite](https://img.shields.io/badge/storage-SQLite%20%C2%B7%20CGO%3D0-003B57?logo=sqlite&logoColor=white)](#技术栈)
 [![Live](https://img.shields.io/badge/在线体验-newbeggar.com-ffcc00)](https://newbeggar.com)
+[![Author](https://img.shields.io/badge/作者-qianyuwing.com-1e1e2e)](https://qianyuwing.com)
 [![Stars](https://img.shields.io/github/stars/qianyubtc/newbeggar?style=social)](https://github.com/qianyubtc/newbeggar/stargazers)
 
 **在线体验：<https://newbeggar.com>** —— 作者本人的碗。投个币、丢个钢镚，或者发条推开你自己的分舵试试。
+
+作者主页 <https://qianyuwing.com> · [𝕏 @qianyuwing](https://x.com/qianyuwing)
 
 </div>
 
@@ -266,6 +269,6 @@ Go 1.27 · 标准库 `net/http` + `html/template`（模板、字体、静态资�
 
 <div align="center">
 
-作者 [𝕏 @qianyuwing](https://x.com/qianyuwing) · [GitHub @qianyubtc](https://github.com/qianyubtc) · 行行好，赏个 ⭐
+作者 [qianyuwing.com](https://qianyuwing.com) · [𝕏 @qianyuwing](https://x.com/qianyuwing) · [GitHub @qianyubtc](https://github.com/qianyubtc) · 行行好，赏个 ⭐
 
 </div>
