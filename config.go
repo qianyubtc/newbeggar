@@ -18,6 +18,7 @@ type Config struct {
 	AdminPassword string // 主站登录口令（路径留空 + 此口令）
 	SiteTitle     string
 	RepoURL       string
+	SourceURL     string // 本站自己的开源仓库，页脚展示（留空不显示）
 	AuthorGitHub  string // 页脚作者 GitHub 链接
 	AuthorX       string // 页脚作者 X 链接
 
@@ -115,6 +116,7 @@ func loadConfig(path string) (*Config, error) {
 		AdminPassword:   get("ADMIN_PASSWORD", get("ADMIN_TOKEN", "")),
 		SiteTitle:       get("SITE_TITLE", "赛博要饭"),
 		RepoURL:         get("REPO_URL", "https://github.com/qianyubtc/BinancePayTool"),
+		SourceURL:       get("SOURCE_URL", "https://github.com/qianyubtc/newbeggar"),
 		AuthorGitHub:    get("AUTHOR_GITHUB", "https://github.com/qianyubtc"),
 		AuthorX:         get("AUTHOR_X", "https://x.com/qianyuwing"),
 		MainName:        get("MAIN_NAME", "站长"),

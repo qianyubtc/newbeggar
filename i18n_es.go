@@ -3,6 +3,7 @@ package main
 // 西班牙语（中性拉美 / 国际）。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["es"] = map[string]string{
+		"本站开源，欢迎 Star ⭐": "Este sitio es de código abierto ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Mendigo Cyber",
 		"赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。": "Mendigo Cyber: una monedita, buena gente. Dona con Binance Pay y deja una frase en el Libro de Méritos; si no tienes dinero, lanza una moneda gratis; abre tu propio cuenco con un tuit en X.",

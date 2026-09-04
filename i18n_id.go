@@ -3,6 +3,7 @@ package main
 // 印尼语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["id"] = map[string]string{
+		"本站开源，欢迎 Star ⭐": "Situs ini open source ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Pengemis Cyber",
 		"赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。": "Pengemis Cyber: kasihanilah, beri sesuap nasi. Sedekah lewat Binance Pay dan tinggalkan pesan di Buku Amal; bokek? lempar koin gratis; satu tweet di X langsung punya mangkuk sendiri.",

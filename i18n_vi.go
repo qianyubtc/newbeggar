@@ -3,6 +3,7 @@ package main
 // 越南语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["vi"] = map[string]string{
+		"本站开源，欢迎 Star ⭐": "Trang này là mã nguồn mở ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Ăn Xin Cyber",
 		"赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。": "Ăn Xin Cyber: làm ơn làm phước, cho xin miếng cơm. Bố thí bằng Binance Pay và để lại một câu trong Sổ Công Đức; hết tiền thì ném xu miễn phí; một tweet trên X là có bát ăn xin riêng.",

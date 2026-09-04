@@ -46,6 +46,7 @@ type Base struct {
 	SiteTitle       string
 	BaseURL         string
 	RepoURL         string
+	SourceURL       string
 	AuthorGitHub    string
 	AuthorX         string
 	SubsitesEnabled bool
@@ -245,7 +246,7 @@ func (a *App) sameOrigin(r *http.Request) bool {
 }
 
 func (a *App) base(r *http.Request) Base {
-	b := Base{SiteTitle: a.cfg.SiteTitle, BaseURL: a.cfg.BaseURL, RepoURL: a.cfg.RepoURL, AuthorGitHub: a.cfg.AuthorGitHub, AuthorX: a.cfg.AuthorX, SubsitesEnabled: a.cfg.SubsitesEnabled,
+	b := Base{SiteTitle: a.cfg.SiteTitle, BaseURL: a.cfg.BaseURL, RepoURL: a.cfg.RepoURL, SourceURL: a.cfg.SourceURL, AuthorGitHub: a.cfg.AuthorGitHub, AuthorX: a.cfg.AuthorX, SubsitesEnabled: a.cfg.SubsitesEnabled,
 		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r)}
 	if b.Me != nil {
 		b.MeID = b.Me.ID

@@ -3,6 +3,7 @@ package main
 // 德语：key 是中文原文，占位符 %s/%d 顺序须与中文一致。查不到回落英文。
 func init() {
 	translations["de"] = map[string]string{
+		"本站开源，欢迎 Star ⭐": "Diese Seite ist Open Source ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Cyber-Bettler",
 		"赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。": "Cyber-Bettler: eine kleine Münze, gute Seele. Spende mit Binance Pay und hinterlass eine Zeile im Buch der Verdienste; pleite? wirf eine Gratis-Münze; ein Tweet auf X und dein eigener Napf steht.",

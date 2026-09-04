@@ -3,6 +3,7 @@ package main
 // 土耳其语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["tr"] = map[string]string{
+		"本站开源，欢迎 Star ⭐": "Bu site açık kaynak ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Siber Dilenci",
 		"赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。": "Siber Dilenci: bir sadaka ver. Binance Pay ile bağış yap ve Sevap Defteri'ne bir satır bırak; paran yoksa ücretsiz jeton at; X'te tek tweetle kendi kaseni aç.",

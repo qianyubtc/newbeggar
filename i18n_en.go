@@ -3,6 +3,7 @@ package main
 // 英文：其它语言查不到时也回落到这里。key 是中文原文（模板/代码里的 T "…"），占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["en"] = map[string]string{
+		"本站开源，欢迎 Star ⭐": "This site is open source — star it ⭐",
 		// ---- 站名 / meta ----
 		"赛博要饭": "Cyber Beggar",
 		"赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。": "Cyber Beggar: spare a coin. Tip with Binance Pay and leave a line in the Book of Merit; toss a free coin if you're broke; open your own bowl with one tweet on X.",
