@@ -37,6 +37,7 @@ type sitePage struct {
 	ShareURL                                                            string  // 本站完整地址（复制/海报用）
 	QR                                                                  string  // 本站地址二维码（base64 PNG，海报用）
 	Skins                                                               []int64 // 可选形象编号（站长换形象用）
+	Visitor                                                             string  // 本次页面签发的访客标识（cookie 存不下时随请求回传）
 	Err                                                                 string
 	Nick                                                                string
 	XHandle                                                             string
@@ -131,6 +132,7 @@ func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, sit
 		return
 	}
 	p.MyCoins, _ = a.st.VisitorCoinsToday(site.ID, visitor)
+	p.Visitor = visitor
 	if site.XHandle != "" && site.XAvatar == "" { // 绑了 X 还没头像（主站 MAIN_X / 开站时抓失败）
 		if xp, _ := a.st.GetXProfile(strings.ToLower(site.XHandle)); xp != nil && xp.Avatar != "" {
 			a.st.FillSiteAvatarByHandle(site.XHandle, xp.Avatar) // 施主头像缓存里已有，直接用
@@ -300,6 +302,14 @@ func (a *App) handleCoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	visitor := cookieVal(r, "bv")
+	if parseVisitor(a.session, visitor) == 0 {
+		// cookie 被浏览器拦了（Safari 跟踪保护、App 内置浏览器、隐私模式…）：
+		// 收页面渲染时签发的令牌，同样只有真开过本站页面才有；顺手把 cookie 补上。
+		if v := r.FormValue("bv"); parseVisitor(a.session, v) != 0 {
+			visitor = v
+			a.setCookie(w, "bv", v, 365*24*3600)
+		}
+	}
 	if parseVisitor(a.session, visitor) == 0 { // 访客标识由本站页面签发；伪造或跨站脚本发的请求直接拒
 		reply(403, map[string]any{"ok": false, "msg": a.T(r, "请先打开要饭页再丢")})
 		return

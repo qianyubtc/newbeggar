@@ -25,7 +25,7 @@
     </div>
     {{if .Site.Slogan}}<div class="dialog"><span class="typer" data-text="{{.Site.Slogan}}">{{.Site.Slogan}}</span><span class="cursor">▼</span></div>{{end}}
     <div class="coinrow">
-      <button type="button" class="btn sec sm coinbtn" id="coinbtn" data-site="{{.Site.Slug}}" {{if ge .MyCoins .CoinsPerDay}}disabled{{end}}>{{template "coin"}}<span id="coinTxt">{{if ge .MyCoins .CoinsPerDay}}{{T "今天丢过了"}}{{else}}{{T "丢个钢镚（免费）"}}{{end}}</span></button>
+      <button type="button" class="btn sec sm coinbtn" id="coinbtn" data-site="{{.Site.Slug}}" data-bv="{{.Visitor}}" {{if ge .MyCoins .CoinsPerDay}}disabled{{end}}>{{template "coin"}}<span id="coinTxt">{{if ge .MyCoins .CoinsPerDay}}{{T "今天丢过了"}}{{else}}{{T "丢个钢镚（免费）"}}{{end}}</span></button>
       {{if .Ready}}<a class="btn sm" id="donateBtn" href="#donate">{{T "💸 投币施舍"}}</a>{{else}}<span class="hint" style="margin:0">{{T "还没摆碗，暂不能投币"}}{{if and .Me (eq .Me.ID .Site.ID)}}，<a href="/manage#payment">{{T "去配置"}}</a>{{end}}</span>{{end}}
     </div>
     <div class="coins hint" style="margin-top:8px">{{T "钢镚"}} <b class="pf coinN">{{.Coins}}</b> {{T "· 今日"}} <b id="coinT" class="pf">{{.CoinsToday}}</b> {{T "· 每 0.1 U ="}} {{.MoneyExp | div10}} {{T "EXP · 每个钢镚 ="}} {{.CoinExp}} EXP</div>
@@ -164,7 +164,7 @@
   var toast=document.getElementById('toast'),tt;
   function say(m){toast.textContent=m;toast.hidden=false;clearTimeout(tt);tt=setTimeout(function(){toast.hidden=true},2200)}
   var cb=document.getElementById('coinbtn');
-  if(cb){cb.addEventListener('click',function(){cb.disabled=true;var fd=new FormData();fd.append('site',cb.dataset.site);
+  if(cb){cb.addEventListener('click',function(){cb.disabled=true;var fd=new FormData();fd.append('site',cb.dataset.site);if(cb.dataset.bv)fd.append('bv',cb.dataset.bv);
     fetch('/coin',{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(j){
       if(j.ok&&j.added){document.querySelectorAll('.coinN').forEach(function(el){el.textContent=j.total});document.getElementById('coinT').textContent=j.today;
         var c=document.createElement('div');c.className='flycoin';c.textContent='🪙';var r=cb.getBoundingClientRect();c.style.left=(r.left+r.width/2)+'px';c.style.top=r.top+'px';document.body.appendChild(c);setTimeout(function(){c.remove()},900);
