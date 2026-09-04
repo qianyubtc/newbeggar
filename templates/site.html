@@ -56,6 +56,13 @@
     <div class="notice">这位乞丐还没摆碗（未配置收款方式），暂时收不了钱。{{if and .Me (eq .Me.ID .Site.ID)}}<a href="/manage#payment">去后台配置 →</a>{{end}}</div>
     {{end}}
   </section>
+  {{if and .SubsitesEnabled (not .Me)}}<div class="only-desktop">
+  <section class="card px cta">
+    <h2 style="justify-content:center">🏚 想自己要饭？</h2>
+    <p>用 X 账号发一条推就能开自己的要饭站：独立地址、自己的碗、功德簿和施主榜，钱直接进你的币安账户。</p>
+    <a class="btn sec" href="/new">用 X 开通我的要饭站 →</a>
+  </section>
+  </div>{{end}}
 </aside>
 
 <main class="col-r">
@@ -94,13 +101,13 @@
       {{template "sitelist" (dict "Rows" .Popular "Me" .MeID "Here" .Site.ID "By" "coins")}}
     </div>
   </section>
-  {{if and .SubsitesEnabled (not .Me)}}
+  {{if and .SubsitesEnabled (not .Me)}}<div class="only-mobile">
   <section class="card px cta">
     <h2 style="justify-content:center">🏚 想自己要饭？</h2>
     <p>用 X 账号发一条推就能开自己的要饭站：独立地址、自己的碗、功德簿和施主榜，钱直接进你的币安账户。</p>
     <a class="btn sec" href="/new">用 X 开通我的要饭站 →</a>
   </section>
-  {{end}}
+  </div>{{end}}
 </main>
 </div>
 {{if .Ready}}<div class="fab" id="fab"><a class="btn" href="#donate" id="fabBtn">💸 投币施舍</a></div>{{end}}
