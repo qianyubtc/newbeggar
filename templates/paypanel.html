@@ -14,7 +14,8 @@
       <div class="hint center">币安 App → 首页「扫一扫」→ 输入金额 <b class="num">{{.Amount}}</b>{{if .NoteCode}}，备注填 <b class="num">{{.NoteCode}}</b>{{end}}</div>
     {{end}}
     <div class="section-title">或手动转账</div>
-  {{else}}<div class="section-title" style="margin-top:12px">转账信息</div>{{end}}
+  {{else}}<div class="section-title" style="margin-top:12px">转账信息</div>
+    {{if .PayID}}<div class="hint">币安 App → 底部「<b>支付</b>」→「<b>转账</b>」→ 收款方输入下面的 UID → 金额填 <b class="num">{{.Amount}}</b>{{if .NoteCode}} → 备注填 <b class="num">{{.NoteCode}}</b>{{end}} → 转完回来点「我已施舍」</div>{{end}}{{end}}
   <div class="kv">
     {{if .PayID}}<span class="k">收款方</span><span class="v"><span class="code">{{.PayID}}</span><button type="button" class="copy" data-copy="{{.PayID}}">复制</button></span>{{end}}
     <span class="k">金额</span><span class="v"><span class="code">{{.Amount}} {{.D.Currency}}</span><button type="button" class="copy" data-copy="{{.Amount}}">复制</button></span>

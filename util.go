@@ -446,10 +446,18 @@ func clientIP(r *http.Request, trustProxy bool, header string) string {
 }
 
 // validateBinanceLink 只接受币安域名的 https 链接，防止有人借本站挂钓鱼链接。
+var reHTTPS = regexp.MustCompile(`https://[^\s<>"'）)]+`)
+
 func validateBinanceLink(s string) (string, error) {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return "", nil
+	}
+	// 用户常把币安 App「分享」出来的整段文字一起贴进来：从里面挑出链接
+	if !strings.HasPrefix(strings.ToLower(s), "https://") {
+		if m := reHTTPS.FindString(s); m != "" {
+			s = m
+		}
 	}
 	if len(s) > 300 {
 		return "", errors.New("收款链接过长")

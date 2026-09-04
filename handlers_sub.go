@@ -704,8 +704,11 @@ func (a *App) handleManagePayment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payID := cleanText(r.FormValue("pay_id"), 60, false)
+	if link == "" && r.FormValue("receive_link") == "" {
+		link = site.ReceiveLink // 表单没这个字段了，保留库里已有的链接
+	}
 	if link == "" && payID == "" {
-		a.renderManage(w, r, site, "收款链接和 Pay ID 至少填一项，不然钱没处去")
+		a.renderManage(w, r, site, "填一下币安 UID，不然钱没处去")
 		return
 	}
 	if site.PayMode == "gateway" {

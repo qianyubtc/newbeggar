@@ -1,7 +1,7 @@
 {{define "title"}}后台 · {{.Site.Name}} · {{.SiteTitle}}{{end}}
 {{define "content"}}
 <div class="narrow" style="max-width:720px">
-{{if .Welcome}}<div class="notice ok" style="margin-bottom:12px">🎉 开张大吉！你的要饭站 <a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> 已上线{{if not .Site.Listed}}（待主站站长收录后进榜）{{end}}。<b>下一步：</b>在下面「收款方式」里绑定币安 Key 或填收款码，不然施主没法给你钱。以后从 <a href="{{.LoginURL}}">站长登录</a> 进来（X 用户名 {{.Site.Slug}} + 你的口令），忘了口令可以再发推找回。</div>{{end}}
+{{if .Welcome}}<div class="notice ok" style="margin-bottom:12px">🎉 开张大吉！你的要饭站 <a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> 已上线{{if not .Site.Listed}}（待主站站长收录后进榜）{{end}}。<b>下一步：</b>到下面「收款方式」把币安 App 收款页分享出来的链接贴进去（一分钟），不然施主没法给你钱。以后从 <a href="{{.LoginURL}}">站长登录</a> 进来（X 用户名 {{.Site.Slug}} + 你的口令），忘了口令可以再发推找回。</div>{{end}}
 {{if .Flash}}<div class="notice ok" style="margin-bottom:12px">{{.Flash}}</div><div class="toast" id="flashToast" aria-hidden="true">✅ {{.Flash}}</div>{{end}}
 {{if .Err}}<div class="notice bad" style="margin-bottom:12px">{{.Err}}</div>{{end}}
 
@@ -68,21 +68,20 @@
         {{template "bindform" .}}
       </details>
     {{else}}
-      {{if .HasGateway}}
-      <div class="notice" style="margin-bottom:12px">{{if .Site.PaymentReady}}当前是<b>直接转账</b>模式：施主转完自报，你来确认。{{else}}⚠️ 还没配置收款方式，施主现在没法给你钱。{{end}}推荐绑定币安<b>只读</b> API Key：到账自动确认、自动上榜，不用你盯着。</div>
-      <h2 style="font-size:15px">方式一：绑定币安 API Key（自动确认）</h2>
-      {{template "bindform" .}}
-      <h2 style="font-size:15px;margin-top:22px">方式二：直接转账（手动确认）</h2>
-      {{else}}
-      <div class="hint" style="margin-bottom:10px">{{if .Site.PaymentReady}}当前是直接转账模式：施主转完自报，你来确认。{{else}}⚠️ 还没配置收款方式，施主现在没法给你钱。{{end}}</div>
-      {{end}}
+      <div class="notice" style="margin-bottom:12px">{{if .Site.PaymentReady}}当前是<b>直接转账</b>模式：施主在币安 App 里按你的 UID 转账，转完点「我已施舍」，你在后台确认后上榜。{{else}}⚠️ 还没摆碗：填一下币安 UID 就能收钱，十秒钟的事。{{end}}</div>
+      <h2 style="font-size:15px">方式一：填币安 UID（最简单）</h2>
+      <div class="hint" style="margin:6px 0 10px">币安 App → 点左上角头像，头像下面那串数字就是 <b>UID</b>（也是 Pay ID）。施主投币时会看到它，在币安 App「支付 → 转账」里输入就能转给你，零手续费。</div>
       <form method="post" action="/manage/payment">
-        <label>币安收款链接 <span class="hint" style="display:inline">（收款二维码解码出的 https://app.binance.com/… 链接，施主可扫码 / 一键唤起）</span></label>
-        <input name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/xxxx">
-        <label>币安 Pay ID / UID / 邮箱 <span class="hint" style="display:inline">（施主手动转账用；和收款链接至少填一项）</span></label>
-        <input name="pay_id" maxlength="60" value="{{.Site.PayID}}" placeholder="例如 UID 12345678">
-        <button class="btn sec" type="submit" style="margin-top:14px">保存直接转账设置</button>
+        <label for="payIdIn">币安 UID</label>
+        <input id="payIdIn" name="pay_id" inputmode="numeric" maxlength="60" value="{{.Site.PayID}}" placeholder="例如 12345678" required>
+        <button class="btn" type="submit" style="margin-top:14px">保存</button>
       </form>
+      {{if .HasGateway}}
+      <details style="margin-top:22px"><summary style="cursor:pointer;font-size:15px;font-family:var(--pf)">方式二：绑定币安只读 API Key（进阶：到账自动确认上榜，不用你盯着）</summary>
+        <div class="hint" style="margin:8px 0 4px">施主付完钱自动上榜，你不用手动确认。Key 只要「允许读取」权限，拿不走钱；本站不保存 Key，只交给收款网关加密存储。</div>
+        {{template "bindform" .}}
+      </details>
+      {{end}}
     {{end}}
   {{end}}
 </section>
@@ -168,8 +167,7 @@
     <div><label>Secret Key</label><input name="api_secret" type="password" maxlength="128" required autocomplete="new-password"></div>
   </div>
   <div class="grid2">
-    <div><label>币安 UID <span class="hint" style="display:inline">（App 头像页可见）</span></label><input name="uid" inputmode="numeric" maxlength="20" value="{{.Site.BinanceUID}}" required></div>
-    <div><label>收款链接 <span class="hint" style="display:inline">（可选，收款码解码内容）</span></label><input name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/xxxx"></div>
+    <div><label>币安 UID <span class="hint" style="display:inline">（App 头像页可见）</span></label><input name="uid" inputmode="numeric" maxlength="20" value="{{.Site.BinanceUID}}" required></div></div>
   </div>
   <button class="btn" type="submit" style="margin-top:14px">绑定并校验</button>
 </form>

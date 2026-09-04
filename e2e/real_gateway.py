@@ -273,15 +273,15 @@ MAIN_X=@qianyuwing
         assert st == 302 and h["Location"] == "/manage?welcome=1", (st, h)
         assert "bs" in s1.cookies, "开站后应自动登录"
         st, _, body = s1.get("/manage?welcome=1")
-        assert st == 200 and "开张大吉" in body and "方式一：绑定币安 API Key" in body and "不用设 IP 白名单" in body, "管理页异常"
-        st, h, _ = s1.post("/manage/payment", {"receive_link": "https://app.binance.com/uni-qr/SUBTEST", "pay_id": "UID 12345678"})
+        assert st == 200 and "开张大吉" in body and "方式一：填币安 UID" in body and "不用设 IP 白名单" in body, "管理页异常"
+        st, h, _ = s1.post("/manage/payment", {"pay_id": "12345678"})
         assert st == 302, st
         s2 = Session(base)
         st, h, _ = s2.post("/donate", {"site": "qianyufendo", "nickname": "过路财神", "x_handle": "@caishen", "amount": "8", "message": "分舵铁粉专属留言"})
         assert st == 302 and h["Location"].startswith("/pay/"), (st, h)
         code2 = h["Location"][5:]
         st, _, body = s2.get(f"/pay/{code2}")
-        assert "UID 12345678" in body and "data:image/png;base64," in body, "手动付款页异常"
+        assert "12345678" in body and "我已施舍" in body, "手动付款页异常"
         assert s2.post(f"/pay/{code2}/claim", {"binance_order_id": "452100000000000999"})[0] == 302
         st, _, body = s1.get("/manage")
         assert "待确认的施舍" in body and "452100000000000999" in body, "站长未看到待确认"
