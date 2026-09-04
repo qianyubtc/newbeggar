@@ -40,7 +40,7 @@
     <div class="rank{{if lt $n 3}} m{{end}}">{{rankBadge $n}}</div>
     {{if $s.AvatarURL}}<img class="av img" src="{{$s.AvatarURL}}" alt="">{{else}}<div class="av sq">{{$s.Avatar}}</div>{{end}}
     <div class="body"><div class="name"><span><a href="{{$s.Path}}">{{$s.Name}}</a></span>{{if eq $s.ID $.Me}}<span class="me">{{T "就是我"}}</span>{{end}}</div><div class="sub">{{if $s.Title}}{{T $s.Title}} · {{end}}{{(level $s.Exp).Title}} · {{$s.Donors}} {{T "位施主 · 钢镚"}} {{$s.Coins}}</div></div>
-    <div class="amtv num{{if ne $.By "coins"}} accent{{end}}">{{if eq $.By "coins"}}🪙 {{$s.Coins}}{{else}}{{fmtAmt $s.TotalE8}}{{end}}</div>
+    <div class="amtv num{{if ne $.By "coins"}} accent{{end}}">{{if eq $.By "coins"}}{{template "coin"}} {{$s.Coins}}{{else}}{{fmtAmt $s.TotalE8}}{{end}}</div>
   </li>{{end}}
 </ul>{{else}}<div class="empty"><div class="ico">🏚</div>{{T "还没有人上榜"}}</div>{{end}}{{end}}
 {{define "scripts"}}<script>

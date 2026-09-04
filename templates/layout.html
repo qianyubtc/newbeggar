@@ -34,11 +34,15 @@ a{color:var(--blue)}
 .langsel{display:inline-flex;align-items:center;flex:none;position:relative;cursor:pointer}.langsel select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
 .langcur{display:inline-flex;align-items:center;gap:2px;font-family:var(--pf);font-size:14px;line-height:1;color:var(--ink);background:#fff;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:5px 6px;min-width:34px;justify-content:center}
 .langcur i{font-style:normal;font-size:9px;opacity:.6}
-.sfx{background:none;border:0;font-size:18px;line-height:1;padding:8px 6px;cursor:pointer;min-width:36px;min-height:36px;opacity:.85;flex:none}.sfx.off{opacity:.45}
+.sfx{background:none;border:0;line-height:0;padding:8px 4px;cursor:pointer;min-width:34px;min-height:36px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.px-spk .spk-x{display:none}.sfx.off .spk-w1,.sfx.off .spk-w2{display:none}.sfx.off .spk-x{display:inline}
+.sfx.idle .spk-w2{opacity:.25}
+.navlogin{display:inline-flex;align-items:center;gap:5px}.px-key{flex:none}
+.navrank{display:inline-flex;align-items:center;gap:5px}.px-trophy{flex:none}
 .sfx.idle{animation:sfxnudge 1.2s ease-in-out infinite}@keyframes sfxnudge{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}@media(prefers-reduced-motion:reduce){.sfx.idle{animation:none}}
 .nav>*{flex:none}.nav .brand{flex:0 1 auto;min-width:0}.nav .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:430px){.nav{gap:4px}.nav .brand{font-size:20px;margin-right:2px}.nav .brand .px-coin{display:none}.sfx{min-width:28px;padding:6px 2px;font-size:16px}.nav a.link{padding:8px 5px;font-size:15px}.nav a.pill{padding:6px 10px;font-size:15px}
-  .nav a.navrank span{display:none}.nav a.navrank::before{content:"🏆";font-size:16px}}
+  .nav a.navrank span{display:none}.nav .navlogin .lbl{display:none}}
 .brand{display:flex;align-items:center;gap:8px;font-size:24px;line-height:1;color:var(--ink);text-decoration:none;white-space:nowrap;margin-right:6px}
 .brand .px-coin{width:28px;height:28px;flex:none}
 .nav .sp{flex:1}
@@ -155,6 +159,7 @@ textarea{resize:vertical;min-height:70px}
 .name>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .name a{color:inherit;text-decoration:none}
 .sub{font-size:13px;color:var(--muted);margin-top:1px}
+.amtv .px-coin{width:14px;height:14px;vertical-align:-2px}
 .amtv{white-space:nowrap;font-size:18px}
 .feed .item{flex-wrap:wrap}
 .bubble{flex-basis:100%;margin:8px 0 0 46px;background:#fff;border:3px solid var(--ink);padding:6px 10px;font-size:14px;line-height:1.6;word-break:break-word;position:relative;box-shadow:2px 2px 0 var(--ink)}
@@ -255,9 +260,9 @@ footer a{color:var(--muted)}
   <a class="brand" href="{{.HomePath}}"{{if ne .HomePath "/"}} title="{{T "回到刚才看的碗"}}"{{end}}>{{template "coin"}}<span>{{T .SiteTitle}}</span></a>
   <span class="sp"></span>
   <label class="langsel" title="Language / 语言"><span class="langcur" aria-hidden="true">{{.LangShort}}<i>▾</i></span><select onchange="location.href='/lang?to='+encodeURIComponent(this.value)" aria-label="Language">{{range .Langs}}<option value="{{.Code}}"{{if eq .Code $.Lang}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
-  <button class="sfx" id="sfxBtn" type="button" aria-label="{{T "声音开关"}}" title="{{T "声音"}}">🔊</button>
-  <a class="link navrank" href="/rank" aria-label="{{T "排行榜"}}" title="{{T "排行榜"}}"><span>{{T "排行榜"}}</span></a>
-  {{if .Me}}<a class="link" href="/manage">{{T "我的后台"}}</a>{{else}}<a class="link" href="/login"><span class="hide-sm">{{T "站长"}}</span>{{T "登录"}}</a>{{end}}
+  <button class="sfx" id="sfxBtn" type="button" aria-label="{{T "声音开关"}}" title="{{T "声音"}}">{{template "spk"}}</button>
+  <a class="link navrank" href="/rank" aria-label="{{T "排行榜"}}" title="{{T "排行榜"}}">{{template "trophy"}}<span>{{T "排行榜"}}</span></a>
+  {{if .Me}}<a class="link" href="/manage">{{T "我的后台"}}</a>{{else}}<a class="link navlogin" href="/login">{{template "keyicon"}}<span class="hide-sm">{{T "站长"}}</span><span class="lbl">{{T "登录"}}</span></a>{{end}}
   {{if .Me}}<a class="pill px" href="/{{.Me.Slug}}">{{T "我的站"}}</a>{{else if .SubsitesEnabled}}<a class="pill px" href="/new">{{T "开通要饭站"}}</a>{{end}}
 </nav>
 <div class="ticker" aria-hidden="true"><div class="ticker-in"><span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span><span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span></div></div>
@@ -315,7 +320,7 @@ window.sfx=(function(){var ctx,on=true,C=window.AudioContext||window.webkitAudio
     var b=document.getElementById('sfxBtn');if(!b)return;
     // 三态：🔊 在放 / 🔈 开着但还没放（浏览器拦了自动播放，点一下就放）/ 🔇 静音
     var hasBgm=!!document.getElementById('bgm'); // 没放音乐文件时只有音效，喇叭只有开/关两态
-    paint=function(){var p=on&&(!hasBgm||playingNow());b.textContent=!on?'🔇':(p?'🔊':'🔈');b.classList.toggle('off',!on);b.classList.toggle('idle',on&&!p);b.title=!on?{{T "声音：关"}}:(p?{{T "声音：开（点击静音）"}}:{{T "点一下开始播放"}})};paint();
+    paint=function(){var p=on&&(!hasBgm||playingNow());b.classList.toggle('off',!on);b.classList.toggle('idle',on&&!p);b.title=!on?{{T "声音：关"}}:(p?{{T "声音：开（点击静音）"}}:{{T "点一下开始播放"}})};paint();
     b.addEventListener('click',function(){if(on&&!playingNow()){loadBgm();startBgm();return}S.toggle()})});
   document.addEventListener('click',function(ev){var b=ev.target.closest('.btn,.tab,.amt-btn,.copy,.pill,.toggle button,.link');if(!b||b.disabled)return;ac();if(b.id!=='coinbtn')S.click()},true);
   return S})();

@@ -75,6 +75,43 @@ BOWLICON = [
     "..KDDDDDDDDDDK..",
     "...KKKKKKKKKK...",
 ]
+# 喇叭：分层（body / wave / x），CSS 按开关状态显示声波或叉
+SPEAKER = [
+    "............",
+    "......K.....",
+    ".....KK.....",
+    "..KKKKK.....",
+    "..KKKKK.....",
+    "..KKKKK.....",
+    "..KKKKK.....",
+    ".....KK.....",
+    "......K.....",
+    "............",
+]
+SPK_WAVE = {3: {8: "K"}, 4: {8: "K"}, 5: {8: "K"}, 6: {8: "K"},
+            2: {10: "K"}, 7: {10: "K"}}
+SPK_WAVE2 = {3: {10: "K"}, 4: {10: "K"}, 5: {10: "K"}, 6: {10: "K"}}
+SPK_X = {3: {8: "M", 10: "M"}, 4: {9: "M"}, 5: {8: "M", 10: "M"}}
+# 奖杯（排行榜）
+TROPHY = [
+    "..KKKKKK..",
+    ".KYYYYYYK.",
+    "KKYYYYYYKK",
+    "K.KYYYYK.K",
+    "KK.KYYK.KK",
+    "...KYYK...",
+    "....KK....",
+    "...KKKK...",
+    "..KKKKKK..",
+]
+# 钥匙（登录）
+KEY = [
+    "..KKKK......",
+    ".KK..KK.....",
+    ".KK..KKKKKKK",
+    ".KK..KK.K.K.",
+    "..KKKK......",
+]
 
 
 def rects(grid, skip=".", only=None, override=None):
@@ -114,6 +151,11 @@ def main():
           '<g class="body">%s</g><g class="eyes">%s</g><g class="tear">%s</g><g class="bowl">%s</g></svg>{{end}}' % (h, h * 4, body, layer(EYES), layer(TEAR), bowl))
     print('{{define "coin"}}<svg class="px-coin" viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(COIN))
     print('{{define "bowlicon"}}<svg class="px-bowl" viewBox="0 0 16 7" width="32" height="14" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(BOWLICON))
+    print('{{define "spk"}}<svg class="px-spk" viewBox="0 0 12 10" width="20" height="17" shape-rendering="crispEdges" aria-hidden="true">'
+          '<g class="spk-body">%s</g><g class="spk-w1">%s</g><g class="spk-w2">%s</g><g class="spk-x">%s</g></svg>{{end}}'
+          % (rects(SPEAKER), layer(SPK_WAVE), layer(SPK_WAVE2), layer(SPK_X)))
+    print('{{define "trophy"}}<svg class="px-trophy" viewBox="0 0 10 9" width="18" height="16" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(TROPHY))
+    print('{{define "keyicon"}}<svg class="px-key" viewBox="0 0 12 5" width="19" height="8" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(KEY))
 
 
 if __name__ == "__main__":

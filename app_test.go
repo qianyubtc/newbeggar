@@ -493,7 +493,7 @@ func TestFullFlow(t *testing.T) {
 	st, body, _ = c2.get("/qianyuwing")
 	must(t, strings.Contains(body, `class="pf coinN">2<`) && strings.Contains(body, `class="coinN">2</b><small>钢镚<`) && strings.Contains(body, "今天丢过了"), "钢镚计数展示")
 	st, body, _ = c.get("/rank")
-	must(t, st == 200 && strings.Contains(body, "人气榜") && strings.Contains(body, "🪙 2"), "人气榜")
+	must(t, st == 200 && strings.Contains(body, "人气榜") && strings.Contains(body, "px-coin") && strings.Contains(body, "> 2<"), "人气榜")
 
 	// ⑦ 登录制 + 直接转账 → 自报 → 站长确认 → 屏蔽留言 / 屏蔽此人 / 回复
 	st, body, _ = c.post("/login", url.Values{"slug": {"qianyuwing"}, "password": {"wrong"}})
