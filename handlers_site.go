@@ -85,7 +85,7 @@ func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, sit
 		Ready: site.PaymentReady(), Err: errMsg, Nick: nick, XHandle: xh, Amount: amount, Message: message,
 		MinAmount: fmtE8(a.cfg.MinAmountE8), MaxAmount: fmtE8(a.cfg.MaxAmountE8), CoinsPerDay: a.cfg.CoinsPerDay}
 	p.NoIndex = !site.Listed
-	p.Desc = site.Name + "：" + site.Slogan + " · 赛博要饭，行行好"
+	p.Desc = a.T(r, "%s：%s · 赛博要饭，行行好", site.Name, site.Slogan)
 	if site.AvatarURL() != "" {
 		p.OGImage = a.cfg.BaseURL + site.AvatarURL()
 	}
@@ -209,15 +209,15 @@ func (a *App) handleDonate(w http.ResponseWriter, r *http.Request) {
 	}
 	e8, err := parseAmountE8(rawAmt, 2)
 	if err != nil {
-		bad("金额" + err.Error() + "（最多两位小数）")
+		bad(a.T(r, "金额格式不对（最多两位小数）"))
 		return
 	}
 	if e8 < a.cfg.MinAmountE8 {
-		bad("最少施舍 " + fmtE8(a.cfg.MinAmountE8) + " " + site.Currency)
+		bad(a.T(r, "最少施舍 %s %s", fmtE8(a.cfg.MinAmountE8), site.Currency))
 		return
 	}
 	if e8 > a.cfg.MaxAmountE8 {
-		bad("最多施舍 " + fmtE8(a.cfg.MaxAmountE8) + " " + site.Currency + "，真有这么多请分几次")
+		bad(a.T(r, "最多施舍 %s %s，真有这么多请分几次", fmtE8(a.cfg.MaxAmountE8), site.Currency))
 		return
 	}
 	key := nickKey(nick)
@@ -243,7 +243,7 @@ func (a *App) handleDonate(w http.ResponseWriter, r *http.Request) {
 		if err := a.createGatewayOrder(site, d); err != nil {
 			a.st.SetStatusIf(d.ID, []string{"pending"}, "failed")
 			a.logf("[error] 下单 %s 失败: %v", d.Code, err)
-			bad("支付网关开小差了：" + gatewayErr(err))
+			bad(a.T(r, "支付网关开小差了：%s", gatewayErrL(a.lang(r), err)))
 			return
 		}
 	}
@@ -270,29 +270,29 @@ func (a *App) handleCoin(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(v)
 	}
 	if !a.lim.allow("coin:"+a.ip(r), 60, time.Minute) {
-		reply(429, map[string]any{"ok": false, "msg": "手速太快了"})
+		reply(429, map[string]any{"ok": false, "msg": a.T(r, "手速太快了")})
 		return
 	}
 	slug := strings.ToLower(strings.TrimSpace(r.FormValue("site")))
 	site, err := a.st.GetSiteBySlug(slug)
 	if err != nil || site == nil || site.Status != "active" {
-		reply(404, map[string]any{"ok": false, "msg": "这个乞丐不在"})
+		reply(404, map[string]any{"ok": false, "msg": a.T(r, "这个乞丐不在")})
 		return
 	}
 	visitor := cookieVal(r, "bv")
 	if len(visitor) != 24 { // 访客标识只在打开页面时发放；跨站脚本发的请求带不上，直接拒
-		reply(403, map[string]any{"ok": false, "msg": "请先打开要饭页再丢"})
+		reply(403, map[string]any{"ok": false, "msg": a.T(r, "请先打开要饭页再丢")})
 		return
 	}
 	added, msg, err := a.st.AddCoin(site.ID, visitor, a.ip(r), today(), a.cfg.CoinsPerDay, a.cfg.CoinsIPCap)
 	if err != nil {
 		a.logf("[error] 丢钢镚: %v", err)
-		reply(500, map[string]any{"ok": false, "msg": "服务器开小差了"})
+		reply(500, map[string]any{"ok": false, "msg": a.T(r, "服务器开小差了")})
 		return
 	}
 	total, todayN, _ := a.st.CoinStats(site.ID)
 	mine, _ := a.st.VisitorCoinsToday(site.ID, visitor)
-	reply(200, map[string]any{"ok": true, "added": added, "msg": msg, "total": total, "today": todayN, "mine": mine, "per_day": a.cfg.CoinsPerDay})
+	reply(200, map[string]any{"ok": true, "added": added, "msg": a.T(r, msg), "total": total, "today": todayN, "mine": mine, "per_day": a.cfg.CoinsPerDay})
 }
 
 // payPanel 付款面板（弹窗 / 状态页 / 付款页共用）。
@@ -384,7 +384,7 @@ func (a *App) handleClaim(w http.ResponseWriter, r *http.Request) {
 	ajax := r.FormValue("ajax") == "1"
 	if !a.lim.allow("claim:"+a.ip(r), 5, time.Minute) {
 		if ajax {
-			replyJSON(w, 429, map[string]any{"ok": false, "msg": "手速太快了，歇一会儿"})
+			replyJSON(w, 429, map[string]any{"ok": false, "msg": a.T(r, "手速太快了，歇一会儿")})
 		} else {
 			a.errorPage(w, r, http.StatusTooManyRequests, "手速太快了", "歇一会儿再来。")
 		}
@@ -403,6 +403,7 @@ func (a *App) handleClaim(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fail := func(status int, m string) {
+		m = a.T(r, m)
 		if ajax {
 			replyJSON(w, status, map[string]any{"ok": false, "msg": m})
 		} else {
@@ -424,7 +425,7 @@ func (a *App) handleClaim(w http.ResponseWriter, r *http.Request) {
 	}
 	a.logf("[info] 施舍 %s 自报已转账 %s %s（站点 %d）", d.Code, d.Amount, d.Currency, site.ID)
 	if ajax {
-		replyJSON(w, 200, map[string]any{"ok": true, "status": "claimed", "msg": "已提交，等站长确认"})
+		replyJSON(w, 200, map[string]any{"ok": true, "status": "claimed", "msg": a.T(r, "已提交，等站长确认")})
 		return
 	}
 	http.Redirect(w, r, "/d/"+d.Code, http.StatusFound)
@@ -438,6 +439,7 @@ func (a *App) handleGatewayClaim(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fail := func(status int, m string) {
+		m = a.T(r, m)
 		if ajax {
 			replyJSON(w, status, map[string]any{"ok": false, "status": d.Status, "msg": m})
 		} else {
@@ -463,16 +465,16 @@ func (a *App) handleGatewayClaim(w http.ResponseWriter, r *http.Request) {
 	}
 	code, err := a.gatewayClaim(d, boid)
 	if err != nil {
-		fail(http.StatusBadGateway, gatewayErr(err))
+		fail(http.StatusBadGateway, gatewayErrL(a.lang(r), err))
 		return
 	}
 	a.refreshFromGateway(d)
-	msg := claimMsgs[code]
+	msg := a.T(r, claimMsgs[code])
 	if msg == "" {
-		msg = "网关返回 " + code
+		msg = a.T(r, "网关返回 %s", code)
 	}
 	if ajax {
-		replyJSON(w, 200, map[string]any{"ok": d.Status == "paid", "status": d.Status, "msg": msg})
+		replyJSON(w, 200, map[string]any{"ok": d.Status == "paid", "status": d.Status, "msg": a.T(r, msg)})
 		return
 	}
 	http.Redirect(w, r, "/d/"+d.Code, http.StatusFound)

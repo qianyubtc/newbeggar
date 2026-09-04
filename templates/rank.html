@@ -1,48 +1,48 @@
-{{define "title"}}排行榜 · {{.SiteTitle}}{{end}}
+{{define "title"}}{{T "排行榜 ·"}} {{T .SiteTitle}}{{end}}
 {{define "content"}}
 <div style="max-width:760px;margin:0 auto">
   <section class="card px">
     <div class="tabs" role="tablist">
-      <button class="tab on" type="button" role="tab" id="t-donors" aria-controls="p-donors" aria-selected="true" data-t="donors">🏆 施主榜</button>
-      <button class="tab" type="button" role="tab" id="t-beggars" aria-controls="p-beggars" aria-selected="false" data-t="beggars">🥣 乞丐榜</button>
-      <button class="tab" type="button" role="tab" id="t-popular" aria-controls="p-popular" aria-selected="false" data-t="popular">🪙 人气榜</button>
+      <button class="tab on" type="button" role="tab" id="t-donors" aria-controls="p-donors" aria-selected="true" data-t="donors">{{T "🏆 施主榜"}}</button>
+      <button class="tab" type="button" role="tab" id="t-beggars" aria-controls="p-beggars" aria-selected="false" data-t="beggars">{{T "🥣 乞丐榜"}}</button>
+      <button class="tab" type="button" role="tab" id="t-popular" aria-controls="p-popular" aria-selected="false" data-t="popular">{{T "🪙 人气榜"}}</button>
     </div>
     <div class="panel on" id="p-donors" role="tabpanel" aria-labelledby="t-donors">
-      <div class="hint" style="margin-bottom:8px">HIGH SCORE · 所有要饭站加起来 · 共 {{.PgDonors.Total}} 位施主</div>
-      <div class="toggle" data-for="donors"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+      <div class="hint" style="margin-bottom:8px">{{T "HIGH SCORE · 所有要饭站加起来 · 共"}} {{.PgDonors.Total}} {{T "位施主"}}</div>
+      <div class="toggle" data-for="donors"><button type="button" class="on" data-w="all">{{T "总榜"}}</button><button type="button" data-w="week">{{T "本周"}}</button></div>
       <div class="wk donors-all">{{template "gdonorlist" (dict "Rows" .Donors "Start" .PgDonors.Offset)}}{{template "pager" .PgDonors}}</div>
       <div class="wk donors-week" hidden>{{template "gdonorlist" (dict "Rows" .DonorsWeek "Start" .PgDonorsWeek.Offset)}}{{template "pager" .PgDonorsWeek}}</div>
     </div>
     <div class="panel" id="p-beggars" role="tabpanel" aria-labelledby="t-beggars">
-      <div class="hint" style="margin-bottom:8px">要到最多的要饭站 · 共 {{.PgSites.Total}} 个</div>
-      <div class="toggle" data-for="beggars"><button type="button" class="on" data-w="all">总榜</button><button type="button" data-w="week">本周</button></div>
+      <div class="hint" style="margin-bottom:8px">{{T "要到最多的要饭站 · 共"}} {{.PgSites.Total}} {{T "个"}}</div>
+      <div class="toggle" data-for="beggars"><button type="button" class="on" data-w="all">{{T "总榜"}}</button><button type="button" data-w="week">{{T "本周"}}</button></div>
       <div class="wk beggars-all">{{template "gsitelist" (dict "Rows" .Sites "By" "amount" "Me" .MeID "Start" .PgSites.Offset)}}{{template "pager" .PgSites}}</div>
       <div class="wk beggars-week" hidden>{{template "gsitelist" (dict "Rows" .SitesWeek "By" "amount" "Me" .MeID "Start" .PgSitesWeek.Offset)}}{{template "pager" .PgSitesWeek}}</div>
     </div>
     <div class="panel" id="p-popular" role="tabpanel" aria-labelledby="t-popular">
-      <div class="hint" style="margin-bottom:8px">收到钢镚最多（免费投）· 共 {{.PgPopular.Total}} 个</div>
+      <div class="hint" style="margin-bottom:8px">{{T "收到钢镚最多（免费投）· 共"}} {{.PgPopular.Total}} {{T "个"}}</div>
       {{template "gsitelist" (dict "Rows" .Popular "By" "coins" "Me" .MeID "Start" .PgPopular.Offset)}}{{template "pager" .PgPopular}}
     </div>
   </section>
-  {{if ne .HomePath "/"}}<div class="center" style="margin-top:14px"><a class="btn sec" href="{{.HomePath}}">← 回到刚才看的碗</a></div>{{end}}
+  {{if ne .HomePath "/"}}<div class="center" style="margin-top:14px"><a class="btn sec" href="{{.HomePath}}">{{T "← 回到刚才看的碗"}}</a></div>{{end}}
 </div>
 {{end}}
 {{define "gdonorlist"}}{{if .Rows}}<ul class="list">
   {{range $i, $r := .Rows}}{{$n := add $i $.Start}}<li class="item">
     <div class="rank{{if lt $n 3}} m{{end}}">{{rankBadge $n}}</div>
     {{$h := handleOf $r.NickKey}}{{$f := xav $h}}{{if $f}}<img class="av img" src="/a/{{$f}}" alt="">{{else}}<div class="av" style="--h:{{hue $r.NickKey}}">{{initial $r.Nickname}}</div>{{end}}
-    <div class="body"><div class="name"><span>{{$r.Nickname}}</span>{{if $h}}<span class="xh" title="施主自己填的 X，未经验证">@{{$h}}</span>{{end}}</div><div class="sub">{{donorTier $r.TotalE8}} · {{$r.Count}} 次 · 施舍过 {{$r.Sites}} 个乞丐</div></div>
+    <div class="body"><div class="name"><span>{{$r.Nickname}}</span>{{if $h}}<span class="xh" title="{{T "施主自己填的 X，未经验证"}}">@{{$h}}</span>{{end}}</div><div class="sub">{{donorTier $r.TotalE8}} · {{$r.Count}} {{T "次 · 施舍过"}} {{$r.Sites}} {{T "个乞丐"}}</div></div>
     <div class="amtv num accent">{{fmtAmt $r.TotalE8}}</div>
   </li>{{end}}
-</ul>{{else}}<div class="empty"><div class="ico">👑</div>榜上无人</div>{{end}}{{end}}
+</ul>{{else}}<div class="empty"><div class="ico">👑</div>{{T "榜上无人"}}</div>{{end}}{{end}}
 {{define "gsitelist"}}{{if .Rows}}<ul class="list">
   {{range $i, $s := .Rows}}{{$n := add $i $.Start}}<li class="item">
     <div class="rank{{if lt $n 3}} m{{end}}">{{rankBadge $n}}</div>
     {{if $s.AvatarURL}}<img class="av img" src="{{$s.AvatarURL}}" alt="">{{else}}<div class="av sq">{{$s.Avatar}}</div>{{end}}
-    <div class="body"><div class="name"><span><a href="{{$s.Path}}">{{$s.Name}}</a></span>{{if eq $s.ID $.Me}}<span class="me">就是我</span>{{end}}</div><div class="sub">{{if $s.Title}}{{$s.Title}} · {{end}}{{(level $s.Exp).Title}} · {{$s.Donors}} 位施主 · 钢镚 {{$s.Coins}}</div></div>
+    <div class="body"><div class="name"><span><a href="{{$s.Path}}">{{$s.Name}}</a></span>{{if eq $s.ID $.Me}}<span class="me">{{T "就是我"}}</span>{{end}}</div><div class="sub">{{if $s.Title}}{{T $s.Title}} · {{end}}{{(level $s.Exp).Title}} · {{$s.Donors}} {{T "位施主 · 钢镚"}} {{$s.Coins}}</div></div>
     <div class="amtv num{{if ne $.By "coins"}} accent{{end}}">{{if eq $.By "coins"}}🪙 {{$s.Coins}}{{else}}{{fmtAmt $s.TotalE8}}{{end}}</div>
   </li>{{end}}
-</ul>{{else}}<div class="empty"><div class="ico">🏚</div>还没有人上榜</div>{{end}}{{end}}
+</ul>{{else}}<div class="empty"><div class="ico">🏚</div>{{T "还没有人上榜"}}</div>{{end}}{{end}}
 {{define "scripts"}}<script>
 (function(){
   var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');

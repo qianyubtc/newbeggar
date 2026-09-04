@@ -215,16 +215,18 @@ func (a *App) verifyAccount(site *Site) (*bpaygate.Account, error) {
 }
 
 // gatewayErr 把网关错误变成能给站长看的话。
-func gatewayErr(err error) string {
+func gatewayErr(err error) string { return gatewayErrL("zh", err) }
+
+func gatewayErrL(lang string, err error) string {
 	var ae *bpaygate.APIError
 	if errors.As(err, &ae) {
 		if ae.Message != "" {
 			return ae.Message
 		}
-		return "网关返回 " + ae.Code
+		return tr(lang, "网关返回 %s", ae.Code)
 	}
 	if errors.Is(err, errNoGateway) {
-		return "本站未配置支付网关"
+		return tr(lang, "本站未配置支付网关")
 	}
-	return "网关连不上，请稍后再试"
+	return tr(lang, "网关连不上，请稍后再试")
 }

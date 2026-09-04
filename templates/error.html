@@ -1,12 +1,12 @@
-{{define "title"}}{{.Title}} · {{.SiteTitle}}{{end}}
+{{define "title"}}{{T .Title}} · {{T .SiteTitle}}{{end}}
 {{define "content"}}
 <div class="narrow">
 <section class="card px center">
   <div class="sprite-wrap" style="margin:0 auto 10px">{{template "sprite"}}</div>
   <div class="insert">GAME OVER?</div>
-  <h1>{{.Title}}</h1>
-  {{if .Msg}}<p class="hint" style="font-size:14px">{{.Msg}}</p>{{end}}
-  <a class="btn sec" href="/">回到街头</a>
+  <h1>{{T .Title}}</h1>
+  {{if .Msg}}<p class="hint" style="font-size:14px">{{T .Msg}}</p>{{end}}
+  <a class="btn sec" href="/">{{T "回到街头"}}</a>
 </section>
 </div>
 {{end}}

@@ -1,18 +1,18 @@
-{{define "title"}}站长登录 · {{.SiteTitle}}{{end}}
+{{define "title"}}{{T "站长登录 ·"}} {{T .SiteTitle}}{{end}}
 {{define "content"}}
 <div class="narrow">
 <section class="card px">
-  <h1>🔑 站长登录</h1>
-  <p class="hint" style="font-size:14px;margin:0 0 6px">用「X 用户名 + 开站时设的口令」登录后台。主站站长用户名留空。</p>
+  <h1>{{T "🔑 站长登录"}}</h1>
+  <p class="hint" style="font-size:14px;margin:0 0 6px">{{T "用「X 用户名 + 开站时设的口令」登录后台。主站站长用户名留空。"}}</p>
   <form method="post" action="/login">
-    <label for="slugIn">X 用户名</label>
-    <input id="slugIn" name="slug" placeholder="例如 qianyuwing（主站留空）" value="{{.Slug}}" autocapitalize="off" autocomplete="username">
-    <label for="pwIn">口令</label>
+    <label for="slugIn">{{T "X 用户名"}}</label>
+    <input id="slugIn" name="slug" placeholder="{{T "例如 qianyuwing（主站留空）"}}" value="{{.Slug}}" autocapitalize="off" autocomplete="username">
+    <label for="pwIn">{{T "口令"}}</label>
     <input id="pwIn" name="password" type="password" required autocomplete="current-password">
-    {{if .Err}}<div class="err">{{.Err}}</div>{{end}}
-    <button class="btn" type="submit" style="margin-top:16px">登录</button>
+    {{if .Err}}<div class="err">{{T .Err}}</div>{{end}}
+    <button class="btn" type="submit" style="margin-top:16px">{{T "登录"}}</button>
   </form>
-  <div class="hint" style="margin-top:12px">忘了口令？<a href="/reset">用 X 发推找回</a>。还没有要饭站？<a href="/new">用 X 开一个</a>。</div>
+  <div class="hint" style="margin-top:12px">{{T "忘了口令？"}}<a href="/reset">{{T "用 X 发推找回"}}</a>{{T "。还没有要饭站？"}}<a href="/new">{{T "用 X 开一个"}}</a>。</div>
 </section>
 </div>
 {{end}}

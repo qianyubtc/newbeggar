@@ -1,13 +1,13 @@
 {{define "layout"}}<!doctype html>
-<html lang="zh-CN">
+<html lang="{{.Lang}}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f4eedd">
 <title>{{template "title" .}}</title>
-<meta name="description" content="{{if .Desc}}{{.Desc}}{{else}}赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。{{end}}">
+<meta name="description" content="{{if .Desc}}{{.Desc}}{{else}}{{T "赛博要饭：行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿；不花钱也能丢钢镚；用 X 发一条推就能开自己的要饭站。"}}{{end}}">
 <meta property="og:title" content="{{template "title" .}}">
-<meta property="og:description" content="{{if .Desc}}{{.Desc}}{{else}}行行好，赏口饭吃。投币上功德簿，丢钢镚也算爱。{{end}}">
+<meta property="og:description" content="{{if .Desc}}{{.Desc}}{{else}}{{T "行行好，赏口饭吃。投币上功德簿，丢钢镚也算爱。"}}{{end}}">
 <meta property="og:type" content="website">
 {{if .OGImage}}<meta property="og:image" content="{{.OGImage}}">{{end}}
 <meta name="twitter:card" content="summary">
@@ -31,10 +31,11 @@ a{color:var(--blue)}
 @media(min-width:900px){.page{padding-bottom:40px}}
 .px{border:4px solid transparent;border-image:var(--frame) 2 / 4px stretch;image-rendering:pixelated;background-clip:padding-box}
 .nav{display:flex;align-items:center;gap:6px;height:64px}
+.langsel{display:inline-flex;align-items:center;gap:2px;font-size:16px;flex:none;position:relative}.langsel select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
 .sfx{background:none;border:0;font-size:18px;line-height:1;padding:8px 6px;cursor:pointer;min-width:36px;min-height:36px;opacity:.85;flex:none}.sfx.off{opacity:.45}
 .sfx.idle{animation:sfxnudge 1.2s ease-in-out infinite}@keyframes sfxnudge{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}@media(prefers-reduced-motion:reduce){.sfx.idle{animation:none}}
-.nav>*{flex:none}
-@media(max-width:430px){.nav{gap:4px}.nav .brand{font-size:22px;margin-right:2px}.sfx{min-width:28px;padding:6px 2px;font-size:16px}.nav a.link{padding:8px 5px;font-size:15px}.nav a.pill{padding:6px 10px;font-size:15px}
+.nav>*{flex:none}.nav .brand{flex:0 1 auto;min-width:0}.nav .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:430px){.nav{gap:4px}.nav .brand{font-size:20px;margin-right:2px}.nav .brand .px-coin{display:none}.sfx{min-width:28px;padding:6px 2px;font-size:16px}.nav a.link{padding:8px 5px;font-size:15px}.nav a.pill{padding:6px 10px;font-size:15px}
   .nav a.navrank span{display:none}.nav a.navrank::before{content:"🏆";font-size:16px}}
 .brand{display:flex;align-items:center;gap:8px;font-size:24px;line-height:1;color:var(--ink);text-decoration:none;white-space:nowrap;margin-right:6px}
 .brand .px-coin{width:28px;height:28px;flex:none}
@@ -78,7 +79,7 @@ h1{font-size:24px;margin:0 0 8px;line-height:1.3}
 .pname{font-size:24px;margin:0 0 8px;line-height:1.25;word-break:break-word}
 .barlabel{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
 .barlabel b{color:var(--ink);font-weight:normal;margin-left:4px}
-.barlabel span{font-size:12px;color:var(--muted)}
+.barlabel span{font-size:12px;color:var(--muted);margin-left:8px;text-align:right}
 .bar{position:relative;height:14px;border:3px solid var(--ink);background:#fff;margin:2px 0 0;box-shadow:2px 2px 0 var(--ink)}
 .bar span{display:block;height:100%;background:var(--green);background-image:repeating-linear-gradient(90deg,transparent 0 6px,rgba(0,0,0,.14) 6px 8px);transition:width .6s steps(12)}
 .bar.hp span{background-color:var(--red)}
@@ -249,19 +250,20 @@ footer a{color:var(--muted)}
 {{if .HasBGM}}<audio id="bgm" src="/static/bgm.m4a" loop preload="none" playsinline></audio>{{end}}
 <div class="page">
 <nav class="nav">
-  <a class="brand" href="{{.HomePath}}"{{if ne .HomePath "/"}} title="回到刚才看的碗"{{end}}>{{template "coin"}}<span>{{.SiteTitle}}</span></a>
+  <a class="brand" href="{{.HomePath}}"{{if ne .HomePath "/"}} title="{{T "回到刚才看的碗"}}"{{end}}>{{template "coin"}}<span>{{T .SiteTitle}}</span></a>
   <span class="sp"></span>
-  <button class="sfx" id="sfxBtn" type="button" aria-label="声音开关" title="声音">🔊</button>
-  <a class="link navrank" href="/rank" aria-label="排行榜" title="排行榜"><span>排行榜</span></a>
-  {{if .Me}}<a class="link" href="/manage">我的后台</a>{{else}}<a class="link" href="/login"><span class="hide-sm">站长</span>登录</a>{{end}}
-  {{if .Me}}<a class="pill px" href="/{{.Me.Slug}}">我的站</a>{{else if .SubsitesEnabled}}<a class="pill px" href="/new">开通要饭站</a>{{end}}
+  <label class="langsel" title="Language"><span aria-hidden="true">🌐</span><select onchange="location.href='/lang?to='+encodeURIComponent(this.value)" aria-label="Language">{{range .Langs}}<option value="{{.Code}}"{{if eq .Code $.Lang}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
+  <button class="sfx" id="sfxBtn" type="button" aria-label="{{T "声音开关"}}" title="{{T "声音"}}">🔊</button>
+  <a class="link navrank" href="/rank" aria-label="{{T "排行榜"}}" title="{{T "排行榜"}}"><span>{{T "排行榜"}}</span></a>
+  {{if .Me}}<a class="link" href="/manage">{{T "我的后台"}}</a>{{else}}<a class="link" href="/login"><span class="hide-sm">{{T "站长"}}</span>{{T "登录"}}</a>{{end}}
+  {{if .Me}}<a class="pill px" href="/{{.Me.Slug}}">{{T "我的站"}}</a>{{else if .SubsitesEnabled}}<a class="pill px" href="/new">{{T "开通要饭站"}}</a>{{end}}
 </nav>
-<div class="ticker" aria-hidden="true"><div class="ticker-in"><span>🙏 行行好，赏口饭吃</span><span>🪙 一毛也是爱</span><span>💸 投币就上榜</span><span>📜 留一句话刻功德簿</span><span>🏚 发条推就能开自己的要饭站</span><span>👾 赛博丐帮，人人有碗</span><span>🙏 行行好，赏口饭吃</span><span>🪙 一毛也是爱</span><span>💸 投币就上榜</span><span>📜 留一句话刻功德簿</span><span>🏚 发条推就能开自己的要饭站</span><span>👾 赛博丐帮，人人有碗</span></div></div>
+<div class="ticker" aria-hidden="true"><div class="ticker-in"><span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span><span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span></div></div>
 {{template "content" .}}
 <footer>
-  {{.SiteTitle}} · 赛博丐帮，行行好<br>
-  {{if or .AuthorX .AuthorGitHub}}作者{{if .AuthorX}} <a href="{{.AuthorX}}" target="_blank" rel="noopener">𝕏 @{{lastSeg .AuthorX}}</a>{{end}}{{if .AuthorGitHub}} · <a href="{{.AuthorGitHub}}" target="_blank" rel="noopener">GitHub {{lastSeg .AuthorGitHub}}</a>{{end}}<br>{{end}}
-  收款由 <a href="{{.RepoURL}}" target="_blank" rel="noopener">BinancePayTool</a> 驱动 · 字体 <a href="https://github.com/TakWolf/fusion-pixel-font" target="_blank" rel="noopener">缝合怪像素字体</a>
+  {{T .SiteTitle}} {{T "· 赛博丐帮，行行好"}}<br>
+  {{if or .AuthorX .AuthorGitHub}}{{T "作者"}}{{if .AuthorX}} <a href="{{.AuthorX}}" target="_blank" rel="noopener">𝕏 @{{lastSeg .AuthorX}}</a>{{end}}{{if .AuthorGitHub}} · <a href="{{.AuthorGitHub}}" target="_blank" rel="noopener">GitHub {{lastSeg .AuthorGitHub}}</a>{{end}}<br>{{end}}
+  {{T "收款由"}} <a href="{{.RepoURL}}" target="_blank" rel="noopener">BinancePayTool</a> {{T "驱动 · 字体"}} <a href="https://github.com/TakWolf/fusion-pixel-font" target="_blank" rel="noopener">{{T "缝合怪像素字体"}}</a>
 </footer>
 </div>
 <script>
@@ -311,25 +313,25 @@ window.sfx=(function(){var ctx,on=true,C=window.AudioContext||window.webkitAudio
     var b=document.getElementById('sfxBtn');if(!b)return;
     // 三态：🔊 在放 / 🔈 开着但还没放（浏览器拦了自动播放，点一下就放）/ 🔇 静音
     var hasBgm=!!document.getElementById('bgm'); // 没放音乐文件时只有音效，喇叭只有开/关两态
-    paint=function(){var p=on&&(!hasBgm||playingNow());b.textContent=!on?'🔇':(p?'🔊':'🔈');b.classList.toggle('off',!on);b.classList.toggle('idle',on&&!p);b.title=!on?'声音：关':(p?'声音：开（点击静音）':'点一下开始播放')};paint();
+    paint=function(){var p=on&&(!hasBgm||playingNow());b.textContent=!on?'🔇':(p?'🔊':'🔈');b.classList.toggle('off',!on);b.classList.toggle('idle',on&&!p);b.title=!on?{{T "声音：关"}}:(p?{{T "声音：开（点击静音）"}}:{{T "点一下开始播放"}})};paint();
     b.addEventListener('click',function(){if(on&&!playingNow()){loadBgm();startBgm();return}S.toggle()})});
   document.addEventListener('click',function(ev){var b=ev.target.closest('.btn,.tab,.amt-btn,.copy,.pill,.toggle button,.link');if(!b||b.disabled)return;ac();if(b.id!=='coinbtn')S.click()},true);
   return S})();
 (function(){
   // 复制按钮（全站委托）
   document.addEventListener('click',function(ev){var b=ev.target.closest('.copy');if(!b||b.id==='nextText')return;var src=b.dataset.copyFrom;var t=src?document.getElementById(src).value:b.dataset.copy;var o=b.textContent;
-    function done(){b.textContent='已复制';setTimeout(function(){b.textContent=o},1500)}
+    function done(){b.textContent={{T "已复制"}};setTimeout(function(){b.textContent=o},1500)}
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,function(){var i=document.createElement('input');i.value=t;document.body.appendChild(i);i.select();try{document.execCommand('copy')}catch(e){}i.remove();done()})});
   // 付款面板：轮询到账、回填/自报、成功态
   window.initPayPanel=function(pp,onDone){
     var code=pp.dataset.code,site=pp.dataset.site,amount=pp.dataset.amount,status=pp.dataset.status,stop=false,fails=0;
-    function success(amt){stop=true;if(window.sfx)sfx.ok();var sp=document.querySelector('.sprite');pp.innerHTML='<div class="center"><div class="sprite-wrap jump" style="margin:0 auto 8px">'+(sp?sp.outerHTML:'🥣')+'</div><div class="insert">★ THANK YOU ★</div><h2 class="center" style="justify-content:center">🙏 功德 +'+(amt||amount)+'</h2><p class="hint">你的名号和留言已刻上功德簿</p><div class="btns"><a class="btn" href="'+site+'#feed" onclick="if(location.pathname===this.pathname){location.hash=\'feed\';location.reload();return false}">看看功德簿</a><a class="btn sec" href="/d/'+code+'">分享卡片</a></div></div>';if(onDone)onDone('paid')}
+    function success(amt){stop=true;if(window.sfx)sfx.ok();var sp=document.querySelector('.sprite');pp.innerHTML='<div class="center"><div class="sprite-wrap jump" style="margin:0 auto 8px">'+(sp?sp.outerHTML:'🥣')+'</div><div class="insert">★ THANK YOU ★</div><h2 class="center" style="justify-content:center">🙏 '+{{T "功德 +"}}+(amt||amount)+'</h2><p class="hint">'+{{T "你的名号和留言已刻上功德簿"}}+'</p><div class="btns"><a class="btn" href="'+site+'#feed" onclick="if(location.pathname===this.pathname){location.hash=\'feed\';location.reload();return false}">'+{{T "看看功德簿"}}+'</a><a class="btn sec" href="/d/'+code+'">'+{{T "分享卡片"}}+'</a></div></div>';if(onDone)onDone('paid')}
     function setStatus(html){var st=pp.querySelector('#ppStatus');if(st)st.innerHTML=html}
-    function apply(j){if(!j||!j.status)return;if(j.status==='paid'){success(j.amount)}else if(j.status==='claimed'&&status!=='claimed'){status='claimed';setStatus('<div class="notice" style="margin-top:12px"><span class="spin-inline"></span> 已提交，等站长确认后上榜。本页会自动更新。</div>')}else if(['expired','failed','rejected','closed'].indexOf(j.status)>=0){stop=true;setStatus('<div class="notice bad" style="margin-top:12px">这笔施舍已'+({expired:'过期',failed:'下单失败',rejected:'被站长拒绝',closed:'关闭'})[j.status]+'，请回到页面重新投币。</div>')}}
+    function apply(j){if(!j||!j.status)return;if(j.status==='paid'){success(j.amount)}else if(j.status==='claimed'&&status!=='claimed'){status='claimed';setStatus('<div class="notice" style="margin-top:12px"><span class="spin-inline"></span> '+{{T "已提交，等站长确认后上榜。本页会自动更新。"}}+'</div>')}else if(['expired','failed','rejected','closed'].indexOf(j.status)>=0){stop=true;setStatus('<div class="notice bad" style="margin-top:12px">'+{{T "这笔施舍已"}}+({expired:{{T "过期"}},failed:{{T "下单失败"}},rejected:{{T "被站长拒绝"}},closed:{{T "关闭"}}})[j.status]+{{T "，请回到页面重新投币。"}}+'</div>')}}
     function tick(){if(stop)return;fetch('/d/'+code+'/status',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){fails=0;apply(j)}).catch(function(){if(++fails>=20)stop=true})}
     var timer=setInterval(function(){if(stop){clearInterval(timer);return}tick()},3000);
     pp.addEventListener('submit',function(ev){var f=ev.target.closest('.claimf');if(!f)return;ev.preventDefault();var fd=new FormData(f);fd.append('ajax','1');var btn=f.querySelector('button');btn.disabled=true;var err=f.querySelector('.claim-err');err.textContent='';
-      fetch(f.getAttribute('action'),{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(j){btn.disabled=false;if(j.status==='paid'){success()}else if(j.ok&&j.status==='claimed'){apply({status:'claimed'})}else{if(window.sfx)sfx.fail();err.textContent=j.msg||'没成功，再试试'}}).catch(function(){btn.disabled=false;if(window.sfx)sfx.fail();err.textContent='网络开小差了'})});
+      fetch(f.getAttribute('action'),{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(j){btn.disabled=false;if(j.status==='paid'){success()}else if(j.ok&&j.status==='claimed'){apply({status:'claimed'})}else{if(window.sfx)sfx.fail();err.textContent=j.msg||{{T "没成功，再试试"}}}}).catch(function(){btn.disabled=false;if(window.sfx)sfx.fail();err.textContent={{T "网络开小差了"}}})});
     return function(){stop=true;clearInterval(timer)}
   };
   var pp=document.getElementById('paypanel');if(pp)window.initPayPanel(pp);
@@ -338,9 +340,9 @@ window.sfx=(function(){var ctx,on=true,C=window.AudioContext||window.webkitAudio
 {{block "scripts" .}}{{end}}
 </body>
 </html>{{end}}
-{{define "pager"}}{{if gt .Pages 1}}<nav class="pager" aria-label="分页">
-  {{if .HasPrev}}<a href="{{.URL .Prev}}">‹ 上一页</a>{{else}}<span class="dis">‹ 上一页</span>{{end}}
+{{define "pager"}}{{if gt .Pages 1}}<nav class="pager" aria-label="{{T "分页"}}">
+  {{if .HasPrev}}<a href="{{.URL .Prev}}">{{T "‹ 上一页"}}</a>{{else}}<span class="dis">{{T "‹ 上一页"}}</span>{{end}}
   {{range .Nums}}{{if eq . $.Page}}<span class="cur">{{.}}</span>{{else}}<a href="{{$.URL .}}">{{.}}</a>{{end}}{{end}}
-  {{if .HasNext}}<a href="{{.URL .Next}}">下一页 ›</a>{{else}}<span class="dis">下一页 ›</span>{{end}}
-  <span class="hint" style="margin-left:auto">{{.Page}}/{{.Pages}} 页</span>
+  {{if .HasNext}}<a href="{{.URL .Next}}">{{T "下一页 ›"}}</a>{{else}}<span class="dis">{{T "下一页 ›"}}</span>{{end}}
+  <span class="hint" style="margin-left:auto">{{.Page}}/{{.Pages}} {{T "页"}}</span>
 </nav>{{end}}{{end}}

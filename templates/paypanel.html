@@ -1,48 +1,48 @@
 {{define "paypanel"}}<div class="paypanel" id="paypanel" data-code="{{.D.Code}}" data-status="{{.D.Status}}" data-mode="{{.Mode}}" data-site="{{.Site.Path}}" data-amount="{{.Amount}}">
   <div class="center">
-    <div class="hint">给 {{.Site.Name}} 投币</div>
+    <div class="hint">{{T "给 %s 投币" .Site.Name}}</div>
     <div class="big num accent">{{.Amount}}<small>{{.D.Currency}}</small></div>
-    {{if eq .Mode "gateway"}}<div class="hint">金额要<b>一分不差</b>，网关靠这个唯一尾数自动认账，转完几秒内到账</div>{{else}}<div class="hint">用币安 Pay 直接转给站长，转完点下面「我已施舍」</div>{{end}}
+    {{if eq .Mode "gateway"}}<div class="hint">{{T "金额要"}}<b>{{T "一分不差"}}</b>{{T "，网关靠这个唯一尾数自动认账，转完几秒内到账"}}</div>{{else}}<div class="hint">{{T "用币安 Pay 直接转给站长，转完点下面「我已施舍」"}}</div>{{end}}
   </div>
   {{if .QR}}
     {{if .IsMobile}}
-      <a class="btn" href="{{.AppLink}}" style="margin-top:12px">打开币安 App 转账</a>
-      <div class="hint center">唤起后手动输入金额 <b class="num">{{.Amount}}</b>{{if .NoteCode}}，备注填 <b class="num">{{.NoteCode}}</b>{{end}}</div>
-      <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">用另一台手机扫码</summary><img class="qr" src="data:image/png;base64,{{.QR}}" alt="收款二维码"></details>
+      <a class="btn" href="{{.AppLink}}" style="margin-top:12px">{{T "打开币安 App 转账"}}</a>
+      <div class="hint center">{{T "唤起后手动输入金额"}} <b class="num">{{.Amount}}</b>{{if .NoteCode}}{{T "，备注填"}} <b class="num">{{.NoteCode}}</b>{{end}}</div>
+      <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">{{T "用另一台手机扫码"}}</summary><img class="qr" src="data:image/png;base64,{{.QR}}" alt="{{T "收款二维码"}}"></details>
     {{else}}
-      <img class="qr" src="data:image/png;base64,{{.QR}}" alt="收款二维码">
-      <div class="hint center">币安 App → 首页「扫一扫」→ 输入金额 <b class="num">{{.Amount}}</b>{{if .NoteCode}}，备注填 <b class="num">{{.NoteCode}}</b>{{end}}</div>
+      <img class="qr" src="data:image/png;base64,{{.QR}}" alt="{{T "收款二维码"}}">
+      <div class="hint center">{{T "币安 App → 首页「扫一扫」→ 输入金额"}} <b class="num">{{.Amount}}</b>{{if .NoteCode}}{{T "，备注填"}} <b class="num">{{.NoteCode}}</b>{{end}}</div>
     {{end}}
-    <div class="section-title">或手动转账</div>
-  {{else}}<div class="section-title" style="margin-top:12px">转账信息</div>
-    {{if .PayID}}<div class="hint">币安 App → 底部「<b>支付</b>」→「<b>转账</b>」→ 收款方输入下面的 UID → 金额填 <b class="num">{{.Amount}}</b>{{if .NoteCode}} → 备注填 <b class="num">{{.NoteCode}}</b>{{end}} → 转完回来点「我已施舍」</div>{{end}}{{end}}
+    <div class="section-title">{{T "或手动转账"}}</div>
+  {{else}}<div class="section-title" style="margin-top:12px">{{T "转账信息"}}</div>
+    {{if .PayID}}<div class="hint">{{T "币安 App → 底部「支付」→「转账」→ 收款方输入下面的 UID → 金额填"}} <b class="num">{{.Amount}}</b>{{if .NoteCode}} {{T "→ 备注填"}} <b class="num">{{.NoteCode}}</b>{{end}} {{T "→ 转完回来点「我已施舍」"}}</div>{{end}}{{end}}
   <div class="kv">
-    {{if .PayID}}<span class="k">收款方</span><span class="v"><span class="code">{{.PayID}}</span><button type="button" class="copy" data-copy="{{.PayID}}">复制</button></span>{{end}}
-    <span class="k">金额</span><span class="v"><span class="code">{{.Amount}} {{.D.Currency}}</span><button type="button" class="copy" data-copy="{{.Amount}}">复制</button></span>
-    {{if .NoteCode}}<span class="k">备注</span><span class="v"><span class="code">{{.NoteCode}}</span><button type="button" class="copy" data-copy="{{.NoteCode}}">复制</button></span>{{end}}
+    {{if .PayID}}<span class="k">{{T "收款方"}}</span><span class="v"><span class="code">{{.PayID}}</span><button type="button" class="copy" data-copy="{{.PayID}}">{{T "复制"}}</button></span>{{end}}
+    <span class="k">{{T "金额"}}</span><span class="v"><span class="code">{{.Amount}} {{.D.Currency}}</span><button type="button" class="copy" data-copy="{{.Amount}}">{{T "复制"}}</button></span>
+    {{if .NoteCode}}<span class="k">{{T "备注"}}</span><span class="v"><span class="code">{{.NoteCode}}</span><button type="button" class="copy" data-copy="{{.NoteCode}}">{{T "复制"}}</button></span>{{end}}
   </div>
   <div class="pp-status" id="ppStatus">
     {{if eq .D.Status "claimed"}}
-      <div class="notice" style="margin-top:12px"><span class="spin-inline"></span> 已提交，等站长确认后上榜。本页会自动更新。</div>
+      <div class="notice" style="margin-top:12px"><span class="spin-inline"></span> {{T "已提交，等站长确认后上榜。本页会自动更新。"}}</div>
     {{else if eq .Mode "gateway"}}
-      <div class="notice" style="margin-top:12px"><span class="spin-inline"></span> 等待到账…转完自动确认，本页会自动更新</div>
-      {{if .Owned}}<details style="margin-top:10px"><summary class="hint" style="cursor:pointer">付了但一直没确认？</summary>
+      <div class="notice" style="margin-top:12px"><span class="spin-inline"></span> {{T "等待到账…转完自动确认，本页会自动更新"}}</div>
+      {{if .Owned}}<details style="margin-top:10px"><summary class="hint" style="cursor:pointer">{{T "付了但一直没确认？"}}</summary>
         <form class="claimf" method="post" action="/d/{{.D.Code}}/claim">
-          <label>币安订单编号（18 位数字，转账详情里有）</label>
+          <label>{{T "币安订单编号（18 位数字，转账详情里有）"}}</label>
           <input name="binance_order_id" inputmode="numeric" maxlength="18" placeholder="4520……" required>
-          <button class="btn sec" type="submit" style="margin-top:10px">我付过了，帮我核对</button>
+          <button class="btn sec" type="submit" style="margin-top:10px">{{T "我付过了，帮我核对"}}</button>
           <div class="err claim-err"></div>
         </form></details>{{end}}
     {{else if .Owned}}
       <form class="claimf" method="post" action="/pay/{{.D.Code}}/claim" style="margin-top:12px">
-        <label>币安订单编号（可选，18 位数字，填了站长确认更快）</label>
+        <label>{{T "币安订单编号（可选，18 位数字，填了站长确认更快）"}}</label>
         <input name="binance_order_id" inputmode="numeric" maxlength="18" placeholder="4520……">
-        <button class="btn" type="submit" style="margin-top:10px">我已施舍，等站长确认</button>
+        <button class="btn" type="submit" style="margin-top:10px">{{T "我已施舍，等站长确认"}}</button>
         <div class="err claim-err"></div>
       </form>
     {{else}}
-      <div class="hint" style="margin-top:12px">「我已施舍」要在发起施舍的那台设备上点。</div>
+      <div class="hint" style="margin-top:12px">{{T "「我已施舍」要在发起施舍的那台设备上点。"}}</div>
     {{end}}
   </div>
-  {{if .Fallback}}<div class="hint center" style="margin-top:12px">打不开？<a href="{{.Fallback}}" target="_blank" rel="noopener">用网关收银页支付</a></div>{{end}}
+  {{if .Fallback}}<div class="hint center" style="margin-top:12px">{{T "打不开？"}}<a href="{{.Fallback}}" target="_blank" rel="noopener">{{T "用网关收银页支付"}}</a></div>{{end}}
 </div>{{end}}

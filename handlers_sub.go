@@ -42,24 +42,26 @@ type verifyProfile struct {
 }
 
 // tweetTexts 发推话术模板，第一条为默认；都带验证码和站点链接（顺便传播）。
-func (a *App) tweetTexts(code, purpose string) []string {
+func (a *App) tweetTexts(lang, code, purpose string) []string {
 	site := shortURL(a.cfg.BaseURL) // 推文里只放裸域名，短
 	if purpose == "reset" {
 		return []string{
-			"我在「" + a.cfg.SiteTitle + "」要饭的碗口令忘了，发推证明是我本人 🥣 " + code + " " + site,
+			tr(lang, "我在「%s」要饭的碗口令忘了，发推证明是我本人 🥣 %s %s", tr(lang, a.cfg.SiteTitle), code, site),
 		}
 	}
 	return []string{
-		"我在「" + a.cfg.SiteTitle + "」摆了个碗 🥣 行行好，赏口饭吃～ " + code + " #赛博丐帮 " + site,
-		"本人已加入赛博丐帮，正式开丐 🧎 一毛也是爱，投个钢镚也行 🪙 " + code + " #赛博丐帮 " + site,
-		"不上班了，改行要饭。碗在这，各位大善人行行好 🥣 " + code + " #赛博丐帮 " + site,
-		"丐帮招新，我先带头要饭 🥣 谁投币谁上功德簿，不投的丢个钢镚也算 " + code + " #赛博丐帮 " + site,
+		tr(lang, "我在「%s」摆了个碗 🥣 行行好，赏口饭吃～ %s #赛博丐帮 %s", tr(lang, a.cfg.SiteTitle), code, site),
+		tr(lang, "本人已加入赛博丐帮，正式开丐 🧎 一毛也是爱，投个钢镚也行 🪙 %s #赛博丐帮 %s", code, site),
+		tr(lang, "不上班了，改行要饭。碗在这，各位大善人行行好 🥣 %s #赛博丐帮 %s", code, site),
+		tr(lang, "丐帮招新，我先带头要饭 🥣 谁投币谁上功德簿，不投的丢个钢镚也算 %s #赛博丐帮 %s", code, site),
 	}
 }
 
 func intentFor(text string) string { return "https://x.com/intent/post?text=" + url.QueryEscape(text) }
 
-func (a *App) intentURL(code string) string { return intentFor(a.tweetTexts(code, "new")[0]) }
+func (a *App) intentURL(lang, code string) string {
+	return intentFor(a.tweetTexts(lang, code, "new")[0])
+}
 
 // startVerify 生成验证码并渲染第一步。验证码与浏览器 cookie 里的密钥绑定：推文是公开的，光知道码没用。
 func (a *App) startVerify(w http.ResponseWriter, r *http.Request, purpose, errMsg string) {
@@ -89,7 +91,7 @@ func (a *App) startVerify(w http.ResponseWriter, r *http.Request, purpose, errMs
 		a.setCookie(w, "xv_"+code, secret, 24*3600)
 		a.setCookie(w, "xvp_"+purpose, code, 24*3600)
 	}
-	texts := a.tweetTexts(code, purpose)
+	texts := a.tweetTexts(a.lang(r), code, purpose)
 	a.render(w, http.StatusOK, "new", newPage{Base: a.base(r), Step: 1, Purpose: purpose, Code: code, Texts: texts, IntentURL: intentFor(texts[0]), Err: errMsg})
 }
 
@@ -128,7 +130,7 @@ func (a *App) verifyTweet(r *http.Request, purpose string) (*Verify, *xUser, str
 	}
 	text, u, created, err := a.fetchTweet(id)
 	if err != nil {
-		return v, nil, err.Error()
+		return v, nil, a.T(r, err.Error())
 	}
 	if !strings.Contains(strings.ToUpper(text), code) {
 		// 页面上的码和推文里的不一致（发推后页面重载换了码）：推文里只要有本浏览器生成过的任何一个有效码就认
@@ -143,7 +145,7 @@ func (a *App) verifyTweet(r *http.Request, purpose string) (*Verify, *xUser, str
 			}
 		}
 		if !found {
-			return v, nil, "这条推文里没有验证码 " + code + "，请检查是否发对了"
+			return v, nil, a.T(r, "这条推文里没有验证码 %s，请检查是否发对了", code)
 		}
 	}
 	if created > 0 && created < v.CreatedAt-10*60*1000 {
@@ -166,12 +168,12 @@ func (a *App) handleNewVerify(w http.ResponseWriter, r *http.Request) {
 			a.startVerify(w, r, "new", msg)
 			return
 		}
-		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "new", Code: v.Code, Texts: a.tweetTexts(v.Code, "new"), IntentURL: a.intentURL(v.Code), TweetURL: r.FormValue("tweet_url"), Err: msg})
+		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "new", Code: v.Code, Texts: a.tweetTexts(a.lang(r), v.Code, "new"), IntentURL: a.intentURL(a.lang(r), v.Code), TweetURL: r.FormValue("tweet_url"), Err: msg})
 		return
 	}
 	if exist := a.siteOfX(u); exist != nil {
-		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "new", Code: v.Code, Texts: a.tweetTexts(v.Code, "new"), IntentURL: a.intentURL(v.Code),
-			Err: "@" + u.Handle + " 已经开过站了：" + a.cfg.BaseURL + exist.Path() + "。忘了口令可以在登录页用 X 重置。"})
+		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "new", Code: v.Code, Texts: a.tweetTexts(a.lang(r), v.Code, "new"), IntentURL: a.intentURL(a.lang(r), v.Code),
+			Err: a.T(r, "@%s 已经开过站了：%s。忘了口令可以在登录页用 X 重置。", u.Handle, a.cfg.BaseURL+exist.Path())})
 		return
 	}
 	prof := verifyProfile{Name: cleanText(u.Name, 20, false), Handle: u.Handle, XID: u.ID, AvatarURL: u.Avatar}
@@ -251,18 +253,18 @@ func (a *App) handleNewPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exist := a.siteOfX(&xUser{ID: prof.XID, Handle: prof.Handle}); exist != nil {
-		bad("@" + prof.Handle + " 已经开过站了")
+		bad(a.T(r, "@%s 已经开过站了", prof.Handle))
 		return
 	}
 	site := &Site{Slug: f.Slug, Name: prof.Name, Slogan: f.Slogan, Story: f.Story, Avatar: "🥣", XURL: "https://x.com/" + prof.Handle,
 		XHandle: prof.Handle, XName: prof.Name, XAvatar: prof.AvatarFile, XID: prof.XID, Listed: !a.cfg.SubsiteReview, PassHash: hashPassword(pw), Currency: a.cfg.Currency}
 	id, err := a.st.CreateSite(site)
 	if errors.Is(err, ErrSlugTaken) {
-		bad("路径 " + f.Slug + " 已被占用（@" + prof.Handle + " 可能已经开过站，忘了口令可在登录页用 X 找回）")
+		bad(a.T(r, "路径 %s 已被占用（@%s 可能已经开过站，忘了口令可在登录页用 X 找回）", f.Slug, prof.Handle))
 		return
 	}
 	if errors.Is(err, ErrXTaken) {
-		bad("@" + prof.Handle + " 已经开过站了")
+		bad(a.T(r, "@%s 已经开过站了", prof.Handle))
 		return
 	}
 	if err != nil {
@@ -293,20 +295,20 @@ func (a *App) handleResetVerify(w http.ResponseWriter, r *http.Request) {
 			a.startVerify(w, r, "reset", msg)
 			return
 		}
-		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(v.Code, "reset")[0]), TweetURL: r.FormValue("tweet_url"), Err: msg})
+		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(a.lang(r), v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(a.lang(r), v.Code, "reset")[0]), TweetURL: r.FormValue("tweet_url"), Err: msg})
 		return
 	}
 	site := a.siteOfX(u) // 先按 X 数字 ID 认人（改过用户名也能找回），再按用户名
 	if site != nil && site.IsMain() {
-		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(v.Code, "reset")[0]), Err: "主站口令在服务器 config.env 里改，不走 X 找回"})
+		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(a.lang(r), v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(a.lang(r), v.Code, "reset")[0]), Err: "主站口令在服务器 config.env 里改，不走 X 找回"})
 		return
 	}
 	if site == nil {
-		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(v.Code, "reset")[0]), Err: "@" + u.Handle + " 还没开过要饭站"})
+		a.render(w, http.StatusBadRequest, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(a.lang(r), v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(a.lang(r), v.Code, "reset")[0]), Err: a.T(r, "@%s 还没开过要饭站", u.Handle)})
 		return
 	}
 	if !a.lim.allow("reset:"+strconv.FormatInt(site.ID, 10), 3, 24*time.Hour) {
-		a.render(w, http.StatusTooManyRequests, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(v.Code, "reset")[0]), Err: "这个 X 今天重置得太频繁了，明天再来"})
+		a.render(w, http.StatusTooManyRequests, "new", newPage{Base: a.base(r), Step: 1, Purpose: "reset", Code: v.Code, Texts: a.tweetTexts(a.lang(r), v.Code, "reset"), IntentURL: intentFor(a.tweetTexts(a.lang(r), v.Code, "reset")[0]), Err: "这个 X 今天重置得太频繁了，明天再来"})
 		return
 	}
 	a.syncSiteX(site, u) // X 上改了昵称/用户名/头像：站点资料跟着更新
@@ -719,7 +721,7 @@ func (a *App) handleManagePayment(w http.ResponseWriter, r *http.Request) {
 	}
 	if site.PayMode == "gateway" {
 		if err := a.unbindAccount(site); err != nil {
-			a.renderManage(w, r, site, "解绑币安 Key 失败："+gatewayErr(err))
+			a.renderManage(w, r, site, a.T(r, "解绑币安 Key 失败：%s", gatewayErrL(a.lang(r), err)))
 			return
 		}
 	}
@@ -762,7 +764,7 @@ func (a *App) handleManageBind(w http.ResponseWriter, r *http.Request) {
 	acc, err := a.bindAccount(site, key, secret, uid, link)
 	if err != nil {
 		a.logf("[warn] 站点 /%s 绑定 Key 失败: %v", site.Slug, err)
-		a.renderManage(w, r, site, "绑定失败："+gatewayErr(err))
+		a.renderManage(w, r, site, a.T(r, "绑定失败：%s", gatewayErrL(a.lang(r), err)))
 		return
 	}
 	if err := a.st.UpdateSitePayment(site.ID, "gateway", acc.AccountID, uid, link, site.PayID); err != nil {
@@ -784,7 +786,7 @@ func (a *App) handleManageUnbind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := a.unbindAccount(site); err != nil {
-		a.renderManage(w, r, site, "解绑失败："+gatewayErr(err))
+		a.renderManage(w, r, site, a.T(r, "解绑失败：%s", gatewayErrL(a.lang(r), err)))
 		return
 	}
 	if err := a.st.UpdateSitePayment(site.ID, "manual", "", "", site.ReceiveLink, site.PayID); err != nil {
@@ -809,7 +811,7 @@ func (a *App) handleManageVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, err := a.verifyAccount(site); err != nil {
-		a.flash(w, "校验失败："+gatewayErr(err))
+		a.flash(w, a.T(r, "校验失败：%s", gatewayErrL(a.lang(r), err)))
 	} else {
 		a.flash(w, "校验通过：币安 Key 可用，到账会自动确认")
 	}
@@ -951,7 +953,7 @@ func (a *App) handleManageSite(w http.ResponseWriter, r *http.Request) {
 		pw := strings.ToLower(randCode(10))
 		if err = a.st.SetSitePassword(target.ID, hashPassword(pw)); err == nil {
 			a.logf("[info] 重置站点 /%s 口令", target.Slug)
-			a.renderManageFlash(w, r, site, "", "已重置 /"+target.Slug+" 的口令为 "+pw+" （只显示这一次，请转告站长）")
+			a.renderManageFlash(w, r, site, "", a.T(r, "已重置 /%s 的口令为 %s（只显示这一次，请转告站长）", target.Slug, pw))
 			return
 		}
 	default:

@@ -32,7 +32,7 @@ type App struct {
 	cfg     *Config
 	st      *Store
 	mux     *http.ServeMux
-	tpl     map[string]*template.Template
+	tpl     map[string]map[string]*template.Template
 	lim     *limiter
 	secure  bool
 	session []byte           // 会话签名密钥（首次启动生成，存 meta 表）
@@ -55,6 +55,8 @@ type Base struct {
 	InApp           bool   // App 内置浏览器（X/微信等）
 	HasBGM          bool   // static/bgm.m4a 存在才渲染背景音乐
 	HomePath        string // 左上角站名点回哪：刚才浏览的子站（cookie bhome），否则主站
+	Lang            string // 当前语言代码
+	Langs           []langInfo
 	NoIndex         bool   // 未收录的子站不让搜索引擎收录
 	Desc            string // 页面描述（站点页用站名 + 口号）
 	OGImage         string // 分享缩略图（站点页用 X 头像）
@@ -116,6 +118,7 @@ func (a *App) loadTemplates() error {
 		"xav":         a.xAvatar,
 		"handleOf":    handleOf,
 		"lastSeg":     xHandle,
+		"safeHTML":    func(s string) template.HTML { return template.HTML(s) },
 		"dict": func(kv ...any) map[string]any {
 			m := map[string]any{}
 			for i := 0; i+1 < len(kv); i += 2 {
@@ -124,15 +127,40 @@ func (a *App) loadTemplates() error {
 			return m
 		},
 	}
-	a.tpl = map[string]*template.Template{}
-	for _, p := range []string{"site", "pay", "status", "new", "login", "manage", "rank", "error"} {
-		t, err := template.New(p).Funcs(funcs).ParseFS(tplFS, "templates/layout.html", "templates/sprite.html", "templates/paypanel.html", "templates/"+p+".html")
-		if err != nil {
-			return err
+	// 每种语言各编译一套：T / ago / level 等输出文案的函数绑定到对应语言
+	a.tpl = map[string]map[string]*template.Template{}
+	for _, l := range langs {
+		fm := template.FuncMap{}
+		for k, v := range funcs {
+			fm[k] = v
 		}
-		a.tpl[p] = t
+		for k, v := range langFuncs(l.Code) {
+			fm[k] = v
+		}
+		set := map[string]*template.Template{}
+		for _, p := range []string{"site", "pay", "status", "new", "login", "manage", "rank", "error"} {
+			t, err := template.New(p).Funcs(fm).ParseFS(tplFS, "templates/layout.html", "templates/sprite.html", "templates/paypanel.html", "templates/"+p+".html")
+			if err != nil {
+				return err
+			}
+			set[p] = t
+		}
+		a.tpl[l.Code] = set
 	}
 	return nil
+}
+
+// langOf 渲染数据里的语言（所有页面数据都内嵌 Base）。
+type langData interface{ langCode() string }
+
+func (b Base) langCode() string { return b.Lang }
+
+func (a *App) tplFor(data any, page string) *template.Template {
+	lang := "zh"
+	if ld, ok := data.(langData); ok && langOK(ld.langCode()) {
+		lang = ld.langCode()
+	}
+	return a.tpl[lang][page]
 }
 
 func (a *App) routes() {
@@ -158,6 +186,7 @@ func (a *App) routes() {
 	m.HandleFunc("POST /d/{code}/claim", a.handleGatewayClaim)
 	m.HandleFunc("POST /bpg/notify", a.handleNotify)
 	m.HandleFunc("GET /rank", a.handleRank)
+	m.HandleFunc("GET /lang", a.handleLang)
 	m.HandleFunc("GET /new", a.handleNewGet)
 	m.HandleFunc("POST /new/verify", a.handleNewVerify)
 	m.HandleFunc("POST /new", a.handleNewPost)
@@ -220,6 +249,7 @@ func (a *App) base(r *http.Request) Base {
 	if b.Me != nil {
 		b.MeID = b.Me.ID
 	}
+	b.Lang, b.Langs = a.lang(r), langs
 	b.HomePath = "/"
 	if s := cookieVal(r, "bhome"); s != "" && validSlug(s) {
 		b.HomePath = "/" + s
@@ -230,7 +260,7 @@ func (a *App) base(r *http.Request) Base {
 // renderFragment 只渲染某个 define（弹窗用的 HTML 片段）。
 func (a *App) renderFragment(w http.ResponseWriter, status int, page, name string, data any) {
 	var buf bytes.Buffer
-	if err := a.tpl[page].ExecuteTemplate(&buf, name, data); err != nil {
+	if err := a.tplFor(data, page).ExecuteTemplate(&buf, name, data); err != nil {
 		log.Printf("[error] 渲染片段 %s: %v", name, err)
 		http.Error(w, "页面渲染失败", http.StatusInternalServerError)
 		return
@@ -243,7 +273,7 @@ func (a *App) renderFragment(w http.ResponseWriter, status int, page, name strin
 
 func (a *App) render(w http.ResponseWriter, status int, name string, data any) {
 	var buf bytes.Buffer
-	if err := a.tpl[name].ExecuteTemplate(&buf, "layout", data); err != nil {
+	if err := a.tplFor(data, name).ExecuteTemplate(&buf, "layout", data); err != nil {
 		log.Printf("[error] 渲染 %s: %v", name, err)
 		http.Error(w, "页面渲染失败", http.StatusInternalServerError)
 		return

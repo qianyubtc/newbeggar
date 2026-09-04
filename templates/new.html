@@ -1,72 +1,72 @@
-{{define "title"}}{{if eq .Purpose "reset"}}用 X 找回口令{{else}}开通要饭站{{end}} · {{.SiteTitle}}{{end}}
+{{define "title"}}{{if eq .Purpose "reset"}}{{T "用 X 找回口令"}}{{else}}{{T "开通要饭站"}}{{end}} · {{T .SiteTitle}}{{end}}
 {{define "content"}}
 <div class="narrow">
 {{if eq .Step 1}}
 <section class="card px">
-  <h1>{{if eq .Purpose "reset"}}🔑 用 X 找回口令{{else}}🏚 开通我的要饭站{{end}}</h1>
-  <p class="hint" style="font-size:14px;margin:0 0 12px">{{if eq .Purpose "reset"}}发一条带验证码的推文证明你是站长本人，就能重设口令。{{else}}不用先施舍，用你的 X 账号发一条推就能开：站名用你的 X 昵称、头像用 X 头像，一个 X 账号一个站。发推顺便帮你把碗摆到街上。{{end}}</p>
-  {{if .Err}}<div class="notice bad" style="margin-bottom:12px">{{.Err}}</div>{{end}}
-  {{if .InApp}}<div class="notice" style="margin-bottom:12px">📱 你现在在 App 内置浏览器里，一键发推可能拉不起来、发完回来也可能丢状态。<b>建议点右上角「⋯」选「在浏览器中打开」</b>（或复制链接到 Safari / Chrome 打开）再操作。
-    <div class="btns" style="margin-top:8px"><button type="button" class="btn sec sm copy" data-copy="{{.BaseURL}}{{if eq .Purpose "reset"}}/reset{{else}}/new{{end}}">复制本页链接</button></div></div>{{end}}
+  <h1>{{if eq .Purpose "reset"}}{{T "🔑 用 X 找回口令"}}{{else}}{{T "🏚 开通我的要饭站"}}{{end}}</h1>
+  <p class="hint" style="font-size:14px;margin:0 0 12px">{{if eq .Purpose "reset"}}{{T "发一条带验证码的推文证明你是站长本人，就能重设口令。"}}{{else}}{{T "不用先施舍，用你的 X 账号发一条推就能开：站名用你的 X 昵称、头像用 X 头像，一个 X 账号一个站。发推顺便帮你把碗摆到街上。"}}{{end}}</p>
+  {{if .Err}}<div class="notice bad" style="margin-bottom:12px">{{T .Err}}</div>{{end}}
+  {{if .InApp}}<div class="notice" style="margin-bottom:12px">{{T "📱 你现在在 App 内置浏览器里，一键发推可能拉不起来、发完回来也可能丢状态。"}}<b>{{T "建议点右上角「⋯」选「在浏览器中打开」"}}</b>{{T "（或复制链接到 Safari / Chrome 打开）再操作。"}}
+    <div class="btns" style="margin-top:8px"><button type="button" class="btn sec sm copy" data-copy="{{.BaseURL}}{{if eq .Purpose "reset"}}/reset{{else}}/new{{end}}">{{T "复制本页链接"}}</button></div></div>{{end}}
   <div class="steps">
     <div class="step">
-      <h2>发一条推文，带上验证码 <span class="code">{{.Code}}</span></h2>
-      <label>推文内容（可以随便改，只要保留验证码）<span class="count"><button type="button" class="copy" id="nextText">换一条</button></span></label>
+      <h2>{{T "发一条推文，带上验证码"}} <span class="code">{{.Code}}</span></h2>
+      <label>{{T "推文内容（可以随便改，只要保留验证码）"}}<span class="count"><button type="button" class="copy" id="nextText">{{T "换一条"}}</button></span></label>
       <textarea id="tweetText" rows="4" maxlength="280">{{index .Texts 0}}</textarea>
       <div class="btns">
-        <a class="btn" id="intent" href="{{.IntentURL}}" target="_blank" rel="noopener">🐦 一键去 X 发推</a>
-        <button type="button" class="btn sec copy" data-copy-from="tweetText">复制文案</button>
+        <a class="btn" id="intent" href="{{.IntentURL}}" target="_blank" rel="noopener">{{T "🐦 一键去 X 发推"}}</a>
+        <button type="button" class="btn sec copy" data-copy-from="tweetText">{{T "复制文案"}}</button>
       </div>
-      <a class="hint" id="intentAlt" href="{{.IntentURL}}" target="_blank" rel="noopener" hidden style="display:block;margin-top:6px;text-decoration:underline">没拉起 X App？点这里用网页版发 →</a>
-      <div class="hint">验证码 <b>{{.Code}}</b> 大小写不限，24 小时内有效。文案里带着你的碗的链接，发出去顺便吆喝。</div>
+      <a class="hint" id="intentAlt" href="{{.IntentURL}}" target="_blank" rel="noopener" hidden style="display:block;margin-top:6px;text-decoration:underline">{{T "没拉起 X App？点这里用网页版发 →"}}</a>
+      <div class="hint">{{T "验证码"}} <b>{{.Code}}</b> {{T "大小写不限，24 小时内有效。文案里带着你的碗的链接，发出去顺便吆喝。"}}</div>
     </div>
     <div class="step">
-      <h2>把推文链接贴回来</h2>
+      <h2>{{T "把推文链接贴回来"}}</h2>
       <form method="post" action="{{if eq .Purpose "reset"}}/reset/verify{{else}}/new/verify{{end}}">
         <input type="hidden" name="code" value="{{.Code}}">
-        <label for="tweetUrl">推文链接</label>
-        <input id="tweetUrl" name="tweet_url" placeholder="https://x.com/你的名字/status/1234567890" value="{{.TweetURL}}" required autocapitalize="off">
-        <button class="btn" type="submit" style="margin-top:14px">验证</button>
+        <label for="tweetUrl">{{T "推文链接"}}</label>
+        <input id="tweetUrl" name="tweet_url" placeholder="{{T "https://x.com/你的名字/status/1234567890"}}" value="{{.TweetURL}}" required autocapitalize="off">
+        <button class="btn" type="submit" style="margin-top:14px">{{T "验证"}}</button>
       </form>
-      <div class="hint">推文发出后，点推文右上角「分享 → 复制链接」即可。</div>
+      <div class="hint">{{T "推文发出后，点推文右上角「分享 → 复制链接」即可。"}}</div>
     </div>
   </div>
-  <div class="hint" style="margin-top:14px">{{if eq .Purpose "reset"}}还没开过站？<a href="/new">去开一个</a>{{else}}已经开过站？<a href="/login">站长登录</a>{{end}}</div>
+  <div class="hint" style="margin-top:14px">{{if eq .Purpose "reset"}}{{T "还没开过站？"}}<a href="/new">{{T "去开一个"}}</a>{{else}}{{T "已经开过站？"}}<a href="/login">{{T "站长登录"}}</a>{{end}}</div>
 </section>
 {{else if eq .Purpose "reset"}}
 <section class="card px">
-  <h1>🔑 设置新口令</h1>
+  <h1>{{T "🔑 设置新口令"}}</h1>
   <div class="profrow">{{if .AvatarURL}}<img class="xavatar" src="{{.AvatarURL}}" alt="">{{else}}<div class="av sq">🥣</div>{{end}}<div><b>{{.Site.Name}}</b><div class="hint" style="margin:0">@{{.Prof.Handle}} · {{.BaseURL}}{{.Site.Path}}</div></div></div>
-  {{if .Err}}<div class="notice bad" style="margin:12px 0">{{.Err}}</div>{{end}}
+  {{if .Err}}<div class="notice bad" style="margin:12px 0">{{T .Err}}</div>{{end}}
   <form method="post" action="/reset">
     <input type="hidden" name="code" value="{{.Code}}">
     <div class="grid2">
-      <div><label for="pw1">新口令（至少 6 位）</label><input id="pw1" name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
-      <div><label for="pw2">再输一遍</label><input id="pw2" name="password2" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
+      <div><label for="pw1">{{T "新口令（至少 6 位）"}}</label><input id="pw1" name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
+      <div><label for="pw2">{{T "再输一遍"}}</label><input id="pw2" name="password2" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
     </div>
-    <button class="btn" type="submit" style="margin-top:16px">保存并登录</button>
+    <button class="btn" type="submit" style="margin-top:16px">{{T "保存并登录"}}</button>
   </form>
 </section>
 {{else}}
 <section class="card px">
-  <h1>🏚 开通我的要饭站</h1>
-  <div class="notice ok">✅ X 验证通过</div>
-  <div class="profrow">{{if .AvatarURL}}<img class="xavatar" src="{{.AvatarURL}}" alt="">{{else}}<div class="av sq">🥣</div>{{end}}<div><b>{{.Prof.Name}}</b><div class="hint" style="margin:0">@{{.Prof.Handle}} · 站名和头像来自 X（头像会定期同步）</div></div></div>
+  <h1>{{T "🏚 开通我的要饭站"}}</h1>
+  <div class="notice ok">{{T "✅ X 验证通过"}}</div>
+  <div class="profrow">{{if .AvatarURL}}<img class="xavatar" src="{{.AvatarURL}}" alt="">{{else}}<div class="av sq">🥣</div>{{end}}<div><b>{{.Prof.Name}}</b><div class="hint" style="margin:0">@{{.Prof.Handle}} {{T "· 站名和头像来自 X（头像会定期同步）"}}</div></div></div>
   <form method="post" action="/new" id="nf">
     <input type="hidden" name="code" value="{{.Code}}">
-    <label>站点地址 <span class="hint" style="display:inline">（就是你的 X 用户名，不用填）</span></label>
+    <label>{{T "站点地址"}} <span class="hint" style="display:inline">{{T "（就是你的 X 用户名，不用填）"}}</span></label>
     <div class="code" style="display:inline-block;margin-bottom:10px">{{.BaseURL}}/{{.F.Slug}}</div>
-    <label for="sloganIn">一句话口号</label>
-    <input id="sloganIn" name="slogan" maxlength="60" placeholder="行行好，赏口饭吃 🙏" value="{{.F.Slogan}}">
-    <div class="section-title">登录口令</div>
-    <div class="hint" style="margin-bottom:6px">以后用「X 用户名 + 口令」登录后台；忘了可以再发推找回。</div>
+    <label for="sloganIn">{{T "一句话口号"}}</label>
+    <input id="sloganIn" name="slogan" maxlength="60" placeholder="{{T "行行好，赏口饭吃 🙏"}}" value="{{.F.Slogan}}">
+    <div class="section-title">{{T "登录口令"}}</div>
+    <div class="hint" style="margin-bottom:6px">{{T "以后用「X 用户名 + 口令」登录后台；忘了可以再发推找回。"}}</div>
     <div class="grid2">
-      <div><label for="pw1">口令（至少 6 位）</label><input id="pw1" name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
-      <div><label for="pw2">再输一遍</label><input id="pw2" name="password2" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
+      <div><label for="pw1">{{T "口令（至少 6 位）"}}</label><input id="pw1" name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
+      <div><label for="pw2">{{T "再输一遍"}}</label><input id="pw2" name="password2" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
     </div>
-    {{if .Err}}<div class="err">{{.Err}}</div>{{end}}
-    <button class="btn" type="submit" style="margin-top:18px">开张 🏚</button>
-    <div class="hint" style="margin-top:10px">开通后在后台绑定币安 Key 或填收款码就能收钱。站点内容自负，广告站会被丐帮除名。</div>
+    {{if .Err}}<div class="err">{{T .Err}}</div>{{end}}
+    <button class="btn" type="submit" style="margin-top:18px">{{T "开张 🏚"}}</button>
+    <div class="hint" style="margin-top:10px">{{T "开通后在后台绑定币安 Key 或填收款码就能收钱。站点内容自负，广告站会被丐帮除名。"}}</div>
   </form>
 </section>
 {{end}}

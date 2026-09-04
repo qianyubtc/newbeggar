@@ -1,50 +1,50 @@
-{{define "title"}}{{if eq .D.Status "paid"}}功德 +{{fmtAmt .D.ActualE8}}{{else}}施舍进行中{{end}} · {{.SiteTitle}}{{end}}
+{{define "title"}}{{if eq .D.Status "paid"}}{{T "功德 +"}}{{fmtAmt .D.ActualE8}}{{else}}{{T "施舍进行中"}}{{end}} · {{T .SiteTitle}}{{end}}
 {{define "content"}}
 <div class="narrow">
 {{if eq .D.Status "paid"}}
 <section class="card px center">
   <div class="sprite-wrap jump" style="margin:0 auto 10px">{{template "sprite"}}</div>
   <div class="insert">★ THANK YOU ★</div>
-  <h1>🙏 谢谢施主 {{.D.Nickname}}</h1>
+  <h1>{{T "🙏 谢谢施主"}} {{.D.Nickname}}</h1>
   <div class="big num accent">+{{fmtAmt .D.ActualE8}}<small>{{.D.Currency}}</small></div>
   {{if .D.MsgBlocked}}{{else if .D.Message}}<div class="bubble" style="margin:14px 0 0;text-align:left">{{.D.Message}}</div>{{end}}
-  {{if and (gt .Position 0) (not .D.Blocked)}}<div class="notice ok" style="margin-top:14px">你在 {{.Site.Name}} 的施主榜排第 <b>{{.Position}}</b> 位 · {{donorTier .DonorTotal}}</div>{{end}}
+  {{if and (gt .Position 0) (not .D.Blocked)}}<div class="notice ok" style="margin-top:14px">{{T "你在 %s 的施主榜排第 %d 位" .Site.Name .Position}} · {{T (donorTier .DonorTotal)}}</div>{{end}}
   <div class="btns">
-    <a class="btn sec" href="{{.Site.Path}}#donors">回到 {{.Site.Name}} 的碗</a>
-    <button class="btn ghost copy" type="button" data-copy="{{.ShareURL}}">复制链接分享</button>
+    <a class="btn sec" href="{{.Site.Path}}#donors">{{T "回到 %s 的碗" .Site.Name}}</a>
+    <button class="btn ghost copy" type="button" data-copy="{{.ShareURL}}">{{T "复制链接分享"}}</button>
   </div>
 </section>
 <section class="card px" style="margin-top:16px">
-  <h2>🖼 分享卡片</h2>
-  <p class="hint" style="margin:0 0 10px">生成一张像素分享图，发到 X 或朋友圈，顺便帮乞丐吆喝。</p>
-  <button class="btn sec" type="button" id="shareBtn">生成分享卡</button>
-  <div class="sharebox" id="sharebox" hidden><img id="shareImg" alt="分享卡"><div class="hint">长按图片保存，或 <a id="shareDl" download="beggar-card.png">下载</a></div></div>
+  <h2>{{T "🖼 分享卡片"}}</h2>
+  <p class="hint" style="margin:0 0 10px">{{T "生成一张像素分享图，发到 X 或朋友圈，顺便帮乞丐吆喝。"}}</p>
+  <button class="btn sec" type="button" id="shareBtn">{{T "生成分享卡"}}</button>
+  <div class="sharebox" id="sharebox" hidden><img id="shareImg" alt="{{T "分享卡"}}"><div class="hint">{{T "长按图片保存，或"}} <a id="shareDl" download="beggar-card.png">{{T "下载"}}</a></div></div>
 </section>
 {{if .SubsitesEnabled}}
 <section class="card px center" style="margin-top:16px">
-  <h2 style="justify-content:center">🏚 你也可以要饭</h2>
-  <p class="hint" style="font-size:14px">用 X 账号发一条推就能开自己的要饭站，别人给你的钱直接进你的币安账户。</p>
-  <a class="btn" href="/new">用 X 开通我的要饭站 →</a>
+  <h2 style="justify-content:center">{{T "🏚 你也可以要饭"}}</h2>
+  <p class="hint" style="font-size:14px">{{T "用 X 账号发一条推就能开自己的要饭站，别人给你的钱直接进你的币安账户。"}}</p>
+  <a class="btn" href="/new">{{T "用 X 开通我的要饭站 →"}}</a>
 </section>
 {{end}}
 {{else if or (eq .D.Status "claimed") (and (eq .D.Status "pending") (not .Stale))}}
 <section class="card px">
   {{template "paypanel" .Panel}}
-  <div class="hint center" style="margin-top:12px"><a href="{{.Site.Path}}">回到 {{.Site.Name}} 的碗</a></div>
+  <div class="hint center" style="margin-top:12px"><a href="{{.Site.Path}}">{{T "回到 %s 的碗" .Site.Name}}</a></div>
 </section>
 {{else}}
 <section class="card px center">
   <div class="sprite-wrap" style="margin:0 auto 10px">{{template "sprite"}}</div>
-  <h1>{{if eq .D.Status "rejected"}}站长没有确认这笔施舍{{else if eq .D.Status "failed"}}下单失败{{else}}这笔施舍已过期{{end}}</h1>
-  <p class="hint" style="font-size:14px">{{if eq .D.Status "rejected"}}如果你确实转了，请联系站长核对。{{else}}没付款不扣钱；想施舍请重新来一次。{{end}}</p>
-  <a class="btn" href="{{.Site.Path}}#donate">再来一次</a>
+  <h1>{{if eq .D.Status "rejected"}}{{T "站长没有确认这笔施舍"}}{{else if eq .D.Status "failed"}}{{T "下单失败"}}{{else}}{{T "这笔施舍已过期"}}{{end}}</h1>
+  <p class="hint" style="font-size:14px">{{if eq .D.Status "rejected"}}{{T "如果你确实转了，请联系站长核对。"}}{{else}}{{T "没付款不扣钱；想施舍请重新来一次。"}}{{end}}</p>
+  <a class="btn" href="{{.Site.Path}}#donate">{{T "再来一次"}}</a>
 </section>
 {{end}}
 </div>
 {{end}}
 {{define "scripts"}}<script>
 (function(){var b=document.getElementById('shareBtn');if(!b)return;b.addEventListener('click',function(){b.disabled=true;b.textContent='生成中…';
-  var data={site:{{.Site.Name}},nick:{{.D.Nickname}},amt:'+'+{{fmtAmt .D.ActualE8}}+' '+{{.D.Currency}},msg:{{if .D.MsgBlocked}}''{{else}}{{.D.Message}}{{end}},pos:{{.Position}},url:{{.ShareURL}},title:{{.SiteTitle}}};
+  var data={site:{{.Site.Name}},nick:{{.D.Nickname}},amt:'+'+{{fmtAmt .D.ActualE8}}+' '+{{.D.Currency}},msg:{{if .D.MsgBlocked}}''{{else}}{{.D.Message}}{{end}},pos:{{.Position}},url:{{.ShareURL}},title:{{T .SiteTitle}}};
   var svg=document.querySelector('.sprite');var xml=new XMLSerializer().serializeToString(svg);var img=new Image();img.onload=function(){draw(img)};img.onerror=function(){draw(null)};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
   function px(c,x,y,w,h,fill){c.fillStyle=fill;c.fillRect(x,y,w,h)}
   function frame(c,x,y,w,h){px(c,x,y,w,h,'#1e1e2e');px(c,x+4,y+4,w-8,h-8,'#fffbf0')}
@@ -62,9 +62,9 @@
       if(data.pos>0){c.fillText(fit(c,'施主榜第 '+data.pos+' 位',360,18,'-apple-system, PingFang SC, sans-serif'),232,270)}
       if(data.msg){px(c,64,352,W-128,150,'#1e1e2e');px(c,68,356,W-136,142,'#ffffff');c.font='22px -apple-system, PingFang SC, sans-serif';c.fillStyle='#1e1e2e';wrap(c,'「'+data.msg+'」',88,378,W-176,36)}
       c.font='20px Pixel, sans-serif';c.fillStyle='#1e1e2e';c.fillText('★ THANK YOU ★',64,540);
-      c.font='18px -apple-system, PingFang SC, sans-serif';c.fillStyle='#4a4954';c.fillText('行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿。',64,586);
+      c.font='18px -apple-system, PingFang SC, sans-serif';c.fillStyle='#4a4954';c.fillText({{T "行行好，赏口饭吃。用币安 Pay 投币施舍，留一句话上功德簿。"}},64,586);
       px(c,64,640,W-128,60,'#1e1e2e');px(c,68,644,W-136,52,'#ffcc00');c.fillStyle='#1e1e2e';c.textBaseline='middle';c.fillText(fit(c,data.url.replace(/^https?:\/\//,''),W-176,22,'Pixel, sans-serif'),84,670);
-      c.textBaseline='top';c.font='16px Pixel, sans-serif';c.fillStyle='#4a4954';c.fillText('#赛博丐帮',64,740);
+      c.textBaseline='top';c.font='16px Pixel, sans-serif';c.fillStyle='#4a4954';c.fillText({{T "#赛博丐帮"}},64,740);
       var u=cv.toDataURL('image/png');document.getElementById('shareImg').src=u;document.getElementById('shareDl').href=u;document.getElementById('sharebox').hidden=false;b.textContent='重新生成';b.disabled=false;
     })}
 })})();

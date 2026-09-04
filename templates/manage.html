@@ -1,38 +1,38 @@
-{{define "title"}}后台 · {{.Site.Name}} · {{.SiteTitle}}{{end}}
+{{define "title"}}{{T "后台 ·"}} {{.Site.Name}} · {{T .SiteTitle}}{{end}}
 {{define "content"}}
 <div class="narrow" style="max-width:720px">
-{{if .Welcome}}<div class="notice ok" style="margin-bottom:12px">🎉 开张大吉！你的要饭站 <a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> 已上线{{if not .Site.Listed}}（待主站站长收录后进榜）{{end}}。<b>下一步：</b>到下面「收款方式」把币安 App 收款页分享出来的链接贴进去（一分钟），不然施主没法给你钱。以后从 <a href="{{.LoginURL}}">站长登录</a> 进来（X 用户名 {{.Site.Slug}} + 你的口令），忘了口令可以再发推找回。</div>{{end}}
-{{if .Flash}}<div class="notice ok" style="margin-bottom:12px">{{.Flash}}</div><div class="toast" id="flashToast" aria-hidden="true">✅ {{.Flash}}</div>{{end}}
-{{if .Err}}<div class="notice bad" style="margin-bottom:12px">{{.Err}}</div>{{end}}
+{{if .Welcome}}<div class="notice ok" style="margin-bottom:12px">{{T "🎉 开张大吉！你的要饭站"}} <a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> {{T "已上线"}}{{if not .Site.Listed}}{{T "（待主站站长收录后进榜）"}}{{end}}。<b>{{T "下一步："}}</b>{{T "到下面「收款方式」填上币安 UID（十秒钟），不然施主没法给你钱。"}} {{T "以后从 %s 进来（X 用户名 %s + 你的口令），忘了口令可以再发推找回。" (printf "<a href=\"%s\">%s</a>" .LoginURL (T "站长登录") | safeHTML) .Site.Slug | safeHTML}}</div>{{end}}
+{{if .Flash}}<div class="notice ok" style="margin-bottom:12px">{{T .Flash}}</div><div class="toast" id="flashToast" aria-hidden="true">✅ {{T .Flash}}</div>{{end}}
+{{if .Err}}<div class="notice bad" style="margin-bottom:12px">{{T .Err}}</div>{{end}}
 
 <section class="card px" style="margin-bottom:12px">
   <div class="hdr">
     {{if .Site.AvatarURL}}<img class="av img" style="width:48px;height:48px" src="{{.Site.AvatarURL}}" alt="">{{else}}<div class="av sq" style="width:48px;height:48px;font-size:26px">{{.Site.Avatar}}</div>{{end}}
-    <div class="body"><h1 style="font-size:20px;margin:0">{{.Site.Name}} <span class="hint" style="display:inline">后台</span></h1>
-      <div class="hint"><a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> · 碗里 <b class="num accent">{{fmtAmt .Stats.TotalE8}}</b> {{.Site.Currency}} · {{.Stats.Donors}} 位施主 · {{.Stats.Count}} 次 · 钢镚 {{.Coins}}{{if not .Site.Listed}} · <span class="tag claimed">待收录</span>{{end}}</div></div>
-    <div class="hdr-actions">{{if not .Site.IsMain}}<button class="btn sec sm" type="button" id="pwBtn">🔑 改口令</button>{{end}}<form method="post" action="/logout"><button class="btn ghost sm" type="submit">退出</button></form></div>
+    <div class="body"><h1 style="font-size:20px;margin:0">{{.Site.Name}} <span class="hint" style="display:inline">{{T "后台"}}</span></h1>
+      <div class="hint"><a href="{{.Site.Path}}">{{.BaseURL}}{{.Site.Path}}</a> {{T "· 碗里"}} <b class="num accent">{{fmtAmt .Stats.TotalE8}}</b> {{.Site.Currency}} · {{.Stats.Donors}} {{T "位施主 ·"}} {{.Stats.Count}} {{T "次 · 钢镚"}} {{.Coins}}{{if not .Site.Listed}} · <span class="tag claimed">{{T "待收录"}}</span>{{end}}</div></div>
+    <div class="hdr-actions">{{if not .Site.IsMain}}<button class="btn sec sm" type="button" id="pwBtn">{{T "🔑 改口令"}}</button>{{end}}<form method="post" action="/logout"><button class="btn ghost sm" type="submit">{{T "退出"}}</button></form></div>
   </div>
   <div class="anchors" style="margin-top:14px">
-    {{if .Claims}}<a href="#claims">⏳ 待确认 {{len .Claims}}</a>{{end}}
-    <a href="#profile">✏️ 资料</a><a href="#payment">💰 收款方式</a><a href="#donations">📜 施舍记录</a>
+    {{if .Claims}}<a href="#claims">{{T "⏳ 待确认"}} {{len .Claims}}</a>{{end}}
+    <a href="#profile">{{T "✏️ 资料"}}</a><a href="#payment">{{T "💰 收款方式"}}</a><a href="#donations">{{T "📜 施舍记录"}}</a>
 
-    {{if .Site.IsMain}}<a href="#sites">🏚 所有站点</a><a href="#messages">🧹 留言巡查</a>{{end}}
+    {{if .Site.IsMain}}<a href="#sites">{{T "🏚 所有站点"}}</a><a href="#messages">{{T "🧹 留言巡查"}}</a>{{end}}
   </div>
 </section>
 
 {{if .Claims}}
 <section class="card px" id="claims" style="margin-bottom:12px">
-  <h2>⏳ 待确认的施舍 <span class="tag claimed">{{len .Claims}}</span></h2>
-  <div class="hint" style="margin:-6px 0 8px">打开币安 App 核对到账（看金额和备注码），确认后上榜。</div>
+  <h2>{{T "⏳ 待确认的施舍"}} <span class="tag claimed">{{len .Claims}}</span></h2>
+  <div class="hint" style="margin:-6px 0 8px">{{T "打开币安 App 核对到账（看金额和备注码），确认后上榜。"}}</div>
   <ul class="list feed">
     {{range .Claims}}<li class="item">
       <div class="av" style="--h:{{hue .NickKey}}">{{initial .Nickname}}</div>
-      <div class="body"><div class="name"><span>{{.Nickname}}</span></div><div class="sub">备注码 <span class="code">{{.NoteCode}}</span>{{if .BinanceOrderID}} · 币安订单 <span class="code">{{.BinanceOrderID}}</span>{{end}} · {{ago .CreatedAt}}</div></div>
+      <div class="body"><div class="name"><span>{{.Nickname}}</span></div><div class="sub">{{T "备注码"}} <span class="code">{{.NoteCode}}</span>{{if .BinanceOrderID}} {{T "· 币安订单"}} <span class="code">{{.BinanceOrderID}}</span>{{end}} · {{ago .CreatedAt}}</div></div>
       <div class="amtv num">{{.Amount}} {{.Currency}}</div>
       {{if .Message}}<div class="bubble">{{.Message}}</div>{{end}}
       <div class="actions">
-        <form method="post" action="/manage/donation/{{.ID}}/confirm"><button class="btn sm">✓ 确认到账</button></form>
-        <form method="post" action="/manage/donation/{{.ID}}/reject"><button class="btn sm danger">✗ 没收到</button></form>
+        <form method="post" action="/manage/donation/{{.ID}}/confirm"><button class="btn sm">{{T "✓ 确认到账"}}</button></form>
+        <form method="post" action="/manage/donation/{{.ID}}/reject"><button class="btn sm danger">{{T "✗ 没收到"}}</button></form>
       </div>
     </li>{{end}}
   </ul>
@@ -40,49 +40,49 @@
 {{end}}
 
 <section class="card px" id="profile" style="margin-bottom:12px">
-  <h2>✏️ 资料</h2>
+  <h2>{{T "✏️ 资料"}}</h2>
   <form method="post" action="/manage/profile">
     <div class="grid2">
-      <div>{{$lock := and .Site.XHandle (not .Site.IsMain)}}<label for="nameIn">站点标题{{if $lock}} <span class="hint" style="display:inline">（来自 X @{{.Site.XHandle}}，锁定）</span>{{end}}</label><input id="nameIn" name="name" maxlength="20" value="{{.Site.Name}}" {{if $lock}}readonly{{else}}required{{end}}></div>
-      {{if not .Site.AvatarURL}}<div><label for="avatarIn">头像 emoji</label><input id="avatarIn" name="avatar" maxlength="12" value="{{.Site.Avatar}}"></div>{{end}}
+      <div>{{$lock := and .Site.XHandle (not .Site.IsMain)}}<label for="nameIn">{{T "站点标题"}}{{if $lock}} <span class="hint" style="display:inline">{{T "（来自 X @"}}{{.Site.XHandle}}{{T "，锁定）"}}</span>{{end}}</label><input id="nameIn" name="name" maxlength="20" value="{{.Site.Name}}" {{if $lock}}readonly{{else}}required{{end}}></div>
+      {{if not .Site.AvatarURL}}<div><label for="avatarIn">{{T "头像 emoji"}}</label><input id="avatarIn" name="avatar" maxlength="12" value="{{.Site.Avatar}}"></div>{{end}}
     </div>
-    <label for="sloganIn">一句话口号</label><input id="sloganIn" name="slogan" maxlength="60" value="{{.Site.Slogan}}">
-    {{if not .Site.XHandle}}<label>绑定 X <span class="hint" style="display:inline">（主页链接或 @名字，留空不显示）</span></label><input name="x_url" maxlength="100" value="{{.Site.XURL}}" placeholder="https://x.com/你的名字">{{end}}
-    <button class="btn sec" type="submit" style="margin-top:14px">保存资料</button>
+    <label for="sloganIn">{{T "一句话口号"}}</label><input id="sloganIn" name="slogan" maxlength="60" value="{{.Site.Slogan}}">
+    {{if not .Site.XHandle}}<label>{{T "绑定 X"}} <span class="hint" style="display:inline">{{T "（主页链接或 @名字，留空不显示）"}}</span></label><input name="x_url" maxlength="100" value="{{.Site.XURL}}" placeholder="{{T "https://x.com/你的名字"}}">{{end}}
+    <button class="btn sec" type="submit" style="margin-top:14px">{{T "保存资料"}}</button>
   </form>
 </section>
 
 <details class="card px fold" id="payment" style="margin-bottom:12px"{{if or .Site.IsMain (not .Site.PaymentReady)}} open{{end}}>
-  <summary><h2>💰 收款方式 <span class="sub">{{if .Site.IsMain}}config.env 配置{{else if eq .Site.PayMode "gateway"}}已绑币安 Key · 自动确认{{else if .Site.PaymentReady}}直接转账 · UID {{.Site.PayID}}{{else}}⚠️ 还没摆碗，点开设置{{end}}</span><span class="caret" aria-hidden="true">▸</span></h2></summary>
+  <summary><h2>{{T "💰 收款方式"}} <span class="sub">{{if .Site.IsMain}}{{T "config.env 配置"}}{{else if eq .Site.PayMode "gateway"}}{{T "已绑币安 Key · 自动确认"}}{{else if .Site.PaymentReady}}{{T "直接转账 · UID"}} {{.Site.PayID}}{{else}}{{T "⚠️ 还没摆碗，点开设置"}}{{end}}</span><span class="caret" aria-hidden="true">▸</span></h2></summary>
 
   {{if .Site.IsMain}}
-    <div class="hint">主站的收款方式在服务器 config.env 里配置。当前：{{if eq .Site.PayMode "gateway"}}BinancePayTool 网关自动确认（默认账号）{{else}}直接转账{{if .Site.PayID}}，Pay ID {{.Site.PayID}}{{end}}{{end}}。</div>
-    {{if eq .Site.PayMode "gateway"}}<form method="post" action="/manage/verify" style="margin-top:10px"><button class="btn sec sm" type="submit">校验网关默认账号</button></form>{{end}}
+    <div class="hint">{{T "主站的收款方式在服务器 config.env 里配置。当前："}}{{if eq .Site.PayMode "gateway"}}{{T "BinancePayTool 网关自动确认（默认账号）"}}{{else}}{{T "直接转账"}}{{if .Site.PayID}}，Pay ID {{.Site.PayID}}{{end}}{{end}}。</div>
+    {{if eq .Site.PayMode "gateway"}}<form method="post" action="/manage/verify" style="margin-top:10px"><button class="btn sec sm" type="submit">{{T "校验网关默认账号"}}</button></form>{{end}}
   {{else}}
     {{if eq .Site.PayMode "gateway"}}
-      <div class="notice ok">✅ 已绑定币安账号（UID {{.Site.BinanceUID}}），施主付款后<b>自动确认上榜</b>。{{if .Site.ReceiveLink}}收银页会展示你的收款码 / 一键唤起。{{else}}建议补一个收款链接，让施主能扫码 / 一键唤起。{{end}}</div>
+      <div class="notice ok">{{T "✅ 已绑定币安账号（UID"}} {{.Site.BinanceUID}}{{T "），施主付款后"}}<b>{{T "自动确认上榜"}}</b>。{{if .Site.ReceiveLink}}{{T "收银页会展示你的收款码 / 一键唤起。"}}{{else}}{{T "建议补一个收款链接，让施主能扫码 / 一键唤起。"}}{{end}}</div>
       <div class="btns">
-        <form method="post" action="/manage/verify" style="flex:1"><button class="btn sec" type="submit">重新校验 Key</button></form>
-        <form method="post" action="/manage/unbind" style="flex:1" onsubmit="return confirm('解绑后改为直接转账（需你手动确认到账），确定？')"><button class="btn danger" type="submit">解绑</button></form>
+        <form method="post" action="/manage/verify" style="flex:1"><button class="btn sec" type="submit">{{T "重新校验 Key"}}</button></form>
+        <form method="post" action="/manage/unbind" style="flex:1" onsubmit="return confirm({{T "解绑后改为直接转账（需你手动确认到账），确定？"}})"><button class="btn danger" type="submit">{{T "解绑"}}</button></form>
       </div>
-      <details style="margin-top:12px"><summary class="hint" style="cursor:pointer">换一个 Key / 更新收款链接</summary>
+      <details style="margin-top:12px"><summary class="hint" style="cursor:pointer">{{T "换一个 Key / 更新收款链接"}}</summary>
         {{template "bindform" .}}
       </details>
     {{else}}
-      <div class="notice" style="margin-bottom:12px">{{if .Site.PaymentReady}}当前是<b>直接转账</b>模式：施主在币安 App 里按你的 UID 转账，转完点「我已施舍」，你在后台确认后上榜。{{else}}⚠️ 还没摆碗：填一下币安 UID 就能收钱，十秒钟的事。{{end}}</div>
-      <h2 style="font-size:15px">方式一：填币安 UID（最简单）</h2>
-      <div class="hint" style="margin:6px 0 10px">币安 App → 点左上角头像，头像下面那串数字就是 <b>UID</b>（也是 Pay ID）。施主投币时会看到它，在币安 App「支付 → 转账」里输入就能转给你，零手续费。</div>
+      <div class="notice" style="margin-bottom:12px">{{if .Site.PaymentReady}}{{T "当前是"}}<b>{{T "直接转账"}}</b>{{T "模式：施主在币安 App 里按你的 UID 转账，转完点「我已施舍」，你在后台确认后上榜。"}}{{else}}{{T "⚠️ 还没摆碗：填一下币安 UID 就能收钱，十秒钟的事。"}}{{end}}</div>
+      <h2 style="font-size:15px">{{T "方式一：填币安 UID（最简单）"}}</h2>
+      <div class="hint" style="margin:6px 0 10px">{{T "币安 App → 点左上角头像，头像下面那串数字就是"}} <b>UID</b>{{T "（也是 Pay ID）。施主投币时会看到它，在币安 App「支付 → 转账」里输入就能转给你，零手续费。"}}</div>
       <form method="post" action="/manage/payment">
-        <label for="payIdIn">币安 UID</label>
-        <input id="payIdIn" name="pay_id" inputmode="numeric" maxlength="60" value="{{.Site.PayID}}" placeholder="例如 12345678" required>
-        <label for="rlIn">收款链接 <span class="hint" style="display:inline">（选填。填了施主就能扫码 / 一键唤起币安 App；不填也能按 UID 转账）</span></label>
+        <label for="payIdIn">{{T "币安 UID"}}</label>
+        <input id="payIdIn" name="pay_id" inputmode="numeric" maxlength="60" value="{{.Site.PayID}}" placeholder="{{T "例如 12345678"}}" required>
+        <label for="rlIn">{{T "收款链接"}} <span class="hint" style="display:inline">{{T "（选填。填了施主就能扫码 / 一键唤起币安 App；不填也能按 UID 转账）"}}</span></label>
         <input id="rlIn" name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/…">
-        <div class="hint" style="margin-top:-4px">怎么拿：币安 App 收款页「保存图片」，用任意二维码识别工具（微信扫一扫、相册识图都行）读出图片里的链接，贴到这里。</div>
-        <button class="btn" type="submit" style="margin-top:14px">保存</button>
+        <div class="hint" style="margin-top:-4px">{{T "怎么拿：币安 App 收款页「保存图片」，用任意二维码识别工具（微信扫一扫、相册识图都行）读出图片里的链接，贴到这里。"}}</div>
+        <button class="btn" type="submit" style="margin-top:14px">{{T "保存"}}</button>
       </form>
       {{if .HasGateway}}
-      <h2 style="font-size:15px;margin-top:22px">方式二：绑定币安只读 API Key（到账自动确认上榜）</h2>
-      <div class="hint" style="margin:6px 0 4px">施主付完钱自动上榜，你不用手动确认。Key 只要「允许读取」权限，拿不走钱；本站不保存 Key，只交给收款网关加密存储。</div>
+      <h2 style="font-size:15px;margin-top:22px">{{T "方式二：绑定币安只读 API Key（到账自动确认上榜）"}}</h2>
+      <div class="hint" style="margin:6px 0 4px">{{T "施主付完钱自动上榜，你不用手动确认。Key 只要「允许读取」权限，拿不走钱；本站不保存 Key，只交给收款网关加密存储。"}}</div>
       {{template "bindform" .}}
       {{end}}
     {{end}}
@@ -91,84 +91,84 @@
 
 
 <section class="card px" id="donations" style="margin-bottom:12px">
-  <h2>📜 施舍记录 <span class="sub">共 {{.DonPager.Total}} 条 · 广告可屏蔽留言或屏蔽此人（记录保留）· 可回复</span></h2>
+  <h2>{{T "📜 施舍记录"}} <span class="sub">{{T "共"}} {{.DonPager.Total}} {{T "条 · 广告可屏蔽留言或屏蔽此人（记录保留）· 可回复"}}</span></h2>
   {{if .Donations}}<ul class="list feed">
     {{range .Donations}}<li class="item">
       <div class="av" style="--h:{{hue .NickKey}}">{{if .Blocked}}✕{{else}}{{initial .Nickname}}{{end}}</div>
-      <div class="body"><div class="name"><span>{{.Nickname}}</span>{{if .XHandle}}<span class="xh">@{{.XHandle}}</span>{{end}}<span class="tag{{if eq .Status "paid"}} paid{{else if eq .Status "claimed"}} claimed{{else if ne .Status "pending"}} bad{{end}}">{{statusText .Status}}</span>{{if .Blocked}}<span class="tag bad">已屏蔽此人</span>{{end}}</div><div class="sub">{{ago .CreatedAt}}</div></div>
+      <div class="body"><div class="name"><span>{{.Nickname}}</span>{{if .XHandle}}<span class="xh">@{{.XHandle}}</span>{{end}}<span class="tag{{if eq .Status "paid"}} paid{{else if eq .Status "claimed"}} claimed{{else if ne .Status "pending"}} bad{{end}}">{{statusText .Status}}</span>{{if .Blocked}}<span class="tag bad">{{T "已屏蔽此人"}}</span>{{end}}</div><div class="sub">{{ago .CreatedAt}}</div></div>
       <div class="amtv num{{if eq .Status "paid"}} accent{{end}}">{{if eq .Status "paid"}}{{fmtAmt .ActualE8}}{{else}}{{.Amount}}{{end}}</div>
-      {{if .Message}}<div class="bubble{{if .MsgBlocked}} blocked{{end}}" style="letter-spacing:0">{{if .MsgBlocked}}*** <span class="hint" style="display:inline">（已屏蔽：{{.Message}}）</span>{{else}}{{.Message}}{{end}}</div>{{end}}
-      {{if .Reply}}<div class="bubble reply">🥣 站长：{{.Reply}}</div>{{end}}
+      {{if .Message}}<div class="bubble{{if .MsgBlocked}} blocked{{end}}" style="letter-spacing:0">{{if .MsgBlocked}}*** <span class="hint" style="display:inline">{{T "（已屏蔽：%s）" .Message}}</span>{{else}}{{.Message}}{{end}}</div>{{end}}
+      {{if .Reply}}<div class="bubble reply">{{T "🥣 站长："}}{{.Reply}}</div>{{end}}
       <div class="actions">
-        {{if .Message}}<form method="post" action="/manage/donation/{{.ID}}/{{if .MsgBlocked}}unblock{{else}}block{{end}}"><button class="btn sm{{if .MsgBlocked}} sec{{else}} danger{{end}}">{{if .MsgBlocked}}恢复留言{{else}}屏蔽留言{{end}}</button></form>{{end}}
-        <form method="post" action="/manage/donation/{{.ID}}/{{if .Blocked}}unblockuser{{else}}blockuser{{end}}"><button class="btn sm{{if .Blocked}} sec{{else}} danger{{end}}">{{if .Blocked}}恢复此人{{else}}屏蔽此人{{end}}</button></form>
-        {{if eq .Status "paid"}}<form method="post" action="/manage/donation/{{.ID}}/reply" class="replyf"><input name="reply" maxlength="80" placeholder="回一句…" value="{{.Reply}}"><button class="btn sm sec">回复</button></form>{{end}}
+        {{if .Message}}<form method="post" action="/manage/donation/{{.ID}}/{{if .MsgBlocked}}unblock{{else}}block{{end}}"><button class="btn sm{{if .MsgBlocked}} sec{{else}} danger{{end}}">{{if .MsgBlocked}}{{T "恢复留言"}}{{else}}{{T "屏蔽留言"}}{{end}}</button></form>{{end}}
+        <form method="post" action="/manage/donation/{{.ID}}/{{if .Blocked}}unblockuser{{else}}blockuser{{end}}"><button class="btn sm{{if .Blocked}} sec{{else}} danger{{end}}">{{if .Blocked}}{{T "恢复此人"}}{{else}}{{T "屏蔽此人"}}{{end}}</button></form>
+        {{if eq .Status "paid"}}<form method="post" action="/manage/donation/{{.ID}}/reply" class="replyf"><input name="reply" maxlength="80" placeholder="{{T "回一句…"}}" value="{{.Reply}}"><button class="btn sm sec">{{T "回复"}}</button></form>{{end}}
       </div>
     </li>{{end}}
-  </ul>{{template "pager" .DonPager}}{{else}}<div class="empty"><div class="ico">📜</div>还没有施舍记录</div>{{end}}
+  </ul>{{template "pager" .DonPager}}{{else}}<div class="empty"><div class="ico">📜</div>{{T "还没有施舍记录"}}</div>{{end}}
 </section>
 
 {{if not .Site.IsMain}}
 <div class="modal" id="pwModal" hidden role="dialog" aria-modal="true" aria-labelledby="pwTitle"><div class="modal-box">
-  <button class="modal-x" type="button" id="pwX" aria-label="关闭">✕</button>
-  <h2 id="pwTitle">🔑 修改口令</h2>
-  {{if .PwErr}}<div class="notice bad" style="margin-bottom:10px">{{.Err}}</div>{{end}}
+  <button class="modal-x" type="button" id="pwX" aria-label="{{T "关闭"}}">✕</button>
+  <h2 id="pwTitle">{{T "🔑 修改口令"}}</h2>
+  {{if .PwErr}}<div class="notice bad" style="margin-bottom:10px">{{T .Err}}</div>{{end}}
   <form method="post" action="/manage/password">
     <div class="grid2">
-      <div><label for="pw1">新口令（至少 6 位）</label><input id="pw1" name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
-      <div><label for="pw2">再输一遍</label><input id="pw2" name="password2" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
+      <div><label for="pw1">{{T "新口令（至少 6 位）"}}</label><input id="pw1" name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
+      <div><label for="pw2">{{T "再输一遍"}}</label><input id="pw2" name="password2" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></div>
     </div>
-    <div class="hint">改完后其它设备上的登录会失效。</div>
-    <button class="btn" type="submit" style="margin-top:14px">确认修改</button>
+    <div class="hint">{{T "改完后其它设备上的登录会失效。"}}</div>
+    <button class="btn" type="submit" style="margin-top:14px">{{T "确认修改"}}</button>
   </form>
 </div></div>
 {{end}}
 
 {{if .Site.IsMain}}
 <section class="card px" id="sites" style="margin-bottom:12px">
-  <h2>🏚 所有要饭站 <span class="sub">{{.SitePager.Total}} 个 · 违规可除名 · 可帮站长重置口令</span></h2>
+  <h2>{{T "🏚 所有要饭站"}} <span class="sub">{{.SitePager.Total}} {{T "个 · 违规可除名 · 可帮站长重置口令"}}</span></h2>
   {{if .Sites}}<ul class="list feed">
     {{range .Sites}}<li class="item">
       {{if .AvatarURL}}<img class="av img" src="{{.AvatarURL}}" alt="">{{else}}<div class="av sq">{{.Avatar}}</div>{{end}}
-      <div class="body"><div class="name"><span><a href="{{.Path}}">{{.Name}}</a></span>{{if .XHandle}}<span class="xh">@{{.XHandle}}</span>{{end}}<span class="hint" style="display:inline">/{{.Slug}}</span>{{if ne .Status "active"}}<span class="tag bad">已除名</span>{{end}}{{if not .Listed}}<span class="tag claimed">未收录</span>{{end}}</div><div class="sub">{{if .Title}}{{.Title}} · {{end}}{{if eq .PayMode "gateway"}}已绑 Key 自动确认{{else}}直接转账{{end}} · {{.Donors}} 位施主 · 钢镚 {{.Coins}} · {{ago .CreatedAt}}开张</div></div>
+      <div class="body"><div class="name"><span><a href="{{.Path}}">{{.Name}}</a></span>{{if .XHandle}}<span class="xh">@{{.XHandle}}</span>{{end}}<span class="hint" style="display:inline">/{{.Slug}}</span>{{if ne .Status "active"}}<span class="tag bad">{{T "已除名"}}</span>{{end}}{{if not .Listed}}<span class="tag claimed">{{T "未收录"}}</span>{{end}}</div><div class="sub">{{if .Title}}{{.Title}} · {{end}}{{if eq .PayMode "gateway"}}{{T "已绑 Key 自动确认"}}{{else}}{{T "直接转账"}}{{end}} · {{.Donors}} {{T "位施主 · 钢镚"}} {{.Coins}} · {{ago .CreatedAt}}{{T "开张"}}</div></div>
       <div class="amtv num">{{fmtAmt .TotalE8}}</div>
       <div class="actions">
-        <form method="post" action="/manage/site/{{.ID}}/{{if .Listed}}unlist{{else}}list{{end}}"><button class="btn sm{{if .Listed}} ghost{{end}}">{{if .Listed}}取消收录{{else}}收录上榜{{end}}</button></form>
-        <form method="post" action="/manage/site/{{.ID}}/{{if eq .Status "active"}}disable{{else}}enable{{end}}"><button class="btn sm{{if eq .Status "active"}} danger{{else}} sec{{end}}">{{if eq .Status "active"}}除名{{else}}恢复{{end}}</button></form>
-        <form method="post" action="/manage/site/{{.ID}}/resetpw" onsubmit="return confirm('重置 /{{.Slug}} 的口令？新口令只显示一次。')"><button class="btn sm ghost">重置口令</button></form>
+        <form method="post" action="/manage/site/{{.ID}}/{{if .Listed}}unlist{{else}}list{{end}}"><button class="btn sm{{if .Listed}} ghost{{end}}">{{if .Listed}}{{T "取消收录"}}{{else}}{{T "收录上榜"}}{{end}}</button></form>
+        <form method="post" action="/manage/site/{{.ID}}/{{if eq .Status "active"}}disable{{else}}enable{{end}}"><button class="btn sm{{if eq .Status "active"}} danger{{else}} sec{{end}}">{{if eq .Status "active"}}{{T "除名"}}{{else}}{{T "恢复"}}{{end}}</button></form>
+        <form method="post" action="/manage/site/{{.ID}}/resetpw" onsubmit="return confirm({{T "重置 /%s 的口令？新口令只显示一次。" .Slug}})"><button class="btn sm ghost">{{T "重置口令"}}</button></form>
       </div>
     </li>{{end}}
-  </ul>{{template "pager" .SitePager}}{{else}}<div class="empty"><div class="ico">🏚</div>还没有子站</div>{{end}}
+  </ul>{{template "pager" .SitePager}}{{else}}<div class="empty"><div class="ico">🏚</div>{{T "还没有子站"}}</div>{{end}}
 </section>
 <section class="card px" id="messages">
-  <h2>🧹 全站最新留言 <span class="sub">共 {{.MsgPager.Total}} 条 · 跨站点巡查广告</span></h2>
+  <h2>{{T "🧹 全站最新留言"}} <span class="sub">{{T "共"}} {{.MsgPager.Total}} {{T "条 · 跨站点巡查广告"}}</span></h2>
   {{if .Messages}}<ul class="list feed">
     {{range .Messages}}<li class="item">
       <div class="av" style="--h:{{hue .NickKey}}">{{if .Blocked}}✕{{else}}{{initial .Nickname}}{{end}}</div>
-      <div class="body"><div class="name"><span>{{.Nickname}}</span>{{if .XHandle}}<span class="xh">@{{.XHandle}}</span>{{end}}<span class="hint" style="display:inline">→ {{.SiteName}}</span>{{if .Blocked}}<span class="tag bad">已屏蔽此人</span>{{end}}</div><div class="sub">{{ago .PaidAt}}</div></div>
+      <div class="body"><div class="name"><span>{{.Nickname}}</span>{{if .XHandle}}<span class="xh">@{{.XHandle}}</span>{{end}}<span class="hint" style="display:inline">→ {{.SiteName}}</span>{{if .Blocked}}<span class="tag bad">{{T "已屏蔽此人"}}</span>{{end}}</div><div class="sub">{{ago .PaidAt}}</div></div>
       <div class="amtv num">{{fmtAmt .ActualE8}}</div>
-      <div class="bubble{{if .MsgBlocked}} blocked{{end}}" style="letter-spacing:0">{{if .MsgBlocked}}*** <span class="hint" style="display:inline">（已屏蔽：{{.Message}}）</span>{{else}}{{.Message}}{{end}}</div>
-      <div class="actions"><form method="post" action="/manage/donation/{{.ID}}/{{if .MsgBlocked}}unblock{{else}}block{{end}}"><button class="btn sm{{if .MsgBlocked}} sec{{else}} danger{{end}}">{{if .MsgBlocked}}恢复留言{{else}}屏蔽留言{{end}}</button></form>
-        <form method="post" action="/manage/donation/{{.ID}}/{{if .Blocked}}unblockuser{{else}}blockuser{{end}}"><button class="btn sm{{if .Blocked}} sec{{else}} danger{{end}}">{{if .Blocked}}恢复此人{{else}}屏蔽此人{{end}}</button></form></div>
+      <div class="bubble{{if .MsgBlocked}} blocked{{end}}" style="letter-spacing:0">{{if .MsgBlocked}}*** <span class="hint" style="display:inline">{{T "（已屏蔽：%s）" .Message}}</span>{{else}}{{.Message}}{{end}}</div>
+      <div class="actions"><form method="post" action="/manage/donation/{{.ID}}/{{if .MsgBlocked}}unblock{{else}}block{{end}}"><button class="btn sm{{if .MsgBlocked}} sec{{else}} danger{{end}}">{{if .MsgBlocked}}{{T "恢复留言"}}{{else}}{{T "屏蔽留言"}}{{end}}</button></form>
+        <form method="post" action="/manage/donation/{{.ID}}/{{if .Blocked}}unblockuser{{else}}blockuser{{end}}"><button class="btn sm{{if .Blocked}} sec{{else}} danger{{end}}">{{if .Blocked}}{{T "恢复此人"}}{{else}}{{T "屏蔽此人"}}{{end}}</button></form></div>
     </li>{{end}}
-  </ul>{{template "pager" .MsgPager}}{{else}}<div class="empty"><div class="ico">🧹</div>暂无留言</div>{{end}}
+  </ul>{{template "pager" .MsgPager}}{{else}}<div class="empty"><div class="ico">🧹</div>{{T "暂无留言"}}</div>{{end}}
 </section>
 {{end}}
 </div>
 {{end}}
 {{define "bindform"}}
 <form method="post" action="/manage/bind" autocomplete="off">
-  <div class="hint" style="margin-bottom:8px">币安 App → 账户 → API 管理 → 创建 API：<b>只勾「允许读取」</b>，其它权限都不要，<b>不用设 IP 白名单</b>（只读 Key 拿不走钱）。Key 只用来读取你的收款流水，服务端加密存储，永不展示。</div>
+  <div class="hint" style="margin-bottom:8px">{{T "币安 App → 账户 → API 管理 → 创建 API："}}<b>{{T "只勾「允许读取」"}}</b>{{T "，其它权限都不要，"}}<b>{{T "不用设 IP 白名单"}}</b>{{T "（只读 Key 拿不走钱）。Key 只用来读取你的收款流水，服务端加密存储，永不展示。"}}</div>
   <div class="grid2">
     <div><label>API Key</label><input name="api_key" maxlength="128" required autocomplete="off"></div>
     <div><label>Secret Key</label><input name="api_secret" type="password" maxlength="128" required autocomplete="new-password"></div>
   </div>
   <div class="grid2">
-    <div><label>币安 UID <span class="hint" style="display:inline">（App 头像页可见）</span></label><input name="uid" inputmode="numeric" maxlength="20" value="{{.Site.BinanceUID}}" required></div>
-    <div><label>收款链接 <span class="hint" style="display:inline">（选填，填了施主能扫码）</span></label><input name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/…"></div>
+    <div><label>{{T "币安 UID"}} <span class="hint" style="display:inline">{{T "（App 头像页可见）"}}</span></label><input name="uid" inputmode="numeric" maxlength="20" value="{{.Site.BinanceUID}}" required></div>
+    <div><label>{{T "收款链接"}} <span class="hint" style="display:inline">{{T "（选填，填了施主能扫码）"}}</span></label><input name="receive_link" maxlength="300" value="{{.Site.ReceiveLink}}" placeholder="https://app.binance.com/uni-qr/…"></div>
   </div>
-  <div class="hint" style="margin-top:-4px">收款链接怎么拿：币安 App 收款页「保存图片」，用任意二维码识别工具读出图片里的链接。</div>
-  <button class="btn" type="submit" style="margin-top:14px">绑定并校验</button>
+  <div class="hint" style="margin-top:-4px">{{T "收款链接怎么拿：币安 App 收款页「保存图片」，用任意二维码识别工具读出图片里的链接。"}}</div>
+  <button class="btn" type="submit" style="margin-top:14px">{{T "绑定并校验"}}</button>
 </form>
 {{end}}
 {{define "scripts"}}<script>
