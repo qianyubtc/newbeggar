@@ -13,33 +13,34 @@ import (
 
 type sitePage struct {
 	Base
-	Site         *Site
-	Stats        Stats
-	Presets      []string
-	Rank         []DonorRow
-	RankWeek     []DonorRow
-	Subsites     []SiteRow
-	SubsitesWeek []SiteRow
-	Popular      []SiteRow
-	Badges       map[string]string
-	Feed         []*Donation
-	Coins        int64
-	CoinsToday   int64
-	MyCoins      int64
-	CoinsPerDay  int64
-	Ready        bool
-	Exp          int64  // 钱 + 钢镚折算，袋位按它算
-	Position     int    // 综合名次
-	SectTitle    string // 丐帮职位
-	CoinExp      int64  // 一个钢镚 = 多少 EXP
-	MoneyExp     int64  // 1 U = 多少 EXP
-	Err          string
-	Nick         string
-	XHandle      string
-	Amount       string
-	Message      string
-	MinAmount    string
-	MaxAmount    string
+	Site                                                                *Site
+	Stats                                                               Stats
+	Presets                                                             []string
+	Rank                                                                []DonorRow
+	RankWeek                                                            []DonorRow
+	Subsites                                                            []SiteRow
+	SubsitesWeek                                                        []SiteRow
+	Popular                                                             []SiteRow
+	Badges                                                              map[string]string
+	Feed                                                                []*Donation
+	PgFeed, PgDonors, PgDonorsWeek, PgBeggars, PgBeggarsWeek, PgPopular Pager
+	Coins                                                               int64
+	CoinsToday                                                          int64
+	MyCoins                                                             int64
+	CoinsPerDay                                                         int64
+	Ready                                                               bool
+	Exp                                                                 int64  // 钱 + 钢镚折算，袋位按它算
+	Position                                                            int    // 综合名次
+	SectTitle                                                           string // 丐帮职位
+	CoinExp                                                             int64  // 一个钢镚 = 多少 EXP
+	MoneyExp                                                            int64  // 1 U = 多少 EXP
+	Err                                                                 string
+	Nick                                                                string
+	XHandle                                                             string
+	Amount                                                              string
+	Message                                                             string
+	MinAmount                                                           string
+	MaxAmount                                                           string
 }
 
 func (a *App) handleRoot(w http.ResponseWriter, r *http.Request) {
@@ -94,27 +95,27 @@ func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, sit
 		a.fail(w, r, err)
 		return
 	}
-	if p.Rank, err = a.st.SiteDonorRank(site.ID, 20, 0); err != nil {
+	if p.Rank, err = a.st.SiteDonorRank(site.ID, 2000, 0); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.RankWeek, err = a.st.SiteDonorRank(site.ID, 20, weekStart()); err != nil {
+	if p.RankWeek, err = a.st.SiteDonorRank(site.ID, 2000, weekStart()); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.Feed, err = a.st.SiteFeed(site.ID, 30); err != nil {
+	if p.Feed, err = a.st.SiteFeed(site.ID, 2000); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.Subsites, err = a.st.SubsiteRank(20, false, "amount"); err != nil {
+	if p.Subsites, err = a.st.SubsiteRank(2000, false, "amount"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.SubsitesWeek, err = a.st.SubsiteRank(20, false, "week"); err != nil {
+	if p.SubsitesWeek, err = a.st.SubsiteRank(2000, false, "week"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	if p.Popular, err = a.st.SubsiteRank(20, false, "coins"); err != nil {
+	if p.Popular, err = a.st.SubsiteRank(2000, false, "coins"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -142,6 +143,15 @@ func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, sit
 		a.fail(w, r, err)
 		return
 	}
+	// 各 tab 分页（每个榜一个参数，翻页保留其它 tab 的页码）
+	sp := func(param, anchor string, n int) Pager {
+		return newPagerAt(r, site.Path(), []string{"fp", "dp", "dw", "bp", "bw", "pp"}, param, anchor, n, rankPageSize)
+	}
+	p.PgFeed, p.PgDonors, p.PgDonorsWeek = sp("fp", "#feed", len(p.Feed)), sp("dp", "#donors", len(p.Rank)), sp("dw", "#donors-week", len(p.RankWeek))
+	p.PgBeggars, p.PgBeggarsWeek, p.PgPopular = sp("bp", "#beggars", len(p.Subsites)), sp("bw", "#beggars-week", len(p.SubsitesWeek)), sp("pp", "#popular", len(p.Popular))
+	p.Feed = pageOf(p.PgFeed, p.Feed)
+	p.Rank, p.RankWeek = pageOf(p.PgDonors, p.Rank), pageOf(p.PgDonorsWeek, p.RankWeek)
+	p.Subsites, p.SubsitesWeek, p.Popular = pageOf(p.PgBeggars, p.Subsites), pageOf(p.PgBeggarsWeek, p.SubsitesWeek), pageOf(p.PgPopular, p.Popular)
 	a.decorate(p.Subsites, positions)
 	a.decorate(p.SubsitesWeek, positions)
 	a.decorate(p.Popular, positions)
