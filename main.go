@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("[fatal] 初始化失败: %v", err)
 	}
-	defer app.st.Close()
+	defer app.Close()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

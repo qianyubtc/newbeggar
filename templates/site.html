@@ -28,7 +28,7 @@
       <button type="button" class="btn sec sm coinbtn" id="coinbtn" data-site="{{.Site.Slug}}" data-bv="{{.Visitor}}" {{if ge .MyCoins .CoinsPerDay}}disabled{{end}}>{{template "coin"}}<span id="coinTxt">{{if ge .MyCoins .CoinsPerDay}}{{T "今天丢过了"}}{{else}}{{T "丢个钢镚（免费）"}}{{end}}</span></button>
       {{if .Ready}}<a class="btn sm" id="donateBtn" href="#donate">{{T "💸 投币施舍"}}</a>{{else}}<span class="hint" style="margin:0">{{T "还没摆碗，暂不能投币"}}{{if and .Me (eq .Me.ID .Site.ID)}}，<a href="/manage#payment">{{T "去配置"}}</a>{{end}}</span>{{end}}
     </div>
-    <div class="coins hint" style="margin-top:8px">{{T "钢镚"}} <b class="pf coinN">{{.Coins}}</b> {{T "· 今日"}} <b id="coinT" class="pf">{{.CoinsToday}}</b> {{T "· 每 0.1 U ="}} {{.MoneyExp | div10}} {{T "EXP · 每个钢镚 ="}} {{.CoinExp}} EXP</div>
+    <div class="coins hint" style="margin-top:8px">{{T "钢镚"}} <b class="pf coinN">{{.Coins}}</b> {{T "· 今日"}} <b id="coinT" class="pf">{{.CoinsToday}}</b> {{T "· 每 0.1 U ="}} {{.MoneyExp | div10}} {{T "EXP · 每个钢镚 ="}} {{.CoinExp}} EXP{{if .Raid}} · <a href="/raid">{{T "🚨 拿钢镚去夜巡"}}</a>{{end}}</div>
   </section>
 
   <section class="stats">

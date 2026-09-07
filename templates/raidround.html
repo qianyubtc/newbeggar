@@ -1,0 +1,80 @@
+{{define "title"}}{{T "夜巡第 %d 局" .R.ID}} · {{T .SiteTitle}}{{end}}
+{{define "content"}}
+<style>
+.rr{max-width:760px;margin:0 auto;display:grid;gap:18px}
+.rr h1{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+.rr h1 .px-siren{width:26px;height:auto}
+.rr .code{font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.rr .kv{font-size:14px}
+.rr .roomh{display:flex;align-items:center;gap:8px;font-family:var(--pf);font-size:15px;margin:14px 0 4px;padding-bottom:4px;border-bottom:3px dotted var(--line)}
+.rr .roomh.dead{color:var(--red)}
+.rr .roomh .tag{margin-left:auto}
+.rr .bets{list-style:none;margin:0;padding:0}
+.rr .bets li{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:14px}
+.rr .bets .who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rr .bets .who a{color:inherit;text-decoration:none}
+.rr .bets .n{font-family:var(--pf);white-space:nowrap}
+.rr .bets .p{font-family:var(--pf);white-space:nowrap;min-width:64px;text-align:right}
+.rr .bets .p.win{color:#1d8f45}.rr .bets .p.lose{color:var(--red)}
+.rr .mini{width:28px;height:28px;border:2px solid var(--ink);object-fit:cover;background:#fff;flex:none;display:grid;place-items:center;font-size:15px;overflow:hidden;position:relative}
+.rr .mini .sprite{position:absolute;left:-6px;top:0;width:36px;height:auto}
+.rr .btns{margin:0}
+</style>
+<div class="rr">
+<section class="card px">
+  <h1>{{template "siren"}}<span>{{T "夜巡第 %d 局" .R.ID}}</span></h1>
+  {{if .Open}}<div class="notice">{{T "进行中。锁门后公布结果与种子。"}}</div>
+  {{else if eq .R.Status "void"}}<div class="notice">{{T "流局：只有一处有人，城管扑了个空，钢镚原路退回。"}}</div>
+  {{else}}<div class="notice bad">{{T "「%s」被查封：没收 %d 个钢镚，%d 位幸存者分了 %d 个，%d 个滚入下一局奖池。" (T (index .Rooms .R.Killed)) .R.Dead .Survivors .R.Prize .R.CarryOut}}</div>{{end}}
+  <div class="kv" style="margin-top:12px">
+    <span class="k">{{T "开局"}}</span><span class="v"><time data-ts="{{.R.OpensAt}}"></time></span>
+    <span class="k">{{T "锁门"}}</span><span class="v"><time data-ts="{{.R.LocksAt}}"></time></span>
+    <span class="k">{{T "奖池带入"}}</span><span class="v">{{.R.CarryIn}}</span>
+    <span class="k">{{T "种子哈希"}}</span><span class="v"><span class="code">{{.R.SeedHash}}</span></span>
+    {{if not .Open}}<span class="k">{{T "种子"}}</span><span class="v"><span class="code">{{.R.Seed}}</span></span>{{end}}
+  </div>
+</section>
+<section class="card px">
+  <h2>{{T "各处押注"}}<span class="sub">{{T "共 %d 人" (len .Bets)}}</span></h2>
+  {{range $i, $n := $.Rooms}}{{$rows := index $.ByRoom $i}}{{if $rows}}
+  <div class="roomh{{if and (not $.Open) (eq $i $.R.Killed)}} dead{{end}}"><span>{{T $n}}</span>{{if and (not $.Open) (eq $i $.R.Killed)}}<span class="tag bad">{{T "被查封"}}</span>{{else if not $.Open}}<span class="tag paid">{{T "幸存"}}</span>{{end}}</div>
+  <ul class="bets">{{range $rows}}<li>
+    {{if .IsBot}}<span class="mini">{{template "skin" .Skin}}</span>{{else if .Avatar}}<img class="mini" src="{{.Avatar}}" alt="">{{else}}<span class="mini">{{.Emoji}}</span>{{end}}
+    <span class="who">{{if .IsBot}}{{.Name}}{{else}}<a href="{{.Path}}">{{.Name}}</a>{{end}}{{if eq .SiteID $.MeID}} <span class="me">{{T "我"}}</span>{{end}}</span>
+    <span class="n">{{template "coin"}} {{.Amount}}</span>
+    {{if not $.Open}}<span class="p {{if gt .Payout .Amount}}win{{else if eq .Payout 0}}lose{{end}}">{{if eq $.R.Status "void"}}{{T "退回"}}{{else if gt .Payout 0}}+{{sub .Payout .Amount}}{{else}}−{{.Amount}}{{end}}</span>{{end}}
+  </li>{{end}}</ul>
+  {{end}}{{end}}
+  {{if not .Bets}}<div class="empty"><div class="ico">🏚</div>{{T "还没人"}}</div>{{end}}
+</section>
+{{if and (not .Open) (ge (len .Occ) 2)}}
+<section class="card px">
+  <h2>{{T "🔍 验算"}}</h2>
+  <p class="hint" style="margin-top:0">{{T "有人的地方按编号升序排列；被查封的下标 = sha256(种子 + \":\" + 局号) 的前 8 字节按大端序当整数，再对地方数取余。开局时先公布了 sha256(种子)，结果事后改不了。"}}</p>
+  <div class="kv">
+    <span class="k">{{T "有人的地方"}}</span><span class="v">[{{range $j, $o := .Occ}}{{if $j}}, {{end}}{{$o}}={{T (index $.Rooms $o)}}{{end}}]</span>
+    <span class="k">{{T "下标"}}</span><span class="v">{{.Index}} → {{T (index .Rooms .R.Killed)}}</span>
+  </div>
+  <button class="btn sec sm" type="button" id="verifyBtn" style="margin-top:12px">{{T "在浏览器里验算"}}</button>
+  <div class="hint" id="verifyOut" style="word-break:break-all"></div>
+</section>
+{{end}}
+<div class="btns"><a class="btn sec" href="/raid">{{T "← 回到夜巡"}}</a>{{if .Prev}}<a class="btn sec" href="/raid/{{.Prev}}">‹ {{T "上一局"}}</a>{{end}}{{if .Next}}<a class="btn sec" href="/raid/{{.Next}}">{{T "下一局"}} ›</a>{{end}}</div>
+</div>
+{{end}}
+{{define "scripts"}}<script>
+(function(){
+  document.querySelectorAll('time[data-ts]').forEach(function(t){var d=new Date(+t.dataset.ts);t.textContent=d.toLocaleString()});
+  var b=document.getElementById('verifyBtn');if(!b)return;
+  var seed={{.R.Seed}},id={{.R.ID}},hash={{.R.SeedHash}},occ={{.Occ}},killed={{.R.Killed}},rooms=[{{range $i,$n := .Rooms}}{{if $i}},{{end}}{{T $n}}{{end}}],out=document.getElementById('verifyOut');
+  function hex(buf){return [].map.call(new Uint8Array(buf),function(x){return ('0'+x.toString(16)).slice(-2)}).join('')}
+  b.addEventListener('click',function(){
+    if(!window.crypto||!crypto.subtle||typeof BigInt==='undefined'){out.textContent={{T "这个浏览器不支持，换个浏览器试试"}};return}
+    var enc=new TextEncoder();
+    Promise.all([crypto.subtle.digest('SHA-256',enc.encode(seed)),crypto.subtle.digest('SHA-256',enc.encode(seed+':'+id))]).then(function(r){
+      var h1=hex(r[0]),v=new DataView(r[1]),idx=Number(v.getBigUint64(0)%BigInt(occ.length));
+      out.innerHTML='sha256(seed) = <span class="code">'+h1+'</span> '+(h1===hash?'✅':'❌')+'<br>'+{{T "下标"}}+' = '+idx+' → '+rooms[occ[idx]]+' '+(occ[idx]===killed?'✅':'❌');
+    });
+  });
+})();
+</script>{{end}}

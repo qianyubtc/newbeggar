@@ -6,6 +6,7 @@ config.env
 # 构建产物
 /beggar
 /beggar-linux-amd64
+*.gz
 /dist/
 # 本机工具链 / 编辑器
 .toolchain/

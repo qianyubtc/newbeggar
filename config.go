@@ -55,6 +55,13 @@ type Config struct {
 	CoinsIPTotal int64 // 每 IP 每天全站总上限，0 = 不限
 	CoinExp      int64 // 一个钢镚 = 多少 EXP
 	MoneyExp     int64 // 1 个币 = 多少 EXP（默认 10，即 0.1 U = 1 EXP）
+
+	// 城管夜巡（钢镚大逃杀）
+	RaidEnabled  bool
+	RaidRoundSec int64 // 一局多少秒
+	RaidMaxBet   int64 // 每局每人最多押几个
+	RaidRakePct  int64 // 被没收的钢镚里抽几成进下一局奖池
+	RaidBots     int64 // 每局大约几个 NPC 陪玩（0 关闭）
 }
 
 func loadConfig(path string) (*Config, error) {
@@ -160,6 +167,22 @@ func loadConfig(path string) (*Config, error) {
 	}
 	if c.CoinExp < 0 || c.CoinExp > 1000 || c.MoneyExp < 1 || c.MoneyExp > 1000 {
 		return nil, errors.New("COIN_EXP / MONEY_EXP 不合理（COIN_EXP 0–1000，MONEY_EXP 1–1000）")
+	}
+	c.RaidEnabled = getBool("RAID_ENABLED", true)
+	if c.RaidRoundSec, err = getInt("RAID_ROUND_SEC", 600); err != nil {
+		return nil, err
+	}
+	if c.RaidMaxBet, err = getInt("RAID_MAX_BET", 50); err != nil {
+		return nil, err
+	}
+	if c.RaidRakePct, err = getInt("RAID_RAKE_PCT", 5); err != nil {
+		return nil, err
+	}
+	if c.RaidBots, err = getInt("RAID_BOTS", 6); err != nil {
+		return nil, err
+	}
+	if c.RaidRoundSec < 60 || c.RaidRoundSec > 3600 || c.RaidMaxBet < 1 || c.RaidMaxBet > 100000 || c.RaidRakePct < 0 || c.RaidRakePct > 30 || c.RaidBots < 0 || c.RaidBots > 16 {
+		return nil, errors.New("RAID_* 不合理（RAID_ROUND_SEC 60–3600，RAID_MAX_BET 1–100000，RAID_RAKE_PCT 0–30，RAID_BOTS 0–16）")
 	}
 	if !strings.HasPrefix(c.BaseURL, "http://") && !strings.HasPrefix(c.BaseURL, "https://") {
 		return nil, errors.New("BASE_URL 须以 http:// 或 https:// 开头")

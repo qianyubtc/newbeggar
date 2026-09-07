@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	bpaygate "github.com/qianyubtc/BinancePayTool/sdk/go"
@@ -39,6 +40,12 @@ type App struct {
 	gwc     *bpaygate.Client // nil = 未配置网关
 	xp      *xProfileCache
 	origin  string // BaseURL 的 scheme://host，POST 同源校验用
+
+	stop    chan struct{} // 关闭后台协程
+	wg      sync.WaitGroup
+	closeMu sync.Once
+	raidMu  sync.Mutex
+	raid    raidState // 城管夜巡：NPC 进度等（raidTick 内用，raidMu 保护）
 }
 
 // Base 每个页面都带的公共字段。
@@ -62,6 +69,7 @@ type Base struct {
 	NoIndex         bool   // 未收录的子站不让搜索引擎收录
 	Desc            string // 页面描述（站点页用站名 + 口号）
 	OGImage         string // 分享缩略图（站点页用 X 头像）
+	Raid            bool   // 城管夜巡是否开着（导航入口）
 }
 
 func newApp(cfg *Config) (*App, error) {
@@ -86,7 +94,7 @@ func newApp(cfg *Config) (*App, error) {
 		}
 	}
 	a := &App{cfg: cfg, st: st, lim: newLimiter(), secure: strings.HasPrefix(cfg.BaseURL, "https://"), session: []byte(sec),
-		xp: &xProfileCache{files: map[string]string{}, inflight: map[string]bool{}}}
+		xp: &xProfileCache{files: map[string]string{}, inflight: map[string]bool{}}, stop: make(chan struct{})}
 	if u, err := url.Parse(cfg.BaseURL); err == nil {
 		a.origin = u.Scheme + "://" + u.Host
 	}
@@ -98,7 +106,21 @@ func newApp(cfg *Config) (*App, error) {
 		return nil, err
 	}
 	a.routes()
+	if cfg.RaidEnabled {
+		a.raidTick(ms()) // 启动就保证有一局开着
+		a.wg.Add(1)
+		go a.raidLoop()
+	}
 	return a, nil
+}
+
+// Close 停后台协程、关库。
+func (a *App) Close() {
+	a.closeMu.Do(func() {
+		close(a.stop)
+		a.wg.Wait()
+		a.st.Close()
+	})
 }
 
 func (a *App) loadTemplates() error {
@@ -116,6 +138,7 @@ func (a *App) loadTemplates() error {
 		"statusText":  statusText,
 		"inc":         func(i int) int { return i + 1 },
 		"add":         func(a, b int) int { return a + b },
+		"sub":         func(a, b int64) int64 { return a - b },
 		"div10":       func(v int64) string { return fmtE8(v * 10000000) },
 		"xav":         a.xAvatar,
 		"handleOf":    handleOf,
@@ -140,7 +163,7 @@ func (a *App) loadTemplates() error {
 			fm[k] = v
 		}
 		set := map[string]*template.Template{}
-		for _, p := range []string{"site", "pay", "status", "new", "login", "manage", "rank", "error"} {
+		for _, p := range []string{"site", "pay", "status", "new", "login", "manage", "rank", "error", "raid", "raidround"} {
 			t, err := template.New(p).Funcs(fm).ParseFS(tplFS, "templates/layout.html", "templates/sprite.html", "templates/paypanel.html", "templates/"+p+".html")
 			if err != nil {
 				return err
@@ -188,6 +211,12 @@ func (a *App) routes() {
 	m.HandleFunc("POST /d/{code}/claim", a.handleGatewayClaim)
 	m.HandleFunc("POST /bpg/notify", a.handleNotify)
 	m.HandleFunc("GET /rank", a.handleRank)
+	if a.cfg.RaidEnabled {
+		m.HandleFunc("GET /raid", a.handleRaid)
+		m.HandleFunc("GET /raid/state", a.handleRaidState)
+		m.HandleFunc("POST /raid/bet", a.handleRaidBet)
+		m.HandleFunc("GET /raid/{id}", a.handleRaidRound)
+	}
 	m.HandleFunc("GET /lang", a.handleLang)
 	m.HandleFunc("GET /new", a.handleNewGet)
 	m.HandleFunc("POST /new/verify", a.handleNewVerify)
@@ -248,7 +277,7 @@ func (a *App) sameOrigin(r *http.Request) bool {
 
 func (a *App) base(r *http.Request) Base {
 	b := Base{SiteTitle: a.cfg.SiteTitle, BaseURL: a.cfg.BaseURL, RepoURL: a.cfg.RepoURL, SourceURL: a.cfg.SourceURL, AuthorGitHub: a.cfg.AuthorGitHub, AuthorX: a.cfg.AuthorX, SubsitesEnabled: a.cfg.SubsitesEnabled,
-		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r)}
+		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r), Raid: a.cfg.RaidEnabled}
 	if b.Me != nil {
 		b.MeID = b.Me.ID
 	}

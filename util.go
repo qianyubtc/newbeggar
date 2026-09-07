@@ -205,7 +205,7 @@ var reservedSlugs = map[string]bool{
 	"admin": true, "manage": true, "api": true, "pay": true, "d": true, "new": true, "rank": true, "login": true, "logout": true,
 	"static": true, "bpg": true, "healthz": true, "u": true, "main": true, "www": true, "root": true, "assets": true,
 	"about": true, "help": true, "me": true, "site": true, "sites": true, "donate": true, "beggar": true, "binance": true,
-	"official": true, "qianyu": true, "x": true, "twitter": true, "robots.txt": true,
+	"official": true, "qianyu": true, "x": true, "twitter": true, "robots.txt": true, "raid": true, "arena": true, "game": true,
 }
 
 func validSlug(s string) bool { return reSlug.MatchString(s) && !reservedSlugs[s] }

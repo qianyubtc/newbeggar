@@ -39,10 +39,11 @@ a{color:var(--blue)}
 .sfx.idle .spk-w2{opacity:.25}
 .navlogin{display:inline-flex;align-items:center;gap:5px}.px-key{flex:none}
 .navrank{display:inline-flex;align-items:center;gap:5px}.px-trophy{flex:none}
+.navraid{display:inline-flex;align-items:center;gap:5px}.px-siren{flex:none}
 .sfx.idle{animation:sfxnudge 1.2s ease-in-out infinite}@keyframes sfxnudge{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}@media(prefers-reduced-motion:reduce){.sfx.idle{animation:none}}
 .nav>*{flex:none}.nav .brand{flex:0 1 auto;min-width:0}.nav .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:430px){.nav{gap:4px}.nav .brand{font-size:20px;margin-right:2px}.nav .brand .px-coin{display:none}.sfx{min-width:28px;padding:6px 2px;font-size:16px}.nav a.link{padding:8px 5px;font-size:15px}.nav a.pill{padding:6px 10px;font-size:15px}
-  .nav a.navrank span{display:none}.nav .navlogin .lbl{display:none}}
+  .nav a.navrank span,.nav a.navraid span{display:none}.nav .navlogin .lbl{display:none}}
 .brand{display:flex;align-items:center;gap:8px;font-size:24px;line-height:1;color:var(--ink);text-decoration:none;white-space:nowrap;margin-right:6px}
 .brand .px-coin{width:28px;height:28px;flex:none}
 .nav .sp{flex:1}
@@ -268,10 +269,11 @@ footer a{color:var(--muted)}
   <label class="langsel" title="Language / 语言"><span class="langcur" aria-hidden="true">{{.LangShort}}<i>▾</i></span><select onchange="location.href='/lang?to='+encodeURIComponent(this.value)" aria-label="Language">{{range .Langs}}<option value="{{.Code}}"{{if eq .Code $.Lang}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
   <button class="sfx" id="sfxBtn" type="button" aria-label="{{T "声音开关"}}" title="{{T "声音"}}">{{template "spk"}}</button>
   <a class="link navrank" href="/rank" aria-label="{{T "排行榜"}}" title="{{T "排行榜"}}">{{template "trophy"}}<span>{{T "排行榜"}}</span></a>
+  {{if .Raid}}<a class="link navraid" href="/raid" aria-label="{{T "城管夜巡"}}" title="{{T "城管夜巡"}}">{{template "siren"}}<span>{{T "夜巡"}}</span></a>{{end}}
   {{if .Me}}<a class="link" href="/manage">{{T "我的后台"}}</a>{{else}}<a class="link navlogin" href="/login">{{template "keyicon"}}<span class="hide-sm">{{T "站长"}}</span><span class="lbl">{{T "登录"}}</span></a>{{end}}
   {{if .Me}}<a class="pill px" href="/{{.Me.Slug}}">{{T "我的站"}}</a>{{else if .SubsitesEnabled}}<a class="pill px" href="/new">{{T "开通要饭站"}}</a>{{end}}
 </nav>
-<div class="ticker" aria-hidden="true"><div class="ticker-in"><span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span><span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span></div></div>
+<div class="ticker" aria-hidden="true"><div class="ticker-in"><span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span>{{if .Raid}}<span>{{T "🚨 城管夜巡：押钢镚选地方过夜，十分钟一局"}}</span>{{end}}<span>{{T "🙏 行行好，赏口饭吃"}}</span><span>{{T "🪙 一毛也是爱"}}</span><span>{{T "💸 投币就上榜"}}</span><span>{{T "📜 留一句话刻功德簿"}}</span><span>{{T "🏚 发条推就能开自己的要饭站"}}</span><span>{{T "👾 赛博丐帮，人人有碗"}}</span>{{if .Raid}}<span>{{T "🚨 城管夜巡：押钢镚选地方过夜，十分钟一局"}}</span>{{end}}</div></div>
 {{template "content" .}}
 <footer>
   {{T .SiteTitle}} {{T "· 赛博丐帮，行行好"}}<br>
@@ -313,6 +315,8 @@ window.sfx=(function(){var ctx,on=true,C=window.AudioContext||window.webkitAudio
   function tone(f,t0,dur,type,vol){var c=ac();if(!c)return;var o=c.createOscillator(),g=c.createGain(),t=c.currentTime+t0;o.type=type||'square';o.frequency.setValueAtTime(f,t);
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.22,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.03)}
   function play(seq){if(!on)return;try{seq.forEach(function(n){tone(n[0],n[1],n[2],n[3],n[4])})}catch(e){}}
+  function noise(dur,vol,t0){if(!on)return;var c=ac();if(!c)return;try{var n=(c.sampleRate*dur)|0,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n)*(1-i/n);
+    var s=c.createBufferSource(),g=c.createGain();s.buffer=b;g.gain.value=vol||0.2;s.connect(g);g.connect(c.destination);s.start(c.currentTime+(t0||0))}catch(e){}}
   var S={
     warm:function(){if(on)ac()},
     click:function(){play([[740,0,0.045,'square',0.12]])},
@@ -320,6 +324,9 @@ window.sfx=(function(){var ctx,on=true,C=window.AudioContext||window.webkitAudio
     ok:function(){play([[523,0,0.09],[659,0.09,0.09],[784,0.18,0.09],[1047,0.27,0.38,'square',0.26]])},
     fail:function(){play([[196,0,0.1,'sawtooth',0.16],[147,0.1,0.26,'sawtooth',0.16]])},
     levelup:function(){play([[659,0,0.08],[784,0.08,0.08],[988,0.16,0.08],[1319,0.24,0.08],[1568,0.32,0.4,'square',0.26]])},
+    siren:function(){var s=[];for(var i=0;i<8;i++)s.push([i%2?640:900,i*0.27,0.25,'square',0.11]);play(s)},
+    tick:function(){play([[1400,0,0.028,'square',0.09]])},
+    crash:function(){noise(0.5,0.35);play([[120,0,0.28,'sawtooth',0.2],[70,0.08,0.4,'sawtooth',0.18]])},
     enabled:function(){return on},
     playing:function(){return src?'webaudio':(el&&!el.paused?'element':'')},
     toggle:function(){on=!on;try{localStorage.setItem('sfx',on?'1':'0')}catch(e){}if(on){S.coin();loadBgm();startBgm()}else{stopBgm()}paint();return on}};

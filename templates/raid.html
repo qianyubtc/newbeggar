@@ -1,0 +1,358 @@
+{{define "title"}}{{T "城管夜巡 ·"}} {{T .SiteTitle}}{{end}}
+{{define "content"}}
+<style>
+.arena{max-width:960px;margin:0 auto;display:grid;gap:18px}
+.ah{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.ah-l{flex:1 1 300px;min-width:0}
+.ah h1{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 6px;font-size:26px}
+.ah h1 .px-siren{width:30px;height:auto;flex:none;animation:sirenblink 1.2s steps(1) infinite}
+@keyframes sirenblink{0%,55%{filter:none}56%,100%{filter:brightness(1.6) saturate(1.4)}}
+.ah .hint{margin:0}
+.ah-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ah-stats span{display:inline-flex;align-items:baseline;gap:6px;background:#fff;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:3px 9px;font-family:var(--pf);white-space:nowrap}
+.ah-stats i{font-style:normal;font-size:11px;opacity:.7}.ah-stats b{font-weight:400;font-size:16px}
+.ah-stats .px-coin{width:12px;height:12px;align-self:center}
+.clock{flex:none;background:var(--ink);color:var(--gold);padding:12px 18px;text-align:center;min-width:180px;box-shadow:4px 4px 0 rgba(30,30,46,.3);font-family:var(--pf)}
+.clock .k{font-size:13px;opacity:.9}.clock .k2{font-size:12px;opacity:.75}
+.clock .t{font-size:48px;line-height:1;margin:6px 0 4px;letter-spacing:2px;font-variant-numeric:tabular-nums}
+.clock.hot .t{color:var(--red)}.clock.hot{animation:clockpulse 1s steps(1) infinite}
+@keyframes clockpulse{0%,60%{box-shadow:4px 4px 0 rgba(30,30,46,.3)}61%,100%{box-shadow:4px 4px 0 var(--red)}}
+.clock.raiding .t{font-size:22px;line-height:1.3;margin:10px 0;letter-spacing:0;color:var(--red)}
+@media(max-width:430px){.clock{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;text-align:left}.clock .t{font-size:34px;margin:0}.clock .k2{display:none}.clock.raiding .t{font-size:16px;margin:0}}
+.last[hidden]{display:none}.last{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--gold);padding:6px 12px;font-family:var(--pf);font-size:13px;box-shadow:3px 3px 0 rgba(30,30,46,.25)}
+.last span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.last .copy{padding:4px 8px;min-height:30px;font-family:var(--pf)}
+.patrol{position:relative;height:58px;margin:-4px 0 -14px;overflow:hidden;pointer-events:none;z-index:3}
+.van{position:absolute;top:0;left:-130px;width:112px;height:auto;opacity:0;image-rendering:pixelated}
+.patrol.go .van{opacity:1;animation:drive 2.4s steps(64) forwards}
+@keyframes drive{from{left:-130px}to{left:100%}}
+.van .l1{animation:lamp .26s steps(1) infinite}.van .l2{animation:lamp .26s steps(1) infinite reverse}
+@keyframes lamp{0%,49%{opacity:1}50%,100%{opacity:.12}}
+.rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;position:relative}
+@media(min-width:720px){.rooms{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}}
+.room{position:relative;min-width:0;padding:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s,opacity .2s;background-color:var(--panel);box-shadow:4px 4px 0 var(--ink)}
+.room:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.room.sel{background-color:var(--panel-2)}
+.room.mine{outline:3px solid var(--gold-2);outline-offset:1px}
+.rooms.locked .room{cursor:default}
+.scenewrap{position:relative;max-width:100%;line-height:0;border:3px solid var(--ink);background:#1b1d3a}
+.scene{width:100%;height:auto;display:block}
+.beam{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 35%,rgba(255,236,150,.65),rgba(255,236,150,.18) 45%,transparent 72%);opacity:0;transition:opacity .08s;pointer-events:none}
+.scene .f2{opacity:0}
+.scene .f1{animation:flk .5s steps(1) infinite}.scene .f2{animation:flk .5s steps(1) infinite reverse}
+.room:nth-child(2) .scene .f1,.room:nth-child(2) .scene .f2{animation-duration:.8s}
+.room:nth-child(3) .scene .f1,.room:nth-child(3) .scene .f2{animation-duration:1.9s}
+.room:nth-child(4) .scene .f1,.room:nth-child(4) .scene .f2{animation-duration:1.3s}
+.room:nth-child(5) .scene .f1,.room:nth-child(5) .scene .f2{animation-duration:.11s;animation-iteration-count:infinite}
+.room:nth-child(6) .scene .f1,.room:nth-child(6) .scene .f2{animation-duration:.6s}
+@keyframes flk{0%,49%{opacity:1}50%,100%{opacity:0}}
+.scene .tw{animation:tw 3.1s steps(1) infinite}.room:nth-child(odd) .scene .tw{animation-delay:1.4s}
+@keyframes tw{0%,62%{opacity:1}63%,74%{opacity:.1}75%,100%{opacity:1}}
+.rn{display:flex;justify-content:space-between;align-items:center;gap:6px;font-family:var(--pf);font-size:15px;margin:7px 0 5px;line-height:1.2}
+.rn>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rn b{font-weight:400;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;background:#fff;border:2px solid var(--ink);padding:0 6px;font-size:13px;line-height:1.5}
+.rn .px-coin{width:12px;height:12px}
+.tiles{display:flex;flex-wrap:wrap;gap:9px 6px;min-height:58px;align-content:flex-start;padding-top:4px}
+.tiles .none{width:100%;text-align:center;color:var(--muted-2);font-size:12px;padding:14px 0 0;font-family:var(--pf)}
+.tile{position:relative;width:46px;text-align:center}
+.tav{position:relative;width:40px;height:40px;margin:0 auto;border:3px solid var(--ink);background:#fff;box-shadow:2px 2px 0 var(--ink);overflow:hidden;display:grid;place-items:center;font-size:20px;line-height:1;transition:transform .45s,filter .45s;animation:bob 1.7s steps(2) infinite}
+.tile:nth-child(2n) .tav{animation-delay:.85s}.tile:nth-child(3n) .tav{animation-delay:.4s}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -1px}}
+.tav img{width:100%;height:100%;object-fit:cover;display:block;image-rendering:auto}
+.tav.npc{display:block}.tav.npc .sprite{position:absolute;left:-8.5px;top:0;width:51px;height:auto;image-rendering:pixelated}
+.tav.em{font-size:22px}
+.tile .tn{font-size:10px;line-height:1.3;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-family:-apple-system,"PingFang SC","Noto Sans SC",sans-serif}
+.tile .tn a{color:inherit;text-decoration:none}
+.tile .ta{position:absolute;top:-7px;right:-3px;z-index:2;background:var(--gold);border:2px solid var(--ink);font-family:var(--pf);font-size:10px;line-height:1.3;padding:0 3px;min-width:16px}
+.tile.me .tav{border-color:var(--gold-2);box-shadow:2px 2px 0 var(--ink),0 0 0 2px var(--gold)}
+.tile.me .tn{font-weight:700}
+.tile.dead .tav{filter:grayscale(1) brightness(.75);transform:rotate(90deg) translateY(3px);animation:none}
+.tile.dead .tn{text-decoration:line-through;opacity:.6}
+.room.spot{outline:4px solid var(--gold);outline-offset:2px;z-index:2}
+.room.spot .beam{opacity:1}
+.rooms.raiding .room{opacity:.62}.rooms.raiding .room.spot,.rooms.raiding .room.hit{opacity:1}
+.room.hit{animation:quake .45s steps(3) 3;background-color:#ffe3e3;outline:none}
+.room.hit .scene{filter:saturate(.25) brightness(.8)}
+@keyframes quake{0%{transform:translate(0)}25%{transform:translate(-4px,2px)}50%{transform:translate(4px,-2px)}75%{transform:translate(-2px,-3px)}100%{transform:translate(0)}}
+.seal{position:absolute;left:50%;top:32%;z-index:4;transform:translate(-50%,-50%) rotate(-12deg) scale(3);opacity:0;border:4px solid var(--red);color:var(--red);background:rgba(255,255,255,.94);font-family:var(--pf);font-size:26px;padding:2px 12px;letter-spacing:4px;pointer-events:none;white-space:nowrap}
+.room.sealed .seal{animation:stamp .3s steps(3) .05s forwards}
+@keyframes stamp{to{opacity:1;transform:translate(-50%,-50%) rotate(-12deg) scale(1)}}
+.fc{position:fixed;z-index:70;width:22px;height:22px;pointer-events:none;transition:transform .8s cubic-bezier(.25,.8,.35,1),opacity .25s .75s;will-change:transform}
+.fc svg{width:100%;height:100%;display:block}
+.pop{position:fixed;z-index:71;font-family:var(--pf);font-size:15px;line-height:1.3;pointer-events:none;background:#fff;border:2px solid var(--ink);padding:0 5px;box-shadow:2px 2px 0 var(--ink);animation:popup 1.5s ease-out forwards;white-space:nowrap}
+.pop.win{color:#1d8f45}.pop.lose{color:var(--red)}
+@keyframes popup{0%{transform:translate(-50%,0);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-46px);opacity:0}}
+.betbar{position:sticky;bottom:10px;z-index:15;padding:12px 14px}
+.bb-top{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-family:var(--pf);font-size:14px;margin-bottom:10px}
+.bb-coins{display:inline-flex;align-items:center;gap:5px}.bb-coins b{font-size:20px;font-weight:400}.bb-coins i{font-style:normal;font-size:11px;opacity:.7}.bb-coins .px-coin{width:16px;height:16px}
+.bb-cur{background:var(--gold);border:2px solid var(--ink);padding:1px 8px;font-size:12px}
+.bb-cur.none{background:#fff;color:var(--muted)}
+.bb-stat{font-size:12px;margin:0}
+.bb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font-family:var(--pf);font-size:14px;min-width:40px;min-height:38px;border:3px solid var(--ink);background:#fff;box-shadow:2px 2px 0 var(--ink);cursor:pointer;padding:0 8px;color:var(--ink)}
+.chips button.on{background:var(--gold);transform:translate(1px,1px);box-shadow:1px 1px 0 var(--ink)}
+#amt{width:78px;padding:6px 8px;min-height:40px;text-align:center;font-family:var(--pf);font-size:16px}
+.betbar .btn{width:auto;min-height:44px;font-size:16px;padding:6px 14px;flex:1 1 150px}
+.betbar .btn.sec{flex:0 0 auto}
+.betbar .btn:disabled{opacity:.55;cursor:default}
+.betbar .hint{margin-top:8px}
+.bb-guest{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between}
+.bb-guest>span{flex:1 1 240px;font-size:14px;line-height:1.6}
+.bb-guest .btns{margin:0}
+.raid-banner{position:fixed;left:50%;top:20%;transform:translateX(-50%);z-index:90;background-color:var(--panel);padding:18px 22px;width:min(92vw,460px);text-align:center;box-shadow:6px 6px 0 var(--ink);animation:bin .3s steps(4);cursor:pointer}
+.raid-banner h3{font-family:var(--pf);font-size:22px;margin:0 0 6px;line-height:1.3;font-weight:400}
+.raid-banner p{margin:4px 0;font-size:14px;color:var(--muted)}
+.raid-banner .big2{font-family:var(--pf);font-size:34px;margin:8px 0 2px;line-height:1.1}
+.raid-banner .win{color:#1d8f45}.raid-banner .lose{color:var(--red)}
+.raid-banner .tip{font-size:11px;color:var(--muted-2);margin-top:8px}
+@keyframes bin{from{transform:translateX(-50%) translateY(-30px);opacity:0}to{transform:translateX(-50%);opacity:1}}
+body.quake{animation:quake .4s steps(2) 2}
+.arena .list .item{padding:8px 0}
+.arena .amtv{font-size:16px}
+.arena .rank{width:38px;font-size:13px}
+.arena .tag{font-size:11px}
+@media(prefers-reduced-motion:reduce){.tav,.scene .f1,.scene .f2,.scene .tw,.ah h1 .px-siren,.clock.hot{animation:none!important}}
+</style>
+<div class="arena">
+  <section class="card px ah">
+    <div class="ah-l">
+      <h1>{{template "siren"}}<span>{{T "城管夜巡"}}</span><span class="lv">{{T "钢镚大逃杀"}}</span></h1>
+      <p class="hint">{{T "押上钢镚选个地方过夜。到点城管在有人的地方里随机查封一处：被封的钢镚没收，按押注比例分给其他幸存者。锁门前随时可以搬家、加注、撤出。"}} <a href="#" id="rulesMore">{{T "怎么算的？"}}</a></p>
+      <div class="ah-stats">
+        <span><i>{{T "在场"}}</i><b id="stPlayers">0</b></span>
+        <span><i>{{T "总押注"}}</i>{{template "coin"}}<b id="stTotal">0</b></span>
+        <span><i>{{T "奖池"}}</i>{{template "coin"}}<b id="stPot">0</b></span>
+      </div>
+    </div>
+    <div class="clock" id="clock"><div class="k" id="clockK"></div><div class="t" id="clockT">--:--</div><div class="k2">{{T "距锁门"}}</div></div>
+  </section>
+  <div class="last" id="lastStrip" hidden><span id="lastTxt"></span><button type="button" class="copy" id="replayBtn">▶ {{T "回放"}}</button></div>
+  <div class="patrol" id="patrol">{{template "van"}}</div>
+  <section class="rooms" id="rooms">
+    {{range $i, $n := .Rooms}}<div class="room px" data-room="{{$i}}" role="button" tabindex="0" aria-label="{{T $n}}">
+      <div class="scenewrap">{{if eq $i 0}}{{template "room0"}}{{else if eq $i 1}}{{template "room1"}}{{else if eq $i 2}}{{template "room2"}}{{else if eq $i 3}}{{template "room3"}}{{else if eq $i 4}}{{template "room4"}}{{else}}{{template "room5"}}{{end}}<div class="beam"></div></div>
+      <div class="rn"><span>{{T $n}}</span><b>{{template "coin"}}<span class="rtotal">0</span></b></div>
+      <div class="tiles"></div>
+      <div class="seal">{{T "查封"}}</div>
+    </div>{{end}}
+  </section>
+  <section class="card px betbar" id="betbar">
+    {{if .Me}}
+    <div class="bb-top">
+      <span class="bb-coins">{{template "coin"}}<b id="myCoins">{{.Me.Coins}}</b><i>{{T "我的钢镚"}}</i></span>
+      <span class="bb-cur none" id="myBet">{{T "还没进场"}}</span>
+      <span class="bb-stat hint" id="myStats"></span>
+    </div>
+    <div class="bb-row">
+      <div class="chips" id="chips"></div>
+      <input id="amt" inputmode="numeric" pattern="[0-9]*" value="5" maxlength="6" aria-label="{{T "押几个"}}">
+      <button class="btn" type="button" id="goBtn">{{T "住进去"}}</button>
+      <button class="btn sec" type="button" id="outBtn" hidden>{{T "撤出"}}</button>
+    </div>
+    <div class="hint" id="bbHint">{{T "先点上面选个地方，再填押几个。一局最多 %d 个。" .MaxBet}}</div>
+    {{else}}
+    <div class="bb-guest"><span>{{T "登录站长账号，用碗里的钢镚参加。还没有碗？发条推就能开一个。"}}</span><div class="btns"><a class="btn sm" href="/login">{{T "登录"}}</a>{{if .SubsitesEnabled}}<a class="btn sec sm" href="/new">{{T "开个碗"}}</a>{{end}}</div></div>
+    {{end}}
+  </section>
+  <div class="layout cols2">
+    <section class="card px"><h2>{{T "📜 夜巡记录"}}<span class="sub">{{T "点进去可验算"}}</span></h2><ul class="list" id="history"></ul></section>
+    <section class="card px"><h2>{{T "🏆 幸存榜"}}<span class="sub">{{T "净赚钢镚最多的站长"}}</span></h2><ul class="list" id="board"></ul></section>
+  </div>
+  <section class="card px" id="rules" hidden>
+    <h2>{{T "📖 规则"}}</h2>
+    <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.8">
+      <li>{{T "一局 %d 分钟，锁门前可以随时进场、搬家、加注、撤出；一局最多押 %d 个钢镚。" .RoundMin .MaxBet}}</li>
+      <li>{{T "锁门后城管在「有人的地方」里等概率抽一处查封，里面的钢镚全部没收。只有一处有人就流局，钢镚原路退回。"}}</li>
+      <li>{{T "没收的钢镚加上奖池，扣 %d%% 滚入下一局奖池，其余按押注比例分给所有幸存者（分不尽的零头也滚入奖池）。" .RakePct}}</li>
+      <li>{{T "开局先公布种子哈希，结算后公开种子，每一局都能点进去验算。"}}</li>
+      <li>{{T "钢镚免费、不能买卖、不能提现，输赢只影响人气和袋位。"}}</li>
+    </ol>
+  </section>
+</div>
+<div class="raid-banner px" id="banner" hidden></div>
+<div id="toast" class="toast" hidden></div>
+<div id="skinPool" hidden aria-hidden="true">{{range $i := .Skins}}<span data-skin="{{$i}}">{{template "skin" $i}}</span>{{end}}</div>
+{{end}}
+{{define "scripts"}}<script>
+(function(){
+  var S={{.State}},ROOMS=[{{range $i,$n := .Rooms}}{{if $i}},{{end}}{{T $n}}{{end}}],MAX={{.MaxBet}};
+  var T={round:{{T "第 %d 局"}},raiding:{{T "城管出动中"}},lockin:{{T "距锁门"}},sealed:{{T "「%s」被查封"}},take:{{T "没收 %d 个钢镚"}},split:{{T "%d 位幸存者瓜分 %d 个"}},
+    voidT:{{T "流局"}},voidSub:{{T "只有一处有人，城管扑了个空，钢镚原路退回"}},live:{{T "你活下来了"}},die:{{T "你被抄了"}},notin:{{T "你没参加这局"}},
+    inRoom:{{T "本局在「%s」押了 %d"}},notIn:{{T "还没进场"}},goIn:{{T "住进「%s」"}},moveTo:{{T "搬到「%s」"}},adjust:{{T "改押 %d 个"}},pick:{{T "先点上面选个地方"}},
+    pickHint:{{T "选好了「%s」，填押几个，然后住进去。"}},locked:{{T "锁门了，等城管…"}},nextIn:{{T "下一局马上开始"}},
+    tIn:{{T "住进去了"}},tMove:{{T "搬好了"}},tOut:{{T "撤出来了"}},tAdj:{{T "改好了"}},tLogin:{{T "登录站长账号才能参加"}},tNet:{{T "网络开小差了"}},tAmt:{{T "押 1 到 %d 个"}},tNoCoins:{{T "碗里的钢镚不够"}},
+    histSplit:{{T "没收 %d · %d 人分 %d"}},histNone:{{T "还没有记录，第一局马上开始"}},boardNone:{{T "还没有人上榜"}},boardLine:{{T "%d 局 · 活 %d 局"}},
+    stats:{{T "%d 局 · 活 %d · 净 %s · 连活 %d"}},nobody:{{T "还没人"}},allin:{{T "梭哈"}},me:{{T "我"}},
+    justNow:{{T "刚刚"}},minAgo:{{T "%d 分钟前"}},hourAgo:{{T "%d 小时前"}},dayAgo:{{T "%d 天前"}},bannerTip:{{T "点一下关闭 · 下一局已经开始"}},last:{{T "上一局"}}};
+  var ME=S.me||null,offset=S.now-Date.now(),selRoom=-1,busy=false,pending=null,lockedUI=false,shownLast=S.last?S.last.id:0;
+  var reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var roomsEl=document.getElementById('rooms'),roomEls=[].slice.call(roomsEl.querySelectorAll('.room')),patrol=document.getElementById('patrol');
+  var clockEl=document.getElementById('clock'),clockT=document.getElementById('clockT'),clockK=document.getElementById('clockK');
+  var toast=document.getElementById('toast'),tt;
+  function say(m){toast.textContent=m;toast.hidden=false;clearTimeout(tt);tt=setTimeout(function(){toast.hidden=true},2400)}
+  function fmt(s,args){var i=0;return s.replace(/%[sd]/g,function(){return args[i++]})}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function ago(t){var d=(Date.now()+offset-t)/1000;if(d<60)return T.justNow;if(d<3600)return fmt(T.minAgo,[Math.floor(d/60)]);if(d<86400)return fmt(T.hourAgo,[Math.floor(d/3600)]);return fmt(T.dayAgo,[Math.floor(d/86400)])}
+  function sfxp(n){try{if(window.sfx&&sfx[n])sfx[n]()}catch(e){}}
+  var coinSVG=(document.querySelector('.rn .px-coin')||{}).outerHTML||'🪙';
+  function skinSVG(k){var el=document.querySelector('#skinPool [data-skin="'+k+'"] svg');return el?el.outerHTML:''}
+  document.getElementById('rulesMore').addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rules');r.hidden=!r.hidden;if(!r.hidden)r.scrollIntoView({behavior:'smooth',block:'nearest'})});
+
+  // ---- 渲染 ----
+  function tileHTML(p){
+    var av=p.bot?'<div class="tav npc">'+skinSVG(p.skin)+'</div>':(p.av?'<div class="tav"><img src="'+esc(p.av)+'" alt=""></div>':'<div class="tav em">'+esc(p.emoji||'🥣')+'</div>');
+    var nm=p.path&&!p.bot?'<a href="'+esc(p.path)+'">'+esc(p.name)+'</a>':esc(p.name);
+    return '<div class="tile'+(p.me?' me':'')+(p.bot?' bot':'')+'" data-id="'+p.id+'" title="'+esc(p.name)+' · '+p.amt+'"><span class="ta">'+p.amt+'</span>'+av+'<div class="tn">'+nm+'</div></div>';
+  }
+  function renderRooms(players){
+    var tot=[0,0,0,0,0,0],html=[[],[],[],[],[],[]];
+    players.forEach(function(p){if(p.room>=0&&p.room<6){tot[p.room]+=p.amt;html[p.room].push(tileHTML(p))}});
+    roomEls.forEach(function(el,i){el.querySelector('.rtotal').textContent=tot[i];el.querySelector('.tiles').innerHTML=html[i].length?html[i].join(''):'<div class="none">'+T.nobody+'</div>';
+      el.classList.toggle('mine',!!(ME&&ME.room===i));el.classList.toggle('sel',selRoom===i&&!(ME&&ME.room===i))});
+  }
+  function renderHead(){
+    var r=S.round,n=r.players.length,tot=0;r.players.forEach(function(p){tot+=p.amt});
+    document.getElementById('stPlayers').textContent=n;document.getElementById('stTotal').textContent=tot;document.getElementById('stPot').textContent=r.carry_in;
+    clockK.textContent=fmt(T.round,[r.id]);
+    var ls=document.getElementById('lastStrip'),l=S.last;
+    if(l){ls.hidden=false;document.getElementById('lastTxt').textContent=T.last+'：'+fmt(T.round,[l.id])+' · '+(l.status==='void'?T.voidT:fmt(T.sealed,[ROOMS[l.killed]])+' · '+fmt(T.take,[l.dead])+' · '+fmt(T.split,[l.players.filter(function(p){return p.room!==l.killed}).length,l.prize]))}
+  }
+  function renderHistory(){
+    var h=S.history||[],el=document.getElementById('history');
+    if(!h.length){el.innerHTML='<div class="empty"><div class="ico">🚨</div>'+T.histNone+'</div>';return}
+    el.innerHTML=h.map(function(x){var v=x.status==='void';
+      return '<li class="item"><div class="rank">#'+x.id+'</div><div class="body"><div class="name"><span><a href="/raid/'+x.id+'">'+(v?T.voidT:fmt(T.sealed,[ROOMS[x.killed]]))+'</a></span></div><div class="sub">'+(v?T.voidSub:fmt(T.histSplit,[x.dead,x.survivors,x.prize]))+'</div></div><div class="time">'+ago(x.settled_at)+'</div></li>'}).join('');
+  }
+  function renderBoard(){
+    var b=S.board||[],el=document.getElementById('board');
+    if(!b.length){el.innerHTML='<div class="empty"><div class="ico">🏚</div>'+T.boardNone+'</div>';return}
+    el.innerHTML=b.map(function(x,i){var av=x.av?'<img class="av img" src="'+esc(x.av)+'" alt="">':'<div class="av sq">'+esc(x.emoji||'🥣')+'</div>';var badge=i<3?['🥇','🥈','🥉'][i]:(i+1);
+      return '<li class="item"><div class="rank'+(i<3?' m':'')+'">'+badge+'</div>'+av+'<div class="body"><div class="name"><span><a href="'+esc(x.path)+'">'+esc(x.name)+'</a></span>'+(ME&&x.id===ME.id?'<span class="me">'+T.me+'</span>':'')+'</div><div class="sub">'+fmt(T.boardLine,[x.rounds,x.survived])+'</div></div><div class="amtv num '+(x.net>=0?'accent':'')+'" style="'+(x.net<0?'color:var(--red)':'')+'">'+(x.net>0?'+':'')+x.net+'</div></li>'}).join('');
+  }
+  var amtIn=document.getElementById('amt'),goBtn=document.getElementById('goBtn'),outBtn=document.getElementById('outBtn'),chips=document.getElementById('chips'),bbHint=document.getElementById('bbHint');
+  function chipVals(){var v=[1,5,10,20,50].filter(function(x){return x<=MAX});if(v.indexOf(MAX)<0&&MAX<=200)v.push(MAX);return v}
+  function renderBet(){
+    if(!ME)return;
+    document.getElementById('myCoins').textContent=ME.coins;
+    var mb=document.getElementById('myBet');
+    if(ME.room>=0){mb.textContent=fmt(T.inRoom,[ROOMS[ME.room],ME.amt]);mb.classList.remove('none')}else{mb.textContent=T.notIn;mb.classList.add('none')}
+    document.getElementById('myStats').textContent=ME.rounds?fmt(T.stats,[ME.rounds,ME.survived,(ME.net>0?'+':'')+ME.net,ME.streak]):'';
+    if(!chips.childNodes.length){chips.innerHTML=chipVals().map(function(v){return '<button type="button" data-v="'+v+'">'+v+'</button>'}).join('')+'<button type="button" data-v="all">'+T.allin+'</button>'}
+    var cur=parseInt(amtIn.value,10)||0;[].forEach.call(chips.children,function(b){b.classList.toggle('on',b.dataset.v!=='all'&&parseInt(b.dataset.v,10)===cur)});
+    var target=selRoom>=0?selRoom:ME.room;
+    if(ME.room<0){goBtn.textContent=fmt(T.goIn,[target>=0?ROOMS[target]:'…'])}
+    else if(selRoom>=0&&selRoom!==ME.room){goBtn.textContent=fmt(T.moveTo,[ROOMS[selRoom]])}
+    else{goBtn.textContent=fmt(T.adjust,[cur])}
+    outBtn.hidden=ME.room<0;
+    goBtn.disabled=lockedUI;outBtn.disabled=lockedUI;
+    if(lockedUI)bbHint.textContent=T.locked;else if(ME.room<0&&target<0)bbHint.textContent=T.pick;else if(ME.room<0)bbHint.textContent=fmt(T.pickHint,[ROOMS[target]]);else bbHint.textContent='';
+  }
+  function renderAll(){renderRooms(S.round.players);renderHead();renderHistory();renderBoard();renderBet();tickClock()}
+
+  // ---- 倒计时 ----
+  function tickClock(){
+    if(busy)return;
+    var left=S.round.locks_at-(Date.now()+offset);
+    if(left<=0){clockEl.classList.add('raiding','hot');clockT.textContent='🚨 '+T.raiding;if(!lockedUI){lockedUI=true;roomsEl.classList.add('locked');renderBet()}return}
+    clockEl.classList.remove('raiding');clockEl.classList.toggle('hot',left<60000);
+    var s=Math.ceil(left/1000),m=Math.floor(s/60);s=s%60;clockT.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    if(lockedUI){lockedUI=false;roomsEl.classList.remove('locked');renderBet()}
+    if(left<5500&&left>500&&!tickClock.last||(tickClock.last&&Math.ceil(left/1000)!==tickClock.last&&left<5500)){sfxp('tick')}
+    tickClock.last=Math.ceil(left/1000);
+  }
+  setInterval(tickClock,250);
+
+  // ---- 轮询 ----
+  var fails=0;
+  function poll(){fetch('/raid/state',{cache:'no-store',credentials:'same-origin'}).then(function(r){return r.json()}).then(function(j){if(!j||!j.round)return;fails=0;onState(j)}).catch(function(){fails++})}
+  function onState(j){
+    offset=j.now-Date.now();
+    if(busy){pending=j;return}
+    var settled=j.round.id!==S.round.id&&j.last&&j.last.id===S.round.id;
+    if(settled&&!document.hidden){busy=true;pending=j;playResult(j.last,function(){busy=false;var p=pending;pending=null;apply(p||j)});return}
+    apply(j);
+  }
+  function apply(j){S=j;if(ME&&j.me){ME=j.me}else if(!j.me){ME=null}if(ME&&ME.room>=0&&selRoom===ME.room)selRoom=-1;shownLast=S.last?S.last.id:shownLast;renderAll()}
+  var hid=0;setInterval(function(){if(!document.hidden||++hid%5===0)poll()},2000); // 后台标签页每 10 秒拉一次，回到前台立即刷新
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)poll()});
+
+  // ---- 押注 ----
+  function placeBet(room,amount,okMsg){
+    var fd=new FormData();fd.append('room',room);fd.append('amount',amount);goBtn.disabled=true;
+    fetch('/raid/bet',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){return r.json()}).then(function(j){goBtn.disabled=false;
+      if(j.ok){ME.coins=j.coins;ME.room=j.amt>0?j.room:-1;ME.amt=j.amt;selRoom=-1;sfxp(amount>0?'coin':'click');say(okMsg);
+        // 本地先把自己放进去，不等轮询
+        var mine=S.round.players.filter(function(p){return !(ME&&p.id===ME.id)});if(j.amt>0)mine.push({id:ME.id,name:ME.name,av:{{if .Me}}{{.Me.AvatarURL}}{{else}}''{{end}},emoji:{{if .Me}}{{.Me.Avatar}}{{else}}''{{end}},skin:0,room:j.room,amt:j.amt,me:true,path:{{if .Me}}{{.Me.Path}}{{else}}''{{end}}});S.round.players=mine;renderAll();poll()}
+      else{sfxp('fail');say(j.msg||T.tNet);if(j.login)setTimeout(function(){location.href='/login'},900)}
+    }).catch(function(){goBtn.disabled=false;sfxp('fail');say(T.tNet)});
+  }
+  roomEls.forEach(function(el,i){function pick(){if(busy)return;if(!ME){say(T.tLogin);return}if(lockedUI){say(T.locked);return}
+      if(ME.room>=0&&ME.room!==i){placeBet(i,ME.amt,T.tMove);return}
+      selRoom=(selRoom===i)?-1:i;renderRooms(S.round.players);renderBet();if(selRoom>=0)sfxp('click')}
+    el.addEventListener('click',function(e){if(e.target.closest('a'))return;pick()});
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}})});
+  if(ME){
+    chips.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var v=b.dataset.v==='all'?Math.min(MAX,ME.coins+(ME.amt||0)):parseInt(b.dataset.v,10);amtIn.value=v;renderBet()});
+    amtIn.addEventListener('input',renderBet);
+    goBtn.addEventListener('click',function(){var room=selRoom>=0?selRoom:ME.room;if(room<0){say(T.pick);return}var a=parseInt(amtIn.value,10);if(!(a>=1&&a<=MAX)){say(fmt(T.tAmt,[MAX]));return}
+      if(a-(ME.amt||0)>ME.coins){say(T.tNoCoins);sfxp('fail');return}
+      placeBet(room,a,ME.room<0?T.tIn:(room!==ME.room?T.tMove:T.tAdj))});
+    outBtn.addEventListener('click',function(){if(ME.room>=0)placeBet(ME.room,0,T.tOut)});
+    if(ME.room>=0)amtIn.value=ME.amt;else amtIn.value=Math.min(5,MAX,Math.max(1,ME.coins));
+  }
+
+  // ---- 结算动画：锁门 → 城管车 → 手电筒扫 → 查封 → 钢镚飞给幸存者 → 结果 ----
+  function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  function playResult(last,done){
+    var killed=last.killed,isVoid=last.status==='void';
+    renderRooms(last.players);lockedUI=true;roomsEl.classList.add('locked');clockEl.classList.add('raiding','hot');clockT.textContent='🚨 '+T.raiding;
+    var run=Promise.resolve();
+    if(!reduced){
+      sfxp('siren');
+      run=run.then(function(){patrol.classList.add('go');return wait(2500)});
+      if(!isVoid){run=run.then(function(){return sweep(killed)})}
+    }
+    run=run.then(function(){
+      if(isVoid){return wait(200)}
+      var el=roomEls[killed];el.classList.add('hit','sealed');sfxp('crash');
+      el.querySelectorAll('.tile').forEach(function(t){t.classList.add('dead')});
+      last.players.forEach(function(p){if(p.room===killed)pop(tileOf(p.id)||el,'-'+p.amt,'lose')});
+      return wait(reduced?300:800).then(function(){return fly(last,killed)});
+    }).then(function(){return banner(last)}).then(function(){cleanup();done()});
+  }
+  function tileOf(id){return roomsEl.querySelector('.tile[data-id="'+id+'"]')}
+  function sweep(killed){
+    var order=[0,1,2,3,4,5],hops=[],n=13+Math.floor(Math.random()*4),start=Math.floor(Math.random()*6);
+    for(var i=0;i<n;i++)hops.push(order[(start+i)%6]);
+    while(hops[hops.length-1]!==killed)hops.push(order[(hops[hops.length-1]+1)%6]);
+    roomsEl.classList.add('raiding');
+    return hops.reduce(function(p,r,i){return p.then(function(){roomEls.forEach(function(e){e.classList.remove('spot')});roomEls[r].classList.add('spot');sfxp('tick');return wait(70+i*i*2.4)})},Promise.resolve())
+      .then(function(){return wait(420)}).then(function(){roomsEl.classList.remove('raiding');roomEls.forEach(function(e){e.classList.remove('spot')})});
+  }
+  function pop(el,text,cls){if(!el)return;var r=el.getBoundingClientRect(),d=document.createElement('div');d.className='pop '+cls;d.textContent=text;d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top-6)+'px';document.body.appendChild(d);setTimeout(function(){d.remove()},1600)}
+  function fly(last,killed){
+    var src=roomEls[killed].querySelector('.scenewrap').getBoundingClientRect(),sx=src.left+src.width/2,sy=src.top+src.height/2;
+    var surv=last.players.filter(function(p){return p.room!==killed}),k=0;
+    surv.forEach(function(p,i){var t=tileOf(p.id);if(!t)return;var tr=t.querySelector('.tav').getBoundingClientRect(),gain=p.payout-p.amt;
+      setTimeout(function(){var c=document.createElement('div');c.className='fc';c.innerHTML=coinSVG;c.style.left=(sx-11)+'px';c.style.top=(sy-11)+'px';document.body.appendChild(c);
+        requestAnimationFrame(function(){requestAnimationFrame(function(){c.style.transform='translate('+(tr.left+tr.width/2-sx)+'px,'+(tr.top+tr.height/2-sy)+'px)';c.style.opacity='0'})});
+        setTimeout(function(){c.remove();pop(t,'+'+gain,'win');if(k++<4)sfxp('coin')},780)},i*90)});
+    return wait(Math.min(surv.length,14)*90+1100);
+  }
+  function banner(last){
+    var b=document.getElementById('banner'),mine=ME?last.players.filter(function(p){return p.id===ME.id})[0]:null,isVoid=last.status==='void';
+    var surv=last.players.filter(function(p){return p.room!==last.killed}).length,h='<h3>'+fmt(T.round,[last.id])+' · '+(isVoid?T.voidT:fmt(T.sealed,[ROOMS[last.killed]]))+'</h3>';
+    h+='<p>'+(isVoid?T.voidSub:fmt(T.take,[last.dead])+' · '+fmt(T.split,[surv,last.prize]))+'</p>';
+    if(mine&&!isVoid){var win=mine.room!==last.killed,d=win?mine.payout-mine.amt:mine.amt;h+='<div class="big2 '+(win?'win':'lose')+'">'+(win?T.live+' +'+d:T.die+' −'+d)+'</div>';sfxp(win?'ok':'fail');if(!win&&!reduced){document.body.classList.add('quake');setTimeout(function(){document.body.classList.remove('quake')},900)}}
+    else if(ME&&!isVoid){h+='<p>'+T.notin+'</p>'}
+    h+='<div class="tip">'+T.bannerTip+'</div>';
+    b.innerHTML=h;b.hidden=false;
+    return new Promise(function(res){var t=setTimeout(fin,5200);function fin(){clearTimeout(t);b.hidden=true;b.onclick=null;res()}b.onclick=fin});
+  }
+  function cleanup(){patrol.classList.remove('go');roomsEl.classList.remove('raiding','locked');roomEls.forEach(function(e){e.classList.remove('spot','hit','sealed');e.querySelectorAll('.tile.dead').forEach(function(t){t.classList.remove('dead')})});lockedUI=false;clockEl.classList.remove('raiding')}
+  document.getElementById('replayBtn').addEventListener('click',function(){if(busy||!S.last)return;busy=true;var keep=S;playResult(S.last,function(){busy=false;var p=pending;pending=null;apply(p||keep)})});
+
+  renderAll();
+})();
+</script>{{end}}

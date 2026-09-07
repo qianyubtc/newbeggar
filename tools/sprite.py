@@ -125,6 +125,188 @@ KEY = [
     "..KKKK......",
 ]
 
+# ---- 城管夜巡：6 个过夜场景（32×18 夜景）、城管车、警灯图标 ----
+SCENE_PAL = {
+    "n": "#1b1d3a", "s": "#2a2d5a", "c": "#5f6270", "C": "#8a8d99", "e": "#3d3f4c", "b": "#7a3e2f", "B": "#9a5340",
+    "g": "#2f6a3c", "G": "#4a9455", "y": "#ffd23f", "o": "#ff8c3a", "r": "#e04a3a", "w": "#f2f2f2", "k": "#1e1e2e",
+    "t": "#2a2c3d", "m": "#c9ab7a", "d": "#6b4a2a", "p": "#8e5cff", "q": "#3d8bfd", "l": "#dbe9ff", "u": "#4d5470",
+    "a": "#7c8ea8", "x": "#ff5aa0",
+}
+# 每个场景：base 网格 + f1/f2（两帧交替：火苗/灯光闪烁）+ tw（星星慢闪）
+SCENES = [
+    ("桥洞", [
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "nnnnlnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnlnnnnnn",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "cccccccccccccccccccccccccccccccc",
+        "ccccccccCCeeeeeeeeeeeeCCcccccccc",
+        "cccccccCttttttttttttttttCccccccc",
+        "cccccccCttttttttttttttttCccccccc",
+        "ccccccCCttttttttttttttttCCcccccc",
+        "ccccccCCttttttttttttttttCCcccccc",
+        "ccccccCCtttttttttttttmmmCCcccccc",
+        "ccccccCCttttttttttttdmmdCCcccccc",
+        "ccccccCCtttttttttttdmmmdCCcccccc",
+        "ccccccCCtttttttttttdmmmdCCcccccc",
+        "ccccccCCttttdddddttdddddCCcccccc",
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "eCeeeeCeeeeeeCeeeeeeeCeeeeeeCeee",
+    ], {14: {12: "o", 13: "o", 14: "y", 15: "o", 16: "o"}, 13: {13: "o", 14: "y", 15: "o"}, 12: {13: "o", 14: "y"}, 11: {14: "o"}},
+       {14: {12: "o", 13: "y", 14: "y", 15: "y", 16: "o"}, 13: {12: "o", 13: "o", 14: "y", 15: "o", 16: "o"}, 12: {13: "o", 14: "y", 15: "o"}, 11: {13: "o", 15: "o"}},
+       {1: {4: "l"}, 2: {25: "l"}}),
+    ("破庙", [
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnnlllnn",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnllllln",
+        "nnnnnnnnnnnnnnkknnnnnnnnnnnlllnn",
+        "nnnnnnnnnnnkkkkkkkknnnnnnnnnnnnn",
+        "nnnnnnnkkkkddddddddkkkknnnnnnnnn",
+        "nnnkkkkdddddddddddddddkkkknnnnnn",
+        "nkkddddddddddddddddddddddkknnnnn",
+        "kkkkkkkkkkkkkkkkkkkkkkkkkkkknnnn",
+        "nbbbBbbbbbbbbbttttbbbbBbbbbbnnnn",
+        "nbbbbbbbnnnbbbttttbbbbbbbBbbnnnn",
+        "nbBbbbbnnnnbbbttttbbbBbbbbbbnnnn",
+        "nbbbbbbbbnnbbbttttbbbbbbbbbbnnnn",
+        "nbbbBbbbbbbbbbttttbbbBbbbbbbnnnn",
+        "nbbbbbbbbbbbbbttttbbbbbbbbbbnnnn",
+        "kkkkkkkkkkkkkkttttkkkkkkkkkkgggg",
+        "ggggGgggggggggggggggggGggggggggg",
+        "gggggggggggGgggggggggggggggggggg",
+        "gGggggggggggggggggggGggggggggggg",
+    ], {10: {15: "y", 16: "y"}, 11: {15: "o", 16: "o"}},
+       {10: {15: "o", 16: "y"}, 11: {15: "y", 16: "o"}, 9: {16: "o"}},
+       {1: {5: "l"}, 3: {24: "l"}}),
+    ("天桥底", [
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "anananananananananananananananan",
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "cccccccccccccccccccccccccccccccc",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnCCc",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnnCCccc",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnCCccccc",
+        "nnnnnnnnnnnnnnnnnnnnnnnCCccccccc",
+        "nnnnnkkknnnnnnnnnnnnnCCccccccccc",
+        "nnnnnyyynnnnnnnnnnnCCccccccccccc",
+        "nnnnnnknnnnnnnnnnCCccccccccccccc",
+        "nnnnnnknnnnnnnnCCccccccccccccccc",
+        "nnnnnnknnnnnnCCccccccccccccccccc",
+        "nnnnnnknnnnCCccccccccccccccccccc",
+        "eeeeeekeemmmmmmmmeeeeeeeeeeeeeee",
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "eCeeeeeeCeeeeeeeeeeCeeeeeeeeeCee",
+    ], {10: {4: "y", 8: "y"}, 11: {5: "y", 7: "y"}},
+       {10: {4: "y"}},
+       {6: {5: "l"}, 8: {17: "l"}, 7: {11: "l"}}),
+    ("公园长椅", [
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "nnnlllnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "nnlllllnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "nnnlllnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "nnnnnnnnnnnnnnnnnnnnnnnnGGGnnnnn",
+        "nnnnnnnnnnnnnnnnnnnnnnGGGGGGGnnn",
+        "nnnnnnnnnnnnnnnnnnnnnGgGGGGgGGnn",
+        "nnnnnnnnnnnnnnnnnnnnGGGgGGGGGGGn",
+        "nnnnnnnnnnnnnnnnnnnnnGGGGgGGGGnn",
+        "nnnnnnnnnnnnnnnnnnnnnnGGGGGGGnnn",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnddnnnnn",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnddnnnnn",
+        "nnnnnnmmmmmmmmmmmmnnnnnnnddnnnnn",
+        "nnnnnnddddddddddddnnnnnnnddnnnnn",
+        "nnnnnnmmmmmmmmmmmmnnnnnnnddnnnnn",
+        "nnnnnnkknnnnnnnnkknnnnnnnddnnnnn",
+        "gggggggggggggggggggggggggggggggg",
+        "gGggggggggGgggggggggGggggggggggg",
+    ], {8: {10: "y"}, 11: {14: "y"}},
+       {6: {12: "y"}, 13: {20: "y"}, 9: {4: "y"}},
+       {1: {12: "l"}, 3: {17: "l"}}),
+    ("地铁通道", [
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "ccccccccccwwwwwwwwwwwwcccccccccc",
+        "cccccccccccccccccccccccccccccccc",
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "CCCCCCCCCCCCCrrrrrrCCCCCCCCCCCCC",
+        "CCCCCCCCCCCCttttttttCCCCCCCCCCCC",
+        "aaaaaaaaaaaattttttttaaaaaaaaaaaa",
+        "CCCCCCCCCCCCttttttttCCCCCCCCCCCC",
+        "qqqqqqqqqqqqttttttttqqqqqqqqqqqq",
+        "CCCCCCCCCCCCttttttttCCCCCCCCCCCC",
+        "aaaaaaaaaaaattttttttaaaaaaaaaaaa",
+        "CCCCCCCCCCCCttttttttCCCCCCCCCCCC",
+        "CCCCCCCCCCCCttttttttCCCCCCCCCCCC",
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "eeeeeeeddmmmmmddeeeeeeeeeeeeeeee",
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    ], {9: {15: "y", 16: "y"}},
+       {1: {10: "l", 11: "l", 12: "l", 13: "l", 14: "l", 15: "l", 16: "l", 17: "l", 18: "l", 19: "l", 20: "l", 21: "l"}},
+       {4: {15: "w", 16: "w"}}),
+    ("烂尾楼", [
+        "nnnnnnnnnnnnnnnnnnnnnnkkkkkkkkkk",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnknnnnn",
+        "nnnnnnnnnnnnnnnnnnnnnnnnnnknnnnn",
+        "kknknnkknnnnnnnnnnnnnnnnnnknnnnn",
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "cCnnnnncCnnnnncCnnnnncCnnnnnncCn",
+        "cCnnnnncCnnnnncCnnnnncCnnnnnncCn",
+        "cCnnnnncCnnnnncCnnnnncCnnnnnncCn",
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "cCnnnnncCqqqqqcCnnnnncCnnnnnncCn",
+        "cCnnnnncCqqqqqcCnnnnncCnnnnnncCn",
+        "cCnnnnncCqqqqqcCnnnnncCnnnnnncCn",
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "cCnnnnncCnnnnncCnnnnncCnnnnnncCn",
+        "cCnnnnncCnnnnncCnuuuncCnnnnnncCn",
+        "cCnnnnncCnnnnncCnuuuncCnnnnnncCn",
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "eeCeeeeeeeeeCeeeeeeeeeeCeeeeeeee",
+    ], {13: {17: "o", 18: "y", 19: "o"}},
+       {13: {18: "y"}, 12: {}},
+       {1: {8: "l"}, 2: {30: "l"}}),
+]
+# 城管车（28×14，车顶警灯两色交替）
+VAN = [
+    "..........kkkkkk............",
+    "..........keeeek............",
+    ".kkkkkkkkkkkkkkkkkkkkkkk....",
+    "kwwwwwwwwwwwwwwwwwwwwwwwk...",
+    "kwllllwllllwllllwwwlllllk...",
+    "kwllllwllllwllllwwwlllllkk..",
+    "kwwwwwwwwwwwwwwwwwwwwwwwwwk.",
+    "kwwwwwwwrrrwwwwwwwwwwwwwwwk.",
+    "kqqqqqqqqqqqqqqqqqqqqqqqqqk.",
+    "kwwwwwwwwwwwwwwwwwwwwwwwwyk.",
+    "kkkkkkkkkkkkkkkkkkkkkkkkkkk.",
+    "...keeek..........keeek.....",
+    "...keCek..........keCek.....",
+    "....kkk............kkk......",
+]
+VAN_L1 = {1: {11: "r", 12: "r"}, 0: {11: "r"}}
+VAN_L2 = {1: {13: "q", 14: "q"}, 0: {14: "q"}}
+# 警灯图标（导航栏）
+SIREN = [
+    "...kkkk...",
+    "..krrrrk..",
+    ".krrwrrrk.",
+    ".krrrrrrk.",
+    ".krrrrrrk.",
+    ".kkkkkkkk.",
+    "kkkkkkkkkk",
+    "keeeeeeeek",
+    "kkkkkkkkkk",
+]
+
+
+def scene_svg(i, grid, f1, f2, tw):
+    for y, row in enumerate(grid):
+        assert len(row) == 32, f"场景 {i} 第 {y} 行宽 {len(row)}"
+    return ('{{define "room%d"}}<svg class="scene" viewBox="0 0 32 18" width="256" height="144" shape-rendering="crispEdges" aria-hidden="true">'
+            '<g class="base">%s</g><g class="f1">%s</g><g class="f2">%s</g><g class="tw">%s</g></svg>{{end}}'
+            % (i, rects(grid, override=SCENE_PAL), layer(f1, SCENE_PAL), layer(f2, SCENE_PAL), layer(tw, SCENE_PAL)))
+
 
 def rects(grid, skip=".", only=None, override=None):
     """把网格转成 rect 列表。only: 只画这些字符；override: {char: color}。"""
@@ -145,11 +327,12 @@ def rects(grid, skip=".", only=None, override=None):
     return "".join(out)
 
 
-def layer(cells):
+def layer(cells, pal=None):
+    pal = pal or PAL
     out = []
     for y, row in cells.items():
         for x, c in row.items():
-            out.append(f'<rect x="{x}" y="{y}" width="1" height="1" fill="{PAL[c]}"/>')
+            out.append(f'<rect x="{x}" y="{y}" width="1" height="1" fill="{pal[c]}"/>')
     return "".join(out)
 
 
@@ -193,7 +376,17 @@ def main():
           % (rects(SPEAKER), layer(SPK_WAVE), layer(SPK_WAVE2), layer(SPK_X)))
     print('{{define "trophy"}}<svg class="px-trophy" viewBox="0 0 10 9" width="18" height="16" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(TROPHY))
     print('{{define "shareicon"}}<svg class="px-share" viewBox="0 0 8 9" width="14" height="16" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(SHARE))
+    for i, (_, grid, f1, f2, tw) in enumerate(SCENES):
+        print(scene_svg(i, grid, f1, f2, tw))
+    for y, row in enumerate(VAN):
+        assert len(row) == 28, f"城管车第 {y} 行宽 {len(row)}"
+    print('{{define "van"}}<svg class="van" viewBox="0 0 28 14" width="112" height="56" shape-rendering="crispEdges" aria-hidden="true">'
+          '<g class="vbody">%s</g><g class="l1">%s</g><g class="l2">%s</g></svg>{{end}}'
+          % (rects(VAN, override=SCENE_PAL), layer(VAN_L1, SCENE_PAL), layer(VAN_L2, SCENE_PAL)))
+    print('{{define "siren"}}<svg class="px-siren" viewBox="0 0 10 9" width="18" height="16" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(SIREN, override=SCENE_PAL))
     print('{{define "keyicon"}}<svg class="px-key" viewBox="0 0 12 5" width="19" height="8" shape-rendering="crispEdges" aria-hidden="true">%s</svg>{{end}}' % rects(KEY))
+    # 形象分发：{{template "skin" 编号}}
+    print('{{define "skin"}}' + ''.join('{{%s eq . %d}}{{template "sprite%d"}}' % ("if" if i == 1 else "else if", i, i) for i in range(1, len(SKINS))) + '{{else}}{{template "sprite"}}{{end}}{{end}}')
 
 
 if __name__ == "__main__":
