@@ -611,5 +611,12 @@ func init() {
 		"地铁通道":     "Couloir du métro",
 		"烂尾楼":      "Immeuble inachevé",
 		"没有这一局":    "Cette manche n'existe pas",
+		"押钢镚选地方过夜，城管随机查封一处，没收的分给幸存者。": "Misez des pièces sur un endroit où dormir ; la patrouille en rafle un au hasard et les survivants se partagent le butin.",
+		"怎么玩？":           "Comment jouer ?",
+		"我在这":            "je suis là",
+		"第 %d 局开始，奖池 %d": "Manche %d lancée, cagnotte %d",
+		"即将锁门":           "fermeture imminente",
+		"碗里还没有钢镚，先让访客来丢几个": "Pas encore de pièces dans le bol, faites-en jeter quelques-unes par vos visiteurs",
+		"已押 %d 个": "%d misées",
 	}
 }

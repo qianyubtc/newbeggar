@@ -611,5 +611,12 @@ func init() {
 		"地铁通道":     "Hầm tàu điện",
 		"烂尾楼":      "Nhà xây dở",
 		"没有这一局":    "Không có ván này",
+		"押钢镚选地方过夜，城管随机查封一处，没收的分给幸存者。": "Cược xu chọn chỗ ngủ; đội truy quét hốt ngẫu nhiên một chỗ, xu tịch thu chia cho người sống sót.",
+		"怎么玩？":           "Chơi thế nào?",
+		"我在这":            "tôi ở đây",
+		"第 %d 局开始，奖池 %d": "Ván %d bắt đầu, hũ %d",
+		"即将锁门":           "sắp khóa cửa",
+		"碗里还没有钢镚，先让访客来丢几个": "Bát chưa có xu, rủ khách ném vài xu trước đã",
+		"已押 %d 个": "Đã cược %d",
 	}
 }

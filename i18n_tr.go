@@ -611,5 +611,12 @@ func init() {
 		"地铁通道":     "Metro geçidi",
 		"烂尾楼":      "Yarım kalmış bina",
 		"没有这一局":    "Böyle bir el yok",
+		"押钢镚选地方过夜，城管随机查封一处，没收的分给幸存者。": "Jetonlarını bir yatacak yere koy; ekip rastgele bir yeri basar, el konan jetonları hayatta kalanlar paylaşır.",
+		"怎么玩？":           "Nasıl oynanır?",
+		"我在这":            "buradayım",
+		"第 %d 局开始，奖池 %d": "%d. el başladı, pot %d",
+		"即将锁门":           "az sonra kilitlenir",
+		"碗里还没有钢镚，先让访客来丢几个": "Kâsede henüz jeton yok, önce ziyaretçiler birkaç tane atsın",
+		"已押 %d 个": "%d koyuldu",
 	}
 }

@@ -52,6 +52,7 @@ a{color:var(--blue)}
 .nav a.pill{color:var(--ink);background:var(--gold);font-size:16px;padding:6px 12px;text-decoration:none;white-space:nowrap;box-shadow:3px 3px 0 var(--ink)}
 .nav a.pill:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 @media(max-width:420px){.hide-sm{display:none}.nav a.pill{font-size:12px;padding:6px 10px}.nav a.link{font-size:12px;padding:8px 5px}}
+@media(max-width:430px){.nav{gap:3px}.nav .brand{flex:none;font-size:18px;margin-right:0}.langcur{min-width:30px;padding:5px 4px}.sfx{min-width:24px;padding:6px 0}.nav a.link{padding:8px 3px}.nav a.pill{padding:5px 8px;font-size:12px}}
 .ticker{overflow:hidden;contain:paint;touch-action:pan-y;background:var(--ink);color:var(--gold);font-size:12px;line-height:1.5;padding:6px 0;margin:0 0 16px;white-space:nowrap;box-shadow:3px 3px 0 rgba(30,30,46,.25)}
 .ticker-in{display:inline-block;animation:tick 34s linear infinite}
 .ticker-in span{padding:0 10px}
@@ -325,8 +326,16 @@ window.sfx=(function(){var ctx,on=true,C=window.AudioContext||window.webkitAudio
     fail:function(){play([[196,0,0.1,'sawtooth',0.16],[147,0.1,0.26,'sawtooth',0.16]])},
     levelup:function(){play([[659,0,0.08],[784,0.08,0.08],[988,0.16,0.08],[1319,0.24,0.08],[1568,0.32,0.4,'square',0.26]])},
     siren:function(){var s=[];for(var i=0;i<8;i++)s.push([i%2?640:900,i*0.27,0.25,'square',0.11]);play(s)},
-    tick:function(){play([[1400,0,0.028,'square',0.09]])},
+    tick:function(f){play([[f||1400,0,0.028,'square',0.09]])},
     crash:function(){noise(0.5,0.35);play([[120,0,0.28,'sawtooth',0.2],[70,0.08,0.4,'sawtooth',0.18]])},
+    stamp:function(){noise(0.09,0.3);play([[160,0,0.09,'square',0.18]])},
+    slam:function(){noise(0.14,0.28);play([[90,0,0.16,'sawtooth',0.18]])},
+    step:function(){play([[520,0,0.05,'square',0.13],[660,0.06,0.07,'square',0.13]])},
+    back:function(){play([[600,0,0.06,'square',0.12],[420,0.07,0.1,'square',0.12]])},
+    pop:function(){play([[880,0,0.04,'square',0.08]])},
+    bell:function(){play([[1047,0,0.12,'triangle',0.16],[1319,0.12,0.26,'triangle',0.16]])},
+    buzz:function(){play([[110,0,0.35,'square',0.1]])},
+    lose:function(){play([[330,0,0.18,'sawtooth',0.15],[311,0.18,0.18,'sawtooth',0.15],[294,0.36,0.18,'sawtooth',0.15],[262,0.54,0.55,'sawtooth',0.15]])},
     enabled:function(){return on},
     playing:function(){return src?'webaudio':(el&&!el.paused?'element':'')},
     toggle:function(){on=!on;try{localStorage.setItem('sfx',on?'1':'0')}catch(e){}if(on){S.coin();loadBgm();startBgm()}else{stopBgm()}paint();return on}};

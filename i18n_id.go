@@ -611,5 +611,12 @@ func init() {
 		"地铁通道":     "Lorong MRT",
 		"烂尾楼":      "Gedung mangkrak",
 		"没有这一局":    "Ronde itu tidak ada",
+		"押钢镚选地方过夜，城管随机查封一处，没收的分给幸存者。": "Taruhkan koin di tempat tidur; patroli menyegel satu tempat secara acak dan penyintas membagi sitaannya.",
+		"怎么玩？":           "Cara main?",
+		"我在这":            "saya di sini",
+		"第 %d 局开始，奖池 %d": "Ronde %d dimulai, pot %d",
+		"即将锁门":           "segera dikunci",
+		"碗里还没有钢镚，先让访客来丢几个": "Belum ada koin di mangkuk, minta pengunjung melempar beberapa dulu",
+		"已押 %d 个": "%d dipertaruhkan",
 	}
 }

@@ -611,5 +611,12 @@ func init() {
 		"地铁通道":     "U-Bahn-Gang",
 		"烂尾楼":      "Bauruine",
 		"没有这一局":    "Diese Runde gibt es nicht",
+		"押钢镚选地方过夜，城管随机查封一处，没收的分给幸存者。": "Setze Münzen auf einen Schlafplatz; die Streife hebt zufällig einen aus, die Überlebenden teilen die Beute.",
+		"怎么玩？":           "Wie spielt man?",
+		"我在这":            "ich bin hier",
+		"第 %d 局开始，奖池 %d": "Runde %d gestartet, Pott %d",
+		"即将锁门":           "gleich gesperrt",
+		"碗里还没有钢镚，先让访客来丢几个": "Noch keine Münzen in der Schale, lass dir erst ein paar zuwerfen",
+		"已押 %d 个": "%d gesetzt",
 	}
 }

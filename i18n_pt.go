@@ -611,5 +611,12 @@ func init() {
 		"地铁通道":     "Corredor do metrô",
 		"烂尾楼":      "Prédio inacabado",
 		"没有这一局":    "Essa rodada não existe",
+		"押钢镚选地方过夜，城管随机查封一处，没收的分给幸存者。": "Aposte moedas num lugar para dormir; a patrulha invade um ao acaso e os sobreviventes dividem o apreendido.",
+		"怎么玩？":           "Como jogar?",
+		"我在这":            "estou aqui",
+		"第 %d 局开始，奖池 %d": "Rodada %d começou, pote %d",
+		"即将锁门":           "fecha em breve",
+		"碗里还没有钢镚，先让访客来丢几个": "Ainda não há moedas na tigela, peça aos visitantes para jogar algumas",
+		"已押 %d 个": "%d apostadas",
 	}
 }

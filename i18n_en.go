@@ -611,5 +611,12 @@ func init() {
 		"地铁通道":     "Subway passage",
 		"烂尾楼":      "Unfinished building",
 		"没有这一局":    "No such round",
+		"押钢镚选地方过夜，城管随机查封一处，没收的分给幸存者。": "Stake coins on a spot to sleep; the patrol raids one at random and survivors split the seized coins.",
+		"怎么玩？":           "How to play?",
+		"我在这":            "I'm here",
+		"第 %d 局开始，奖池 %d": "Round %d started, pot %d",
+		"即将锁门":           "locking soon",
+		"碗里还没有钢镚，先让访客来丢几个": "No coins in your bowl yet, get visitors to toss a few first",
+		"已押 %d 个": "%d staked",
 	}
 }
