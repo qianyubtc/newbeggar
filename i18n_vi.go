@@ -16,6 +16,7 @@ func init() {
 		"👉 扫码，一毛也是爱":                           "👉 Quét mã đi, một xu cũng quý",
 		"分享这个碗":                                "Chia sẻ bát này",
 		"分享":                                   "Chia sẻ",
+		"X 数据":                                 "Số liệu X",
 		"🖼 分享这个碗":                              "🖼 Chia sẻ bát này",
 		"链接":                                   "Liên kết",
 		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Tạo poster pixel để đăng lên X; quét QR là ủng hộ được.",

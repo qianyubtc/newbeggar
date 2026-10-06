@@ -20,6 +20,7 @@
         <div class="pillrow">
           {{if .Site.XLabel}}<a class="xpill" href="https://x.com/{{.Site.XLabel}}" target="_blank" rel="noopener">𝕏 <span>@{{.Site.XLabel}}</span></a>{{end}}
           <button class="xpill sharebtn" type="button" id="shareBtn" title="{{T "分享这个碗"}}">{{template "shareicon"}}<span>{{T "分享"}}</span></button>
+          {{if and .Site.XHandle .LBZ}}<a class="xpill" id="lbzPill" href="{{.LBZ}}/" target="_blank" rel="noopener" data-lbz="{{.LBZ}}" data-h="{{.Site.XHandle}}" data-xid="{{.Site.XID}}" style="display:none">📊 <span>{{T "X 数据"}}</span></a>{{end}}
         </div>
       </div>
     </div>
@@ -201,6 +202,11 @@
           if(el){wrap.innerHTML=el.outerHTML;wrap.classList.add('jump');setTimeout(function(){wrap.classList.remove('jump')},900)}
           if(window.sfx)sfx.click()}
         kb.disabled=false}).catch(function(){kb.disabled=false})})})();
+  {{if .LBZ}}// 蓝不住（X 中文区数据）收录了这个号才露出「X 数据」：问不到、没收录、X 数字 ID 对不上（改过名、旧名被别人注册）就一直藏着
+  (function(){var p=document.getElementById('lbzPill');if(!p||!window.fetch)return;var o=p.dataset.lbz;
+    fetch(o+'/api/x/'+encodeURIComponent(p.dataset.h)+(p.dataset.xid?'?xid='+encodeURIComponent(p.dataset.xid):'')).then(function(r){return r.ok?r.json():null}).then(function(j){
+      var u=j&&j.data;if(typeof u!=='string'||u.indexOf(o+'/')!==0)return;u=u.split('#')[0];
+      p.href=u+(u.indexOf('?')<0?'?':'&')+'from=newbeggar';p.style.display=''}).catch(function(){})})();{{end}}
   // 分享：弹窗里复制链接 + 生成像素海报
   (function(){var sb=document.getElementById('shareBtn'),box=document.getElementById('shareBox');if(!sb||!box)return;
     var mode='site',ttl=document.getElementById('shareTitle');

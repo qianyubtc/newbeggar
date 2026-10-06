@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -50,11 +51,12 @@ type Config struct {
 	XTweetAPI    string
 	XAvatarAPI   string
 	AvatarDir    string
-	CoinsPerDay  int64 // 每人每站每天可丢的钢镚数
-	CoinsIPCap   int64 // 每 IP 每站每天上限（防脚本）
-	CoinsIPTotal int64 // 每 IP 每天全站总上限，0 = 不限
-	CoinExp      int64 // 一个钢镚 = 多少 EXP
-	MoneyExp     int64 // 1 个币 = 多少 EXP（默认 10，即 0.1 U = 1 EXP）
+	LanbuzhuURL  string // 蓝不住（https://lanbuzhu.org）：碗页「X 数据」去问它收录了没有；留空 = 不启用（开源默认，线上 config.env 里填）
+	CoinsPerDay  int64  // 每人每站每天可丢的钢镚数
+	CoinsIPCap   int64  // 每 IP 每站每天上限（防脚本）
+	CoinsIPTotal int64  // 每 IP 每天全站总上限，0 = 不限
+	CoinExp      int64  // 一个钢镚 = 多少 EXP
+	MoneyExp     int64  // 1 个币 = 多少 EXP（默认 10，即 0.1 U = 1 EXP）
 
 	// 城管夜巡（钢镚大逃杀）
 	RaidEnabled  bool
@@ -143,6 +145,7 @@ func loadConfig(path string) (*Config, error) {
 		XTweetAPI:       strings.TrimRight(get("X_TWEET_API", "https://cdn.syndication.twimg.com"), "/"),
 		XAvatarAPI:      strings.TrimRight(get("X_AVATAR_API", "https://unavatar.io"), "/"),
 		AvatarDir:       get("AVATAR_DIR", "./avatars"),
+		LanbuzhuURL:     strings.TrimRight(get("LANBUZHU_URL", ""), "/"),
 	}
 	if c.CoinsPerDay, err = getInt("COINS_PER_DAY", 1); err != nil {
 		return nil, err
@@ -186,6 +189,11 @@ func loadConfig(path string) (*Config, error) {
 	}
 	if !strings.HasPrefix(c.BaseURL, "http://") && !strings.HasPrefix(c.BaseURL, "https://") {
 		return nil, errors.New("BASE_URL 须以 http:// 或 https:// 开头")
+	}
+	if c.LanbuzhuURL != "" {
+		if u, err := url.Parse(c.LanbuzhuURL); err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" || u.RawQuery != "" || u.Fragment != "" {
+			return nil, errors.New("LANBUZHU_URL 须是 http:// 或 https:// 开头的网站地址（留空不启用）")
+		}
 	}
 	for _, p := range c.PresetAmounts {
 		if e8, _ := parseAmountE8(p, 8); e8 < c.MinAmountE8 || e8 > c.MaxAmountE8 {

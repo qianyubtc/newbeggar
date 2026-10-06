@@ -14,6 +14,7 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -758,4 +759,97 @@ func TestResetIdentity(t *testing.T) {
 	must(t, st.SyncSiteX(1, "999", "alice2", "Alice2", "") == nil, "sync")
 	s, _ := st.GetSiteByID(1)
 	must(t, s.XID == "9alice" && s.XHandle == "alice2" && s.Name == "Alice2", "sync 不覆盖已有 x_id，只更新用户名/站名: %+v", s)
+}
+
+// TestXSiteLookup 按 X 用户名找站（芊羽其他产品互通用）：/x/ 有站跳站、没有跳开站页；/api/x/ 只给已收录、还在营业的站（含主站），用户名不分大小写，带 X 数字 ID。
+func TestXSiteLookup(t *testing.T) {
+	e := newEnvWith(t, func(c *Config) { c.LanbuzhuURL = "https://lanbuzhu.example"; c.MainX = "https://x.com/MainGuy" })
+	st := e.app.st
+	mk := func(slug, handle string, listed bool) {
+		if _, err := st.CreateSite(&Site{Slug: slug, Name: handle + "的碗", XURL: "https://x.com/" + handle, XHandle: handle, XName: handle, XID: "9" + slug, PassHash: hashPassword("pass-123456"), Currency: "USDT", Listed: listed}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mk("bob", "Bob", true)
+	mk("carol", "carol", false)
+	mk("dave", "dave", true)
+	if _, err := st.db.Exec(`UPDATE sites SET status='disabled' WHERE slug='dave'`); err != nil {
+		t.Fatal(err)
+	}
+	c := e.client()
+	for path, want := range map[string]string{"/x/bob": "/bob", "/x/BOB": "/bob", "/x/carol": "/carol", "/x/MAINGUY": "/", "/x/dave": "/new", "/x/nobody": "/new", "/x/bad-name!": "/new"} {
+		code, _, h := c.get(path)
+		must(t, code == http.StatusFound && h.Get("Location") == want, "%s 应跳到 %s: %d %s", path, want, code, h.Get("Location"))
+	}
+	api := func(handle string) map[string]any {
+		code, body, h := c.get("/api/x/" + handle)
+		must(t, code == 200 && strings.HasPrefix(h.Get("Content-Type"), "application/json"), "/api/x/%s: %d %s", handle, code, h.Get("Content-Type"))
+		var m map[string]any
+		must(t, json.Unmarshal([]byte(body), &m) == nil, "JSON: %s", body)
+		return m
+	}
+	m := api("bob")
+	must(t, m["url"] == e.base+"/bob" && m["handle"] == "Bob" && m["name"] == "Bob的碗" && m["xid"] == "9bob", "已收录的站: %v", m)
+	must(t, api("@BOB")["url"] == e.base+"/bob", "带 @、大小写不同也能找到")
+	must(t, api("mainguy")["url"] == e.base+"/", "主站（站长本人的碗）也算")
+	for _, h := range []string{"carol", "dave", "nobody", "bad-name!"} {
+		must(t, api(h)["url"] == nil, "%s 不该给地址（没收录 / 停用 / 没开站 / 用户名不对）", h)
+	}
+	must(t, api("bad-name!")["handle"] == "", "认不出的用户名不原样回显")
+	// 同机直连（不带转发头）不限流；经反代来的（带 X-Forwarded-For）每 IP 每分钟 120 次
+	for i := 0; i < 125; i++ {
+		code, _, _ := c.get("/api/x/bob")
+		must(t, code == 200, "同机直连第 %d 次不该被限流: %d", i+1, code)
+	}
+	last := 0
+	for i := 0; i < 121; i++ {
+		req, _ := http.NewRequest("GET", e.base+"/api/x/bob", nil)
+		req.Header.Set("X-Forwarded-For", "203.0.113.9")
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		last = resp.StatusCode
+	}
+	must(t, last == http.StatusTooManyRequests, "经反代来的第 121 次应限流: %d", last)
+	// 站点页带「X 数据」入口：默认藏着（蓝不住收录了、X 数字 ID 也对得上才由脚本露出来）
+	_, body, _ := c.get("/bob")
+	must(t, strings.Contains(body, `id="lbzPill" href="https://lanbuzhu.example/"`) && strings.Contains(body, `data-lbz="https://lanbuzhu.example"`) && strings.Contains(body, `data-h="Bob"`) && strings.Contains(body, `data-xid="9bob" style="display:none"`), "站点页有藏着的 X 数据入口")
+	// 没配 LANBUZHU_URL（开源默认）：不出入口，也不去问
+	e2 := newEnv(t)
+	if _, err := e2.app.st.CreateSite(&Site{Slug: "bob", Name: "Bob的碗", XURL: "https://x.com/Bob", XHandle: "Bob", XName: "Bob", XID: "9bob", PassHash: hashPassword("pass-123456"), Currency: "USDT", Listed: true}); err != nil {
+		t.Fatal(err)
+	}
+	_, body, _ = e2.client().get("/bob")
+	must(t, strings.Contains(body, "shareBtn") && !strings.Contains(body, "lbzPill") && !strings.Contains(body, "/api/x/"), "没配蓝不住地址时不该有入口和查询脚本")
+}
+
+// TestXSiteLookupDBError 查库出错回 503（别说成「没有这个人」：对方会把「没有」缓存很久）
+func TestXSiteLookupDBError(t *testing.T) {
+	e := newEnvWith(t, func(c *Config) { c.RaidEnabled = false })
+	if _, err := e.app.st.db.Exec(`ALTER TABLE sites RENAME TO sites_gone`); err != nil {
+		t.Fatal(err)
+	}
+	code, _, _ := e.client().get("/api/x/bob")
+	must(t, code == http.StatusServiceUnavailable, "查库出错应回 503: %d", code)
+}
+
+// TestLanbuzhuURLConfig LANBUZHU_URL：去掉末尾斜杠；不是网站地址的启动就报错（免得入口一直默默藏着）
+func TestLanbuzhuURLConfig(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "c.env")
+	load := func(v string) (*Config, error) {
+		if err := os.WriteFile(p, []byte("ADMIN_PASSWORD=admin-pass-123456\nMAIN_PAY_ID=12345678\nLANBUZHU_URL="+v+"\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		return loadConfig(p)
+	}
+	c, err := load("https://lanbuzhu.org/")
+	must(t, err == nil && c.LanbuzhuURL == "https://lanbuzhu.org", "去掉末尾斜杠: %v %+v", err, c)
+	c, err = load("")
+	must(t, err == nil && c.LanbuzhuURL == "", "留空不启用: %v", err)
+	for _, bad := range []string{"lanbuzhu.org", "javascript:alert(1)", "https://", "ftp://lanbuzhu.org", "https://lanbuzhu.org/?a=1"} {
+		_, err := load(bad)
+		must(t, err != nil, "%q 应该报错", bad)
+	}
 }

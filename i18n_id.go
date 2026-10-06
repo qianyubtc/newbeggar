@@ -16,6 +16,7 @@ func init() {
 		"👉 扫码，一毛也是爱":                           "👉 Pindai, seceng pun berarti",
 		"分享这个碗":                                "Bagikan mangkuk ini",
 		"分享":                                   "Bagikan",
+		"X 数据":                                 "Data X",
 		"🖼 分享这个碗":                              "🖼 Bagikan mangkuk ini",
 		"链接":                                   "Tautan",
 		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Buat poster piksel untuk X; scan QR langsung bisa kasih tip.",

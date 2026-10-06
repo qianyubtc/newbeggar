@@ -16,6 +16,7 @@ func init() {
 		"👉 扫码，一毛也是爱":                           "👉 Okut, her kuruş kıymetli",
 		"分享这个碗":                                "Bu kaseyi paylaş",
 		"分享":                                   "Paylaş",
+		"X 数据":                                 "X verileri",
 		"🖼 分享这个碗":                              "🖼 Bu kaseyi paylaş",
 		"链接":                                   "Bağlantı",
 		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "X için piksel poster oluştur; QR ile sana bağış yapabilirler.",

@@ -70,6 +70,7 @@ type Base struct {
 	Desc            string // 页面描述（站点页用站名 + 口号）
 	OGImage         string // 分享缩略图（站点页用 X 头像）
 	Raid            bool   // 城管夜巡是否开着（导航入口）
+	LBZ             string // 蓝不住地址（LANBUZHU_URL，空 = 不出「X 数据」）
 }
 
 func newApp(cfg *Config) (*App, error) {
@@ -211,6 +212,8 @@ func (a *App) routes() {
 	m.HandleFunc("POST /d/{code}/claim", a.handleGatewayClaim)
 	m.HandleFunc("POST /bpg/notify", a.handleNotify)
 	m.HandleFunc("GET /rank", a.handleRank)
+	m.HandleFunc("GET /x/{handle}", a.handleXGo)
+	m.HandleFunc("GET /api/x/{handle}", a.handleXAPI)
 	if a.cfg.RaidEnabled {
 		m.HandleFunc("GET /raid", a.handleRaid)
 		m.HandleFunc("GET /raid/state", a.handleRaidState)
@@ -277,7 +280,7 @@ func (a *App) sameOrigin(r *http.Request) bool {
 
 func (a *App) base(r *http.Request) Base {
 	b := Base{SiteTitle: a.cfg.SiteTitle, BaseURL: a.cfg.BaseURL, RepoURL: a.cfg.RepoURL, SourceURL: a.cfg.SourceURL, AuthorGitHub: a.cfg.AuthorGitHub, AuthorX: a.cfg.AuthorX, SubsitesEnabled: a.cfg.SubsitesEnabled,
-		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r), Raid: a.cfg.RaidEnabled}
+		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r), Raid: a.cfg.RaidEnabled, LBZ: a.cfg.LanbuzhuURL}
 	if b.Me != nil {
 		b.MeID = b.Me.ID
 	}

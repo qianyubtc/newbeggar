@@ -16,6 +16,7 @@ func init() {
 		"👉 扫码，一毛也是爱":                           "👉 Scannez, chaque centime compte",
 		"分享这个碗":                                "Partager ce bol",
 		"分享":                                   "Partager",
+		"X 数据":                                 "Stats X",
 		"🖼 分享这个碗":                              "🖼 Partager ce bol",
 		"链接":                                   "Lien",
 		"生成一张像素海报，发到 X 或朋友圈；对方扫码就能给你投币。": "Créez une affiche pixel pour X ; le QR permet de vous donner.",
