@@ -3,8 +3,13 @@ package main
 // 印尼语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["id"] = map[string]string{
-		"换个形象":      "Ganti tampilan",
-		"🪙 钢镚丢进去了！": "🪙 Koin dilempar!",
+		"帮芊羽投票":        "Pilih Qianyu",
+		"冲区块链百强创作者":    "Bantu Qianyu masuk Top 100 kreator blockchain",
+		"谢谢各位大哥大姐！":    "Terima kasih atas dukungan semuanya!",
+		"前往芊羽币安广场主页投票": "Pilih di profil Binance Square Qianyu",
+		"快速投票":         "Pilih sekarang",
+		"换个形象":         "Ganti tampilan",
+		"🪙 钢镚丢进去了！":    "🪙 Koin dilempar!",
 		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "Aku baru lempar koin gratis buat orang malang ini Kamu juga dong, biar dia makan hari ini",
 		"👉 扫码，你也丢一个": "👉 Pindai dan lempar satu juga",
 		"我丢了个钢镚 🪙":   "Aku lempar koin 🪙",

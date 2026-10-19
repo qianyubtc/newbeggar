@@ -132,6 +132,17 @@
   </div>
 </div>
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="modal-box"><button class="modal-x" type="button" id="modalX" aria-label="{{T "关闭"}}">✕</button><div id="modalForm" hidden></div><div id="modalBody" hidden></div></div></div>
+<dialog class="vote-dialog" id="creatorVote" aria-labelledby="creatorVoteTitle" aria-describedby="creatorVoteText">
+  <button class="modal-x" type="button" data-vote-close aria-label="{{T "关闭"}}">✕</button>
+  <div class="vote-icon" aria-hidden="true">{{template "trophy"}}</div>
+  <p class="vote-goal">{{T "冲区块链百强创作者"}}</p>
+  <h2 id="creatorVoteTitle">{{T "帮芊羽投票"}}</h2>
+  <p id="creatorVoteText">{{T "谢谢各位大哥大姐！"}}</p>
+  <div class="vote-actions">
+    <a class="btn sec" href="https://app.binance.com/uni-qr/cpro/0xLemon?l=zh-CN&amp;r=PDKM349T&amp;uc=app_square_share_link&amp;us=copylink" target="_blank" rel="noopener noreferrer">{{T "前往芊羽币安广场主页投票"}} ↗</a>
+    <a class="btn" href="https://app.binance.com/uni-qr/cact26user/597" target="_blank" rel="noopener noreferrer">{{T "快速投票"}} ↗</a>
+  </div>
+</dialog>
 {{end}}
 {{define "avatar"}}{{$f := xav .XHandle}}{{if and $f (not .Blocked)}}<img class="av img" src="/a/{{$f}}" alt="">{{else}}<div class="av" style="--h:{{hue .NickKey}}">{{if .Blocked}}✕{{else}}{{initial .Nickname}}{{end}}</div>{{end}}{{end}}
 {{define "donorlist"}}{{if .Rows}}<ul class="list">
@@ -150,7 +161,7 @@
     <div class="amtv num{{if ne $.By "coins"}} accent{{end}}">{{if eq $.By "coins"}}{{template "coin"}} {{$s.Coins}}{{else}}{{fmtAmt $s.TotalE8}}{{end}}</div>
   </li>{{end}}
 </ul>{{else}}<div class="empty"><div class="ico">🏚</div>{{T "还没有人上榜"}}</div>{{end}}{{end}}
-{{define "scripts"}}{{$lv := level .Exp}}<script>
+{{define "scripts"}}{{$lv := level .Exp}}<script src="/static/creator-vote-20261019.js" defer></script><script>
 (function(){
   var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
   function show(t){tabs.forEach(function(x){var on=x.dataset.t===t;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false')});panels.forEach(function(p){p.classList.toggle('on',p.id==='p-'+t)})}

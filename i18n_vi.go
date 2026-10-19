@@ -3,8 +3,13 @@ package main
 // 越南语。key 是中文原文，占位符 %s/%d 顺序须与中文一致。
 func init() {
 	translations["vi"] = map[string]string{
-		"换个形象":      "Đổi tạo hình",
-		"🪙 钢镚丢进去了！": "🪙 Đã thả xu!",
+		"帮芊羽投票":        "Bình chọn cho Qianyu",
+		"冲区块链百强创作者":    "Giúp Qianyu vào Top 100 nhà sáng tạo blockchain",
+		"谢谢各位大哥大姐！":    "Cảm ơn mọi người đã ủng hộ!",
+		"前往芊羽币安广场主页投票": "Bình chọn tại trang Binance Square của Qianyu",
+		"快速投票":         "Bình chọn nhanh",
+		"换个形象":         "Đổi tạo hình",
+		"🪙 钢镚丢进去了！":    "🪙 Đã thả xu!",
 		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "Mình vừa thả cho người này một đồng xu miễn phí Bạn cũng thả một đồng đi",
 		"👉 扫码，你也丢一个": "👉 Quét mã và thả một đồng",
 		"我丢了个钢镚 🪙":   "Mình đã thả xu 🪙",

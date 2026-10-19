@@ -3,8 +3,13 @@ package main
 // 德语：key 是中文原文，占位符 %s/%d 顺序须与中文一致。查不到回落英文。
 func init() {
 	translations["de"] = map[string]string{
-		"换个形象":      "Aussehen wechseln",
-		"🪙 钢镚丢进去了！": "🪙 Münze eingeworfen!",
+		"帮芊羽投票":        "Für Qianyu abstimmen",
+		"冲区块链百强创作者":    "Hilf Qianyu in die Top 100 der Blockchain-Creator",
+		"谢谢各位大哥大姐！":    "Vielen Dank für eure Unterstützung!",
+		"前往芊羽币安广场主页投票": "Auf Qianyus Binance-Square-Profil abstimmen",
+		"快速投票":         "Direkt abstimmen",
+		"换个形象":         "Aussehen wechseln",
+		"🪙 钢镚丢进去了！":    "🪙 Münze eingeworfen!",
 		"我刚给这个可怜人丢了个钢镚，免费的，你也来一个呗，让他今天有饭吃": "Ich hab dem armen Kerl eine Gratis-Münze zugeworfen Wirf auch eine, dann isst er heute",
 		"👉 扫码，你也丢一个": "👉 Scannen und selbst eine werfen",
 		"我丢了个钢镚 🪙":   "Ich hab eine Münze geworfen 🪙",
