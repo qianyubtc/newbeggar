@@ -68,8 +68,32 @@ func (a *App) handleRoot(w http.ResponseWriter, r *http.Request) {
 			a.fail(w, r, err)
 			return
 		}
+		moved := site != nil && site.MovedTo != 0
+		if moved {
+			seen := map[int64]bool{}
+			for site != nil && site.MovedTo != 0 {
+				if seen[site.ID] {
+					site = nil // 错误的迁移环不能变成无限重定向
+					break
+				}
+				seen[site.ID] = true
+				site, err = a.st.GetSiteByID(site.MovedTo)
+				if err != nil {
+					a.fail(w, r, err)
+					return
+				}
+			}
+		}
 		if site == nil || site.Status != "active" {
 			a.errorPage(w, r, http.StatusNotFound, "这个乞丐不在", "要么还没开张，要么已被丐帮除名。")
+			return
+		}
+		if moved {
+			path := site.Path()
+			if r.URL.RawQuery != "" {
+				path += "?" + r.URL.RawQuery
+			}
+			http.Redirect(w, r, path, http.StatusMovedPermanently)
 			return
 		}
 		a.renderSite(w, r, http.StatusOK, site, "", savedNick(r), cookieVal(r, "bx"), "", "")

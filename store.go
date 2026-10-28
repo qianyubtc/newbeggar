@@ -41,6 +41,7 @@ type Site struct {
 	Currency     string
 	CreatedFrom  int64
 	Status       string // active | disabled
+	MovedTo      int64  // 账号迁移后保留旧地址，永久跳转到这个站点 ID
 	CreatedAt    int64
 	UpdatedAt    int64
 }
@@ -189,6 +190,7 @@ var schema = []string{
 		currency TEXT NOT NULL DEFAULT 'USDT',
 		created_from INTEGER NOT NULL DEFAULT 0,
 		status TEXT NOT NULL DEFAULT 'active',
+		moved_to INTEGER NOT NULL DEFAULT 0,
 		created_at INTEGER NOT NULL,
 		updated_at INTEGER NOT NULL
 	)`,
@@ -246,6 +248,7 @@ var schema = []string{
 
 // migrations 给旧库补列（重复执行报 duplicate column，忽略）。
 var migrations = []string{
+	`ALTER TABLE sites ADD COLUMN moved_to INTEGER NOT NULL DEFAULT 0`,
 	`ALTER TABLE sites ADD COLUMN x_handle TEXT NOT NULL DEFAULT ''`,
 	`ALTER TABLE sites ADD COLUMN x_name TEXT NOT NULL DEFAULT ''`,
 	`ALTER TABLE sites ADD COLUMN x_avatar TEXT NOT NULL DEFAULT ''`,
@@ -323,7 +326,7 @@ func (s *Store) SetMeta(key, value string) error {
 
 // ---------- sites ----------
 
-const siteCols = `id, slug, name, slogan, story, avatar, x_url, x_handle, x_name, x_avatar, x_id, skin, listed, coins, wishes, pass_hash, pay_mode, bpg_account_id, binance_uid, receive_link, pay_id, currency, created_from, status, created_at, updated_at`
+const siteCols = `id, slug, name, slogan, story, avatar, x_url, x_handle, x_name, x_avatar, x_id, skin, listed, coins, wishes, pass_hash, pay_mode, bpg_account_id, binance_uid, receive_link, pay_id, currency, created_from, status, created_at, updated_at, moved_to`
 
 type scanner interface{ Scan(dest ...any) error }
 
@@ -331,7 +334,7 @@ func scanSite(sc scanner) (*Site, error) {
 	var s Site
 	var listed int
 	err := sc.Scan(&s.ID, &s.Slug, &s.Name, &s.Slogan, &s.Story, &s.Avatar, &s.XURL, &s.XHandle, &s.XName, &s.XAvatar, &s.XID, &s.Skin, &listed, &s.Coins, &s.Wishes,
-		&s.PassHash, &s.PayMode, &s.BPGAccountID, &s.BinanceUID, &s.ReceiveLink, &s.PayID, &s.Currency, &s.CreatedFrom, &s.Status, &s.CreatedAt, &s.UpdatedAt)
+		&s.PassHash, &s.PayMode, &s.BPGAccountID, &s.BinanceUID, &s.ReceiveLink, &s.PayID, &s.Currency, &s.CreatedFrom, &s.Status, &s.CreatedAt, &s.UpdatedAt, &s.MovedTo)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
