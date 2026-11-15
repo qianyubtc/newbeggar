@@ -1,0 +1,4 @@
+# Generated bundles contain upstream GLSL string literals; preserve their whitespace.
+static/world-*.js linguist-generated=true -whitespace
+static/world-*.css linguist-generated=true
+templates/world_assets.html linguist-generated=true

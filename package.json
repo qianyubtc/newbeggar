@@ -1,0 +1,8 @@
+{
+  "name": "newbeggar-world",
+  "private": true,
+  "type": "module",
+  "scripts": { "build:world": "node tools/build-world.mjs", "test:world": "node --test web/world/*.test.js" },
+  "dependencies": { "three": "0.187.0" },
+  "devDependencies": { "esbuild": "0.28.2" }
+}

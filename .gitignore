@@ -12,5 +12,11 @@ config.env
 .toolchain/
 .claude/
 .DS_Store
+node_modules/
 # 背景音乐（可选，自备 AAC 循环片段；仓库不附带）
 /static/bgm.m4a
+
+# Private working notes
+CLAUDE.md
+.codex/
+.agents/

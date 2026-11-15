@@ -236,6 +236,8 @@ var schema = []string{
 	`CREATE TABLE IF NOT EXISTS coins (site_id INTEGER NOT NULL, visitor TEXT NOT NULL, day TEXT NOT NULL, ip TEXT NOT NULL DEFAULT '', n INTEGER NOT NULL DEFAULT 1, created_at INTEGER NOT NULL, PRIMARY KEY(site_id, visitor, day))`,
 	`CREATE INDEX IF NOT EXISTS idx_coins_day ON coins(site_id, day)`,
 	`CREATE TABLE IF NOT EXISTS blocked_nicks (site_id INTEGER NOT NULL, nick_key TEXT NOT NULL, PRIMARY KEY(site_id, nick_key))`,
+	`CREATE TABLE IF NOT EXISTS world_shops (site_id INTEGER PRIMARY KEY, col INTEGER NOT NULL, row INTEGER NOT NULL,
+		updated_at INTEGER NOT NULL, UNIQUE(col,row))`,
 	// 城管夜巡：局 + 押注（site_id<0 为 NPC）
 	`CREATE TABLE IF NOT EXISTS raid_rounds (id INTEGER PRIMARY KEY AUTOINCREMENT, opens_at INTEGER NOT NULL, locks_at INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'open',
 		seed TEXT NOT NULL, seed_hash TEXT NOT NULL, carry_in INTEGER NOT NULL DEFAULT 0, carry_out INTEGER NOT NULL DEFAULT 0, killed INTEGER NOT NULL DEFAULT -1,

@@ -552,6 +552,11 @@ func (a *App) raidTick(now int64) {
 			return
 		}
 		if r != nil {
+			if a.world != nil {
+				if result, err := a.raidRoundJSON(r, 0); err == nil {
+					a.world.raidSettled(result)
+				}
+			}
 			if out.Void {
 				a.logf("[info] 夜巡第 %d 局流局（%d 人，只有一处有人）", r.ID, r.Players)
 			} else {
@@ -770,6 +775,13 @@ func (a *App) handleRaidBet(w http.ResponseWriter, r *http.Request) {
 		reply(http.StatusConflict, map[string]any{"ok": false, "msg": a.T(r, "城管出动中，等下一局")})
 		return
 	}
+	if value := r.FormValue("round"); value != "" {
+		roundID, err := strconv.ParseInt(value, 10, 64)
+		if err != nil || roundID != rd.ID {
+			reply(http.StatusConflict, map[string]any{"ok": false, "msg": "这一局已结束，请重新选择"})
+			return
+		}
+	}
 	coins, err := a.st.RaidPlaceBet(rd.ID, site.ID, room, amount, ms())
 	switch {
 	case errors.Is(err, ErrRaidClosed):
@@ -782,6 +794,9 @@ func (a *App) handleRaidBet(w http.ResponseWriter, r *http.Request) {
 		a.logf("[error] 夜巡押注: %v", err)
 		reply(http.StatusInternalServerError, map[string]any{"ok": false, "msg": a.T(r, "服务器开小差了")})
 		return
+	}
+	if a.world != nil {
+		a.world.raidBetPlaced(site.ID, room, amount)
 	}
 	reply(http.StatusOK, map[string]any{"ok": true, "coins": coins, "room": room, "amt": amount, "round": rd.ID})
 }

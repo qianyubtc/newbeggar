@@ -3,6 +3,7 @@ module github.com/qianyubtc/newbeggar
 go 1.27.1
 
 require (
+	github.com/coder/websocket v1.8.15
 	github.com/qianyubtc/BinancePayTool/sdk/go v0.0.0-20260904013948-0e0f73e2c78c
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	modernc.org/sqlite v1.57.0

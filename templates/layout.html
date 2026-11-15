@@ -259,6 +259,12 @@ textarea{resize:vertical;min-height:70px}
 .paypanel .big{font-size:32px}
 footer{color:var(--muted);font-size:13px;text-align:center;margin-top:32px;line-height:1.9}
 footer a{color:var(--muted)}
+.world-invite{display:flex;align-items:center;gap:20px;padding:20px 24px;margin:0 0 22px;background:var(--ink);color:var(--panel);box-shadow:5px 5px 0 var(--gold);position:relative;overflow:hidden}.world-invite-copy{flex:1;min-width:0}.world-invite-tag{font:11px var(--pf);color:var(--gold);letter-spacing:1px}.world-invite h2{font:23px/1.5 var(--pf);margin:7px 0}.world-invite p{font-size:12px;color:#e9e1ca;margin:0}.world-invite .btn{flex:none;gap:20px;white-space:nowrap;font-size:16px;padding:13px 20px;min-height:52px}.world-invite-art{width:80px;height:86px;flex:none;position:relative;background:repeating-linear-gradient(0deg,#ffcc001a 0 1px,transparent 1px 13px),repeating-linear-gradient(90deg,#ffcc001a 0 1px,transparent 1px 13px);border-bottom:3px solid var(--gold)}.world-invite-art span{position:absolute;top:0;left:8px;font:18px var(--pf);color:var(--gold)}.world-invite-art i{position:absolute;width:36px;height:32px;left:22px;top:30px;background:var(--gold);border:3px solid var(--panel);box-shadow:7px -7px 0 #e0a800;transform:skewY(-12deg)}.world-invite-art b{position:absolute;bottom:0;right:0;font-size:23px}
+.world-shop-entry{display:flex;align-items:center;gap:10px;padding:12px;margin-top:17px;border:3px solid var(--ink);background:var(--gold);box-shadow:3px 3px 0 var(--ink);color:var(--ink);text-decoration:none;font-family:var(--pf);min-height:68px}.world-shop-entry>span:nth-child(2){flex:1;min-width:0}.world-shop-entry strong{font-weight:400;font-size:15px;display:block;line-height:1.5}.world-shop-entry small{display:block;font:10px/1.6 var(--pf);margin-top:4px}.world-shop-entry b{font-size:21px}.world-shop-icon{font-size:30px;line-height:1}.world-shop-entry:hover{background:#ffe46b}.world-shop-entry:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+@media(max-width:699px){.world-invite{gap:12px;padding:17px;flex-wrap:wrap;margin-bottom:20px}.world-invite-art{width:58px;height:72px}.world-invite-art i{width:28px;height:27px;left:12px;top:30px}.world-invite h2{font-size:18px;line-height:1.5}.world-invite p{font-size:11px;line-height:1.8}.world-invite-tag{font-size:9px;letter-spacing:0}.world-invite .btn{width:100%;justify-content:space-between;min-height:48px;font-size:15px;padding:10px 17px}.world-shop-entry{min-height:65px}}
+.world-invite .btn{width:auto}
+@media(max-width:699px){.world-invite .btn{width:100%}}
+@media(max-width:430px){.world-nav span{display:none}}
 </style>
 </head>
 <body>
@@ -267,6 +273,7 @@ footer a{color:var(--muted)}
 <nav class="nav">
   <a class="brand" href="{{.HomePath}}"{{if ne .HomePath "/"}} title="{{T "回到刚才看的碗"}}"{{end}}>{{template "coin"}}<span>{{T .SiteTitle}}</span></a>
   <span class="sp"></span>
+  {{if .World}}<a class="link world-nav" href="/world" aria-label="3D 街头">3D<span> 街头</span></a>{{end}}
   <label class="langsel" title="Language / 语言"><span class="langcur" aria-hidden="true">{{.LangShort}}<i>▾</i></span><select onchange="location.href='/lang?to='+encodeURIComponent(this.value)" aria-label="Language">{{range .Langs}}<option value="{{.Code}}"{{if eq .Code $.Lang}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
   <button class="sfx" id="sfxBtn" type="button" aria-label="{{T "声音开关"}}" title="{{T "声音"}}">{{template "spk"}}</button>
   <a class="link navrank" href="/rank" aria-label="{{T "排行榜"}}" title="{{T "排行榜"}}">{{template "trophy"}}<span>{{T "排行榜"}}</span></a>

@@ -1,6 +1,9 @@
 {{define "title"}}{{.Site.Name}} {{T "在要饭 ·"}} {{T .SiteTitle}}{{end}}
 {{define "content"}}
 {{$lv := level .Exp}}
+{{if .World}}{{if .Site.IsMain}}
+<section class="world-invite px" aria-label="进入 3D 街区"><div class="world-invite-art" aria-hidden="true"><span>3D</span><i></i><b>🥣</b></div><div class="world-invite-copy"><span class="world-invite-tag">{{T "街头见 · 多人在线"}}</span><h2>{{T "把碗端进 3D，和街坊碰个面。"}}</h2><p>{{T "逛中央广场，挑一间自己的店铺，去天桥一起躲警车。"}}</p></div><a class="btn" id="world-enter" href="/world">{{T "进入 3D 街区"}} <span>↗</span></a></section>
+{{end}}{{end}}
 <div class="layout">
 <aside class="col-l">
   {{if not .Site.Listed}}<div class="notice">{{T "🕵️ 这个站还没被丐帮收录，暂不进榜。"}}{{if and .Me (eq .Me.ID .Site.ID)}}{{T "主站站长审核后会收录。"}}{{end}}</div>{{end}}
@@ -24,6 +27,7 @@
         </div>
       </div>
     </div>
+    {{if and .World (or .Site.Listed .Site.IsMain)}}<a class="world-shop-entry" id="world-shop-entry" href="/world?site={{.Site.Slug}}"><span class="world-shop-icon" aria-hidden="true">⌂</span><span><strong>{{if and .Me (eq .Me.ID .Site.ID)}}{{T "进入我的 3D 店铺"}}{{else}}{{T "去 TA 的 3D 店铺"}}{{end}}</strong><small>{{T "在街区里见面 · 直接到店门口"}}</small></span><b aria-hidden="true">↗</b></a>{{end}}
     {{if .Site.Slogan}}<div class="dialog"><span class="typer" data-text="{{.Site.Slogan}}">{{.Site.Slogan}}</span><span class="cursor">▼</span></div>{{end}}
     <div class="coinrow">
       <button type="button" class="btn sec sm coinbtn" id="coinbtn" data-site="{{.Site.Slug}}" data-bv="{{.Visitor}}" {{if ge .MyCoins .CoinsPerDay}}disabled{{end}}>{{template "coin"}}<span id="coinTxt">{{if ge .MyCoins .CoinsPerDay}}{{T "今天丢过了"}}{{else}}{{T "丢个钢镚（免费）"}}{{end}}</span></button>

@@ -46,6 +46,7 @@ type App struct {
 	closeMu sync.Once
 	raidMu  sync.Mutex
 	raid    raidState // 城管夜巡：NPC 进度等（raidTick 内用，raidMu 保护）
+	world   *worldHub
 }
 
 // Base 每个页面都带的公共字段。
@@ -71,6 +72,7 @@ type Base struct {
 	OGImage         string // 分享缩略图（站点页用 X 头像）
 	Raid            bool   // 城管夜巡是否开着（导航入口）
 	LBZ             string // 蓝不住地址（LANBUZHU_URL，空 = 不出「X 数据」）
+	World           bool
 }
 
 func newApp(cfg *Config) (*App, error) {
@@ -107,6 +109,15 @@ func newApp(cfg *Config) (*App, error) {
 		return nil, err
 	}
 	a.routes()
+	if cfg.WorldEnabled {
+		a.world = newWorldHub()
+		if err := a.refreshWorldSites(); err != nil {
+			st.Close()
+			return nil, err
+		}
+		a.wg.Add(1)
+		go a.worldLoop()
+	}
 	if cfg.RaidEnabled {
 		a.raidTick(ms()) // 启动就保证有一局开着
 		a.wg.Add(1)
@@ -119,6 +130,9 @@ func newApp(cfg *Config) (*App, error) {
 func (a *App) Close() {
 	a.closeMu.Do(func() {
 		close(a.stop)
+		if a.world != nil {
+			a.world.shutdown()
+		}
 		a.wg.Wait()
 		a.st.Close()
 	})
@@ -164,8 +178,12 @@ func (a *App) loadTemplates() error {
 			fm[k] = v
 		}
 		set := map[string]*template.Template{}
-		for _, p := range []string{"site", "pay", "status", "new", "login", "manage", "rank", "error", "raid", "raidround"} {
-			t, err := template.New(p).Funcs(fm).ParseFS(tplFS, "templates/layout.html", "templates/sprite.html", "templates/paypanel.html", "templates/"+p+".html")
+		for _, p := range []string{"site", "pay", "status", "new", "login", "manage", "rank", "error", "raid", "raidround", "world"} {
+			files := []string{"templates/layout.html", "templates/sprite.html", "templates/paypanel.html", "templates/" + p + ".html"}
+			if p == "world" {
+				files = append(files, "templates/world_assets.html")
+			}
+			t, err := template.New(p).Funcs(fm).ParseFS(tplFS, files...)
 			if err != nil {
 				return err
 			}
@@ -195,13 +213,7 @@ func (a *App) routes() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"ok":true}`))
 	})
-	m.HandleFunc("GET /static/{file}", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		if strings.HasSuffix(r.PathValue("file"), ".m4a") {
-			w.Header().Set("Content-Type", "audio/mp4") // Go 自带的 audio/mp4a-latm 部分浏览器不认
-		}
-		http.ServeFileFS(w, r, staticFS, "static/"+r.PathValue("file"))
-	})
+	m.HandleFunc("GET /static/{file}", a.handleStatic)
 	m.HandleFunc("GET /a/{file}", a.serveAvatar)
 	m.HandleFunc("POST /donate", a.handleDonate)
 	m.HandleFunc("POST /coin", a.handleCoin)
@@ -214,6 +226,12 @@ func (a *App) routes() {
 	m.HandleFunc("GET /rank", a.handleRank)
 	m.HandleFunc("GET /x/{handle}", a.handleXGo)
 	m.HandleFunc("GET /api/x/{handle}", a.handleXAPI)
+	if a.cfg.WorldEnabled {
+		m.HandleFunc("GET /world", a.handleWorld)
+		m.HandleFunc("GET /api/world/sites", a.handleWorldSites)
+		m.HandleFunc("POST /api/world/shop", a.handleWorldShop)
+		m.HandleFunc("GET /world/live", a.handleWorldLive)
+	}
 	if a.cfg.RaidEnabled {
 		m.HandleFunc("GET /raid", a.handleRaid)
 		m.HandleFunc("GET /raid/state", a.handleRaidState)
@@ -280,7 +298,7 @@ func (a *App) sameOrigin(r *http.Request) bool {
 
 func (a *App) base(r *http.Request) Base {
 	b := Base{SiteTitle: a.cfg.SiteTitle, BaseURL: a.cfg.BaseURL, RepoURL: a.cfg.RepoURL, SourceURL: a.cfg.SourceURL, AuthorGitHub: a.cfg.AuthorGitHub, AuthorX: a.cfg.AuthorX, SubsitesEnabled: a.cfg.SubsitesEnabled,
-		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r), Raid: a.cfg.RaidEnabled, LBZ: a.cfg.LanbuzhuURL}
+		IsMobile: isMobile(r), InApp: inAppBrowser(r.UserAgent()), HasBGM: hasBGM, Me: a.currentSite(r), Raid: a.cfg.RaidEnabled, LBZ: a.cfg.LanbuzhuURL, World: a.cfg.WorldEnabled}
 	if b.Me != nil {
 		b.MeID = b.Me.ID
 	}

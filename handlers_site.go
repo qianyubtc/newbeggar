@@ -346,6 +346,9 @@ func (a *App) handleCoin(w http.ResponseWriter, r *http.Request) {
 	}
 	total, todayN, _ := a.st.CoinStats(site.ID)
 	mine, _ := a.st.VisitorCoinsToday(site.ID, visitor)
+	if added && a.world != nil {
+		a.world.coin(site.ID, total, a.cfg.CoinExp)
+	}
 	reply(200, map[string]any{"ok": true, "added": added, "msg": a.T(r, msg), "total": total, "today": todayN, "mine": mine, "per_day": a.cfg.CoinsPerDay})
 }
 

@@ -46,6 +46,7 @@ type Config struct {
 	SubsiteReview   bool // 新子站默认未收录（不进榜、noindex），主站后台收录
 	TrustProxy      bool
 	TrustHeader     string // 反代传真实 IP 的头：X-Forwarded-For（取最后一跳）或 CF-Connecting-IP
+	WorldEnabled    bool   // 3D 多人街区，默认关闭
 
 	// X（推特）：发推验证 / 头像抓取的接口基址，测试时可指向 mock
 	XTweetAPI    string
@@ -142,6 +143,7 @@ func loadConfig(path string) (*Config, error) {
 		SubsiteReview:   getBool("SUBSITE_REVIEW", false),
 		TrustProxy:      getBool("TRUST_PROXY", false),
 		TrustHeader:     get("TRUST_PROXY_HEADER", "X-Forwarded-For"),
+		WorldEnabled:    getBool("WORLD_ENABLED", false),
 		XTweetAPI:       strings.TrimRight(get("X_TWEET_API", "https://cdn.syndication.twimg.com"), "/"),
 		XAvatarAPI:      strings.TrimRight(get("X_AVATAR_API", "https://unavatar.io"), "/"),
 		AvatarDir:       get("AVATAR_DIR", "./avatars"),
