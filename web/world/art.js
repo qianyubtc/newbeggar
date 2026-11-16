@@ -32,7 +32,7 @@ const bowlGeo = new THREE.CylinderGeometry(.43, .25, .25, 8);
 const rimGeo = new THREE.TorusGeometry(.4, .045, 4, 8);
 const coinGeo = new THREE.CylinderGeometry(.12, .12, .045, 8);
 
-export function makePerson(skin = 0) {
+function createPerson(skin = 0) {
   const index = Math.abs(skin) % 8, [robe, hair, skinColor] = skins[index];
   const group = new THREE.Group(), upper = new THREE.Group(); group.add(upper);
   const shadow = new THREE.Mesh(shadowGeo, shadowMat);
@@ -82,6 +82,25 @@ export function makePerson(skin = 0) {
   }
   batchStatic(upper);for(const joint of [...legs,...arms])batchStatic(joint);
   group.userData = { upper, legs, arms, bowl }; return group;
+}
+
+// Eight immutable geometry prototypes are shared by every online/stall actor.
+// Clone only transforms so streaming never recompiles identical voxel bodies.
+const personTemplates=new Map();
+export function makePerson(skin=0){
+  const index=Math.abs(skin)%8;
+  let template=personTemplates.get(index);
+  if(!template){
+    template=createPerson(index);
+    const {upper,legs,arms,bowl}=template.userData;
+    upper.name='person-upper';bowl.name='person-bowl';
+    legs.forEach((joint,i)=>joint.name='person-leg-'+i);arms.forEach((joint,i)=>joint.name='person-arm-'+i);
+    template.traverse(mesh=>{if(mesh.userData.ownedGeometry)delete mesh.userData.ownedGeometry});
+    template.userData={};personTemplates.set(index,template);
+  }
+  const model=template.clone(true);
+  model.userData={upper:model.getObjectByName('person-upper'),legs:[0,1].map(i=>model.getObjectByName('person-leg-'+i)),arms:[0,1].map(i=>model.getObjectByName('person-arm-'+i)),bowl:model.getObjectByName('person-bowl')};
+  return model;
 }
 
 export function animatePerson(group, action, time, phase = 0) {

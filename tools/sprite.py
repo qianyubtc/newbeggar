@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""像素画生成器：把字符网格变成内联 SVG（每行同色连续像素合并成一个 rect）。
+"""像素画生成器：把字符网格变成内联 SVG（同色像素合并为一个 path）。
 
 用法: python3 tools/sprite.py > templates/sprite.html
 产出 {{define "sprite"}}（端碗小人，分层：body / eyes / tear / bowl，便于 CSS 动画）
@@ -309,8 +309,8 @@ def scene_svg(i, grid, f1, f2, tw):
 
 
 def rects(grid, skip=".", only=None, override=None):
-    """把网格转成 rect 列表。only: 只画这些字符；override: {char: color}。"""
-    out = []
+    """按颜色合并不重叠像素，保留各动画层。"""
+    out = {}
     for y, row in enumerate(grid):
         x = 0
         while x < len(row):
@@ -322,18 +322,19 @@ def rects(grid, skip=".", only=None, override=None):
             while x2 + 1 < len(row) and row[x2 + 1] == c:
                 x2 += 1
             color = (override or {}).get(c, PAL.get(c))
-            out.append(f'<rect x="{x}" y="{y}" width="{x2 - x + 1}" height="1" fill="{color}"/>')
+            width = x2 - x + 1
+            out.setdefault(color, []).append(f'M{x} {y}h{width}v1h-{width}z')
             x = x2 + 1
-    return "".join(out)
+    return "".join(f'<path fill="{color}" d="{"".join(parts)}"/>' for color, parts in out.items())
 
 
 def layer(cells, pal=None):
     pal = pal or PAL
-    out = []
+    out = {}
     for y, row in cells.items():
         for x, c in row.items():
-            out.append(f'<rect x="{x}" y="{y}" width="1" height="1" fill="{pal[c]}"/>')
-    return "".join(out)
+            out.setdefault(pal[c], []).append(f'M{x} {y}h1v1h-1z')
+    return "".join(f'<path fill="{color}" d="{"".join(parts)}"/>' for color, parts in out.items())
 
 
 # 形象皮肤：换头发/衣服/皮肤三色，再配点小差异（帽子、胡子、补丁）

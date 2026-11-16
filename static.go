@@ -23,7 +23,7 @@ var packedWorldAssets = sync.OnceValue(func() map[string]packedAsset {
 	files, _ := staticFS.ReadDir("static")
 	for _, file := range files {
 		name := file.Name()
-		if !strings.HasPrefix(name, "world-") || !(strings.HasSuffix(name, ".js") || strings.HasSuffix(name, ".css")) {
+		if !(strings.HasPrefix(name, "world-") || strings.HasPrefix(name, "site-")) || !(strings.HasSuffix(name, ".js") || strings.HasSuffix(name, ".css")) {
 			continue
 		}
 		raw, err := staticFS.ReadFile("static/" + name)

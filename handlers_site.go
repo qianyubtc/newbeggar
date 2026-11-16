@@ -169,9 +169,7 @@ func (a *App) renderSite(w http.ResponseWriter, r *http.Request, status int, sit
 		p.Skins = append(p.Skins, i)
 	}
 	p.ShareURL = a.cfg.BaseURL + site.Path()
-	if png, err := qrcode.Encode(p.ShareURL, qrcode.Medium, 300); err == nil {
-		p.QR = base64.StdEncoding.EncodeToString(png)
-	}
+	p.QR = a.shareQRCode(p.ShareURL)
 	p.Exp = expOf(p.Stats.TotalE8, p.Coins, a.cfg.MoneyExp, a.cfg.CoinExp)
 	p.CoinExp, p.MoneyExp = a.cfg.CoinExp, a.cfg.MoneyExp
 	positions, err := a.st.SitePositions(a.cfg.MoneyExp, a.cfg.CoinExp)

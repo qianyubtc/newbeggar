@@ -27,3 +27,12 @@ test('batched people retain independently moving joints and shared palette resou
   disposeOwned(person);assert.equal(sharedDisposed,0);
  }
 });
+
+test('same skin shares geometry while joints remain independent after another actor leaves',()=>{
+ const a=makePerson(3),b=makePerson(3),geometries=model=>{const out=[];model.traverse(mesh=>{if(mesh.isMesh)out.push(mesh.geometry)});return out};
+ assert.deepEqual(geometries(a),geometries(b));
+ assert.notEqual(a.userData.upper,b.userData.upper);assert.notEqual(a.userData.legs[0],b.userData.legs[0]);
+ animatePerson(a,'beg',1);assert.notEqual(a.userData.upper.position.y,b.userData.upper.position.y);
+ let disposed=0;for(const geometry of geometries(b))geometry.addEventListener('dispose',()=>disposed++);
+ disposeOwned(a);assert.equal(disposed,0);animatePerson(b,'walk',1);assert.notEqual(b.userData.legs[0].rotation.x,0);
+});

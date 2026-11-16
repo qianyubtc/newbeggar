@@ -2,3 +2,5 @@
 static/world-*.js linguist-generated=true -whitespace
 static/world-*.css linguist-generated=true
 templates/world_assets.html linguist-generated=true
+static/site-*.css linguist-generated=true
+templates/site_assets.html linguist-generated=true

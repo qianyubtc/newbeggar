@@ -1,4 +1,5 @@
 import { build } from 'esbuild';
+import './build-site.mjs';
 import { createHash } from 'node:crypto';
 import { readFile, readdir, writeFile, unlink } from 'node:fs/promises';
 const result = await build({entryPoints:['web/world/main.js'],bundle:true,write:false,outfile:'world.js',format:'iife',minify:true,target:'es2020',legalComments:'inline',external:['/static/*']});

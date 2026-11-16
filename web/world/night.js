@@ -157,8 +157,9 @@ export function setupNight({scene,root,landmarks,getSelf,getPlayers,onStop,onNot
       if(pendingOutcome&&now>=cinematicUntil){text('night-outcome-title',pendingOutcome.title);text('night-outcome-text',pendingOutcome.text);outcomeUntil=now+15000;pendingOutcome=null}
       $('night-outcome').hidden=now>=outcomeUntil;
       if(guidePending&&!cinema&&!tour&&!root.classList.contains('panel-open')&&!$('world-orientation').open)showGuide();
-      if(now-lastRender>180){render();lastRender=now;if(data)populate()}
+      if(visible&&now-lastRender>180){render();lastRender=now;if(data)populate()}
       for(const actor of occupants.values()){
+        actor.model.visible=visible;if(!visible){actor.label.hidden=true;continue}
         const caught=now<cinematicUntil&&actor.round.killed===actor.player.room&&actor.round.status==='settled';animatePerson(actor.model,caught?'caught':'beg',now/1000,actor.player.id);
         const p=actor.model.position,v=new THREE.Vector3(p.x,2.8,p.z);v.project(camera);
         const show=visible&&(cinema||tour||Math.hypot(p.x-self.x,p.z-self.z)<25)&&v.z>-1&&v.z<1&&Math.abs(v.x)<1&&Math.abs(v.y)<1;actor.label.hidden=!show;

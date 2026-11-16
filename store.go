@@ -164,7 +164,10 @@ type AdminMessage struct {
 	SiteSlug string
 }
 
-type Store struct{ db *sql.DB }
+type Store struct {
+	db          *sql.DB
+	publicCache publicRankCache
+}
 
 var schema = []string{
 	`CREATE TABLE IF NOT EXISTS sites (
@@ -270,6 +273,9 @@ var migrations = []string{
 
 // postSchema 依赖新列的索引，必须在迁移之后建。
 var postSchema = []string{
+	`CREATE INDEX IF NOT EXISTS idx_don_site_nick_latest ON donations(site_id,nick_key,id DESC) WHERE status='paid'`,
+	`CREATE INDEX IF NOT EXISTS idx_don_nick_latest ON donations(nick_key,id DESC) WHERE status='paid'`,
+	`CREATE INDEX IF NOT EXISTS idx_coins_ip_day ON coins(day,ip,site_id)`,
 	`CREATE UNIQUE INDEX IF NOT EXISTS idx_sites_xhandle ON sites(lower(x_handle)) WHERE x_handle<>''`,
 }
 
@@ -503,7 +509,7 @@ func (s *Store) SetSiteStatus(id int64, status string) error {
 }
 
 // SubsiteRank 子站榜。by: amount（总额）| week（本周金额）| coins（钢镚）。管理员视图含未收录/已除名。
-func (s *Store) SubsiteRank(limit int, admin bool, by string) ([]SiteRow, error) {
+func (s *Store) querySubsiteRank(limit int, admin bool, by string) ([]SiteRow, error) {
 	cond := `d.site_id=s.id AND d.status='paid'`
 	if by == "week" {
 		cond += ` AND d.paid_at>=` + strconv.FormatInt(weekStart(), 10)
@@ -540,7 +546,7 @@ func (s *Store) SubsiteRank(limit int, admin bool, by string) ([]SiteRow, error)
 }
 
 // SitePositions 所有已收录子站按综合 EXP（钱×moneyExp + 钢镚×coinExp）的名次，用来授职位（帮主/副帮主/长老…）。
-func (s *Store) SitePositions(moneyExp, coinExp int64) (map[int64]int, error) {
+func (s *Store) querySitePositions(moneyExp, coinExp int64) (map[int64]int, error) {
 	rows, err := s.db.Query(`SELECT s.id FROM sites s LEFT JOIN donations d ON d.site_id=s.id AND d.status='paid'
 		WHERE s.slug<>'' AND s.status='active' AND s.listed=1
 		GROUP BY s.id HAVING COALESCE(SUM(d.actual_e8),0)*?/100000000+s.coins*?>0

@@ -82,6 +82,7 @@ type worldHub struct {
 	slots      chan struct{}
 	lastState  []byte
 	stateAt    time.Time
+	catalog    *worldCatalog
 }
 
 func newWorldHub() *worldHub {
@@ -172,6 +173,7 @@ func (a *App) refreshWorldSitesLocked() error {
 	h := a.world
 	h.mu.Lock()
 	defer h.mu.Unlock()
+	h.catalog = nil
 	h.sites = sites
 	h.siteMap = map[int64]worldSite{}
 	h.shopCells = occupied
@@ -194,11 +196,6 @@ func (a *App) handleWorld(w http.ResponseWriter, r *http.Request) {
 		Base
 		Visitor string
 	}{base, visitor})
-}
-func (a *App) handleWorldSites(w http.ResponseWriter, r *http.Request) {
-	sites, _ := a.world.publicSites()
-	w.Header().Set("Cache-Control", "no-store")
-	replyJSON(w, 200, map[string]any{"sites": sites, "coinExp": a.cfg.CoinExp, "raid": map[string]any{"enabled": a.cfg.RaidEnabled, "maxBet": a.cfg.RaidMaxBet}, "bounds": map[string]any{"streamed": true, "limit": worldCoordinateLimit}})
 }
 func (h *worldHub) register(c *worldClient) bool {
 	h.mu.Lock()
@@ -370,6 +367,7 @@ func (h *worldHub) coin(siteID, coins, coinExp int64) {
 			}
 		}
 	}
+	h.catalog = nil
 	h.broadcastLocked(map[string]any{"type": "coin", "siteId": siteID, "coins": coins})
 }
 func (h *worldHub) tick(now time.Time, dt float64, broadcast bool) {

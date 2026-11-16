@@ -47,6 +47,8 @@ type App struct {
 	raidMu  sync.Mutex
 	raid    raidState // 城管夜巡：NPC 进度等（raidTick 内用，raidMu 保护）
 	world   *worldHub
+	qrMu    sync.Mutex
+	qrCache map[string]string
 }
 
 // Base 每个页面都带的公共字段。
@@ -179,7 +181,7 @@ func (a *App) loadTemplates() error {
 		}
 		set := map[string]*template.Template{}
 		for _, p := range []string{"site", "pay", "status", "new", "login", "manage", "rank", "error", "raid", "raidround", "world"} {
-			files := []string{"templates/layout.html", "templates/sprite.html", "templates/paypanel.html", "templates/" + p + ".html"}
+			files := []string{"templates/layout.html", "templates/site_assets.html", "templates/sprite.html", "templates/paypanel.html", "templates/" + p + ".html"}
 			if p == "world" {
 				files = append(files, "templates/world_assets.html")
 			}

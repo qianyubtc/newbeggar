@@ -20,20 +20,22 @@ const loading=$('world-loading'), labelLayer=$('world-labels');
 let renderer,scene,camera,view,socket,myID=null,self=null,sites=[],bounds,siteMap=new Map();
 let retry=0,reconnectTimer,leaving=false,selected=null,toastTimer,lastSent='',lastInput=0,siteRefresh;
 const people=new Map(),stalls=new Map(),pickables=[],particles=[],keys=new Set(),coinUsed=new Set();
-let coinExp=1;
+let coinExp=1,catalogTag=null,stageWidth=1,stageHeight=1;
+let onlineSites=new Set();
+const labelVector=new THREE.Vector3(),fadeTarget=new THREE.Vector3(),fadeDirection=new THREE.Vector3(),fadeHit=new THREE.Vector3(),fadeRay=new THREE.Ray();
 let targetPath=[],pointerStart=null;
 let sitesLoading=null;
 let directoryTravelOnly=false;
 const pointerIDs=new Set(),raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 let art, goal, mobileUI, endless, landmarks, minimap, night,shops,social;
-const makeStall=s=>{const stall=art.makeStall(s);stall.label.addEventListener('click',()=>{closePanels();selectSite(siteMap.get(s.id))});return stall;};
+const makeStall=s=>{const stall=art.makeStall(s);stall.owner.visible=!onlineSites.has(s.id);stall.label.addEventListener('click',()=>{closePanels();selectSite(siteMap.get(s.id))});return stall;};
 const disposeStall=s=>art.disposeStall(s);
 function say(text){$('world-toast').textContent=text;$('world-toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('world-toast').hidden=true,3200);}
 function connection(text,on=false){$('connection-text').textContent=text;$('connection-dot').classList.toggle('connected',on);}
 function resetCamera(p){view.reset();view.update(0,p);}
 function stopMovement(){keys.clear();targetPath=[];mobileUI?.resetJoystick();lastSent='';send({type:'move',dx:0,dz:0});}
 function zoomBy(factor){view.zoom(factor);}
-function resizeScene(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.userData.width=w;camera.userData.height=h;camera.aspect=w/h;camera.updateProjectionMatrix();}
+function resizeScene(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;stageWidth=w;stageHeight=h;renderer.setSize(w,h,false);camera.userData.width=w;camera.userData.height=h;camera.aspect=w/h;camera.updateProjectionMatrix();}
 function closePanels(){for(const id of ['world-card','world-directory','world-night','world-night-guide','world-shops','world-social'])$(id).hidden=true;night?.exitOverview();$('directory-toggle').setAttribute('aria-expanded','false');}
 function canTravel(){if(!self){say('正在连接街区，连接后即可传送');return false;}if(self.state.action==='caught'){say('正在被带回广场，稍后就能重新出发');return false;}return true;}
 function travel(destination){if(!canTravel())return;stopMovement();view.reset();if(destination==='bridge')view.state.yaw=0;closePanels();send({type:'travel',destination});if(destination==='plaza')say('返回中央广场，大家都从这里出发');}
@@ -65,7 +67,7 @@ function applyState(states){const live=new Set(states.map(p=>p.id));for(const id
   if(jump&&p===self){p.model.position.copy(p.target);view.update(0,p.target);targetPath=[];refreshNearby();}
  }
  $('online-count').textContent=states.length;root.dataset.online=String(states.length);
- const onlineSites=new Set(states.map(p=>p.siteId).filter(Boolean));for(const [id,stall] of stalls){stall.owner.visible=!onlineSites.has(id);stall.label.textContent=(onlineSites.has(id)?'● 在线 · ':'')+(siteMap.get(id)?.name||'');}
+ onlineSites=new Set(states.map(p=>p.siteId).filter(Boolean));for(const [id,stall] of stalls){stall.owner.visible=!onlineSites.has(id);stall.label.textContent=(onlineSites.has(id)?'● 在线 · ':'')+(siteMap.get(id)?.name||'');}
 }
 function send(data){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(data));}
 function connect(){if(leaving)return;connection(retry?'正在重新连接':'正在接入街头');const url=new URL('/world/live',location.href);url.protocol=location.protocol==='https:'?'wss:':'ws:';socket=new WebSocket(url);const current=socket;
@@ -83,7 +85,8 @@ function connect(){if(leaving)return;connection(retry?'正在重新连接':'正�
   if(leaving)return;if(event.code===1008){say('连接已结束，请刷新页面重新进入');return;}if(event.code===1013)say('街区暂时满员，稍后自动重连');clearTimeout(reconnectTimer);reconnectTimer=setTimeout(connect,Math.min(15000,1000*2**Math.min(retry++,4))+Math.random()*400);
  });
 }
-function setActionHighlight(action){document.querySelectorAll('[data-action]').forEach(b=>b.classList.toggle('active',b.dataset.action===(action==='walk'?'idle':action)));}
+let highlightedAction='';
+function setActionHighlight(action){const value=action==='walk'?'idle':action;if(highlightedAction===value)return;highlightedAction=value;document.querySelectorAll('[data-action]').forEach(b=>b.classList.toggle('active',b.dataset.action===value));}
 function action(value){if(!self){say('连接成功后就能和大家打招呼了');return;}stopMovement();send({type:'action',action:value});setActionHighlight(value);}
 function movement(now){if(!self||self.state.action==='caught'||mobileUI?.blocked)return;let dx=0,dz=0;const keyboard=keys.size>0,stick=mobileUI?.stick;
  if(stick?.active){targetPath=[];const forward=view.forward();const right=new THREE.Vector3(-forward.z,0,forward.x);dx=right.x*stick.x-forward.x*stick.y;dz=right.z*stick.x-forward.z*stick.y;}
@@ -93,18 +96,18 @@ function movement(now){if(!self||self.state.action==='caught'||mobileUI?.blocked
  const signature=dx+','+dz;if(signature!==lastSent||length>.01&&now-lastInput>200){send({type:'move',dx,dz});lastSent=signature;lastInput=now;}
 }
 function fadeForeground(){
- if(!self)return;const target=self.model.position.clone().add(new THREE.Vector3(0,1.2,0)),distance=camera.position.distanceTo(target),ray=new THREE.Ray(camera.position,new THREE.Vector3().subVectors(target,camera.position).normalize()),hit=new THREE.Vector3();
+ if(!self)return;const target=fadeTarget.copy(self.model.position);target.y+=1.2;const distance=camera.position.distanceTo(target),ray=fadeRay.set(camera.position,fadeDirection.subVectors(target,camera.position).normalize()),hit=fadeHit;
  for(const stall of [...stalls.values(),...endless.occluders]){const intersects=ray.intersectBox(stall.group.userData.houseBounds,hit);const faded=!!intersects&&camera.position.distanceTo(hit)<distance-.4;if(stall.faded===faded)continue;stall.faded=faded;
   for(const child of stall.group.children)if(child.isLineSegments)child.visible=!faded;
   for(const mesh of stall.group.userData.structure){if(!mesh.isMesh)continue;if(faded){if(!mesh.userData.fadeMat){mesh.userData.originalMat=mesh.material;const mat=mesh.material.clone();mat.transparent=true;mat.opacity=.13;mat.depthWrite=false;mesh.userData.fadeMat=mat;}mesh.material=mesh.userData.fadeMat;for(const child of mesh.children)if(child.isLineSegments)child.visible=false;}else if(mesh.userData.originalMat){mesh.material=mesh.userData.originalMat;for(const child of mesh.children)if(child.isLineSegments)child.visible=true;}}
  }
 }
-function projectLabel(element,position,height=2.7,maxDistance=40){const v=new THREE.Vector3(position.x,position.y+height,position.z);const distance=camera.position.distanceTo(v);v.project(camera);const visible=v.z>=-1&&v.z<=1&&Math.abs(v.x)<1.12&&Math.abs(v.y)<1.12&&distance<maxDistance;element.style.display=visible?'':'none';if(visible)element.style.transform=`translate(${(v.x*.5+.5)*stage.clientWidth}px,${(-v.y*.5+.5)*stage.clientHeight}px) translate(-50%,-100%)`;}
+function projectLabel(element,position,height=2.7,maxDistance=40){const v=labelVector.set(position.x,position.y+height,position.z);const distance=camera.position.distanceTo(v);v.project(camera);const visible=v.z>=-1&&v.z<=1&&Math.abs(v.x)<1.12&&Math.abs(v.y)<1.12&&distance<maxDistance;element.style.display=visible?'':'none';if(visible)element.style.transform=`translate(${(v.x*.5+.5)*stageWidth}px,${(-v.y*.5+.5)*stageHeight}px) translate(-50%,-100%)`;}
 function selectSite(s,visit=false){selected=s;$('world-card').hidden=false;$('card-name').textContent=s.name;$('card-handle').textContent=s.slug?'@'+s.slug:'丐帮总舵';$('card-slogan').textContent=s.slogan||'行行好，赏口饭吃。';$('card-total').textContent=s.total;$('card-currency').textContent=' '+s.currency;$('card-coins').textContent=s.coins;$('card-exp').textContent=s.exp;$('world-coin').disabled=coinUsed.has(s.id);$('world-coin').textContent=coinUsed.has(s.id)?'今天丢过钢镚了':'丢个钢镚 · 免费';$('world-donate').href='/'+s.slug+'#donate';$('world-donate').hidden=!s.ready;$('world-profile').href='/'+s.slug;const avatar=$('card-avatar');avatar.replaceChildren();if(s.avatar){const image=document.createElement('img');image.src=s.avatar;image.alt='';avatar.append(image);}else avatar.textContent='🥣';if(visit){stopMovement();goal.visible=false;send({type:'visit',siteId:s.id});$('world-directory').hidden=true;$('directory-toggle').setAttribute('aria-expanded','false');renderer.domElement.focus({preventScroll:true});}}
 function renderDirectory(){const text=$('world-search').value.trim().toLowerCase(),list=$('world-site-list');list.replaceChildren();const results=sites.filter(s=>(!directoryTravelOnly||s.id!==ownSite)&&(s.name+' '+s.slug).toLowerCase().includes(text));$('site-count').textContent=results.length+' 位';for(const s of results.slice(0,100)){const button=document.createElement('button');button.className='directory-row';button.type='button';const avatar=document.createElement('span');avatar.className='list-avatar';avatar.textContent='🥣';if(s.avatar){const img=document.createElement('img');img.src=s.avatar;img.alt='';img.loading='lazy';avatar.replaceChildren(img);}const content=document.createElement('span'),name=document.createElement('strong'),sub=document.createElement('small');name.textContent=s.name;sub.textContent=(s.slug?'@'+s.slug:'总舵')+' · 点击传送到店门口';content.append(name,sub);button.append(avatar,content);button.addEventListener('click',()=>visitShop(s.id));list.append(button);}if(!results.length){const p=document.createElement('p');p.className='directory-empty';p.textContent='没有找到这位街坊';list.append(p);}}
 async function loadSites(force=false){
  if(sitesLoading){if(force){await sitesLoading;return loadSites()}return sitesLoading;}
- sitesLoading=(async()=>{const response=await fetch('/api/world/sites',{cache:'no-store'});if(!response.ok)throw new Error('站点资料暂时不可用');const data=await response.json();const previous=siteMap;
+ sitesLoading=(async()=>{const response=await fetch('/api/world/sites',{cache:'no-cache'});if(!response.ok)throw new Error('站点资料暂时不可用');const tag=response.headers.get('ETag');if(tag&&tag===catalogTag)return;const data=await response.json();catalogTag=tag;const previous=siteMap;
  sites=data.sites;bounds=data.bounds;coinExp=data.coinExp;$('night-amount').max=String(data.raid.maxBet);siteMap=new Map(sites.map(s=>[s.id,s]));siteMap.cells=indexShops(sites);renderDirectory();
  if(selected){const updated=siteMap.get(selected.id);if(updated){selected=updated;if(!$('world-card').hidden)selectSite(updated)}else{$('world-card').hidden=true;selected=null;}}
  for(const [id,stall] of stalls){const s=siteMap.get(id),old=previous.get(id);if(!s||!old||s.x!==old.x||s.z!==old.z||s.name!==old.name||s.skin!==old.skin||s.coins!==old.coins){disposeStall(stall);stalls.delete(id);}}
@@ -145,14 +148,14 @@ async function init(){
   shops=setupShops({root,getSites:()=>sites,getSelf:()=>self?.target,ownSite,onStop:stopMovement,onNotice:say,onTour:lot=>{if(!canTravel())return;stopMovement();view.reset();view.state.yaw=0;send({type:'tour',col:lot.col,row:lot.row})},onVisit:visitShop,onRefresh:()=>loadSites(true),onClosePanels:closePanels});
   social=setupSocial({root,scene,getSelf:()=>self,getPeople:()=>people,getSites:()=>sites,onSend:send,onStop:stopMovement,onNotice:say,onVisit:visitShop,onRoute:routeTo,onClosePanels:closePanels});
   mobileUI=setupWorldControls({root,stage,canvas:renderer.domElement,onStop:stopMovement,onNotice:say,onZoom:zoomBy});new ResizeObserver(resizeScene).observe(stage);resizeScene();const getPlayers=()=>[...people.values()].map(p=>p.state);minimap=setupMinimap({root,getSelf:()=>self?.target,getPlayers,getForward:()=>view.forward(),onTravel:travel});night=setupNight({scene,root,landmarks,getSelf:()=>self?.target,getPlayers,onStop:stopMovement,onNotice:say,onClosePanels:closePanels,onTravel:travel});
-  loading.hidden=true;connect();siteRefresh=setInterval(()=>loadSites().catch(()=>{}),30000);
-  let last=performance.now(),nearbyAt=0,inputAt=0,frameAt=0,metricsAt=last,frames=0;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  loading.hidden=true;connect();siteRefresh=setInterval(()=>{if(!document.hidden)loadSites().catch(()=>{})},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadSites().catch(()=>{})});
+  let last=performance.now(),nearbyAt=0,inputAt=0,frameAt=0,labelsAt=0,metricsAt=last,frames=0;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   renderer.setAnimationLoop(now=>{const interval=1000/(mobileUI?.touch?30:60);if(document.hidden||now-frameAt<interval)return;const dt=Math.min((now-last)/1000,.05);last=now;frameAt=now-(now-frameAt)%interval;
    if(now-inputAt>75){movement(now);inputAt=now;}if(now-nearbyAt>500){refreshNearby();nearbyAt=now;}
-   for(const [id,p] of people){p.model.position.lerp(p.target,1-Math.exp(-dt*15));const yaw=p.state.yaw;let diff=(yaw-p.model.rotation.y+Math.PI*3)%(Math.PI*2)-Math.PI;p.model.rotation.y+=diff*(1-Math.exp(-dt*15));animatePerson(p.model,p.state.action,reduced?0:now/1000,id.charCodeAt(0));}
+   for(const [id,p] of people){p.model.position.lerp(p.target,1-Math.exp(-dt*15));const yaw=p.state.yaw;let diff=(yaw-p.model.rotation.y+Math.PI*3)%(Math.PI*2)-Math.PI;p.model.rotation.y+=diff*(1-Math.exp(-dt*15));p.model.visible=p===self||!self||p.model.position.distanceToSquared(self.model.position)<3600;if(p.model.visible)animatePerson(p.model,p.state.action,reduced?0:now/1000,id.charCodeAt(0));}
    goal.visible=targetPath.length>0;root.dataset.pathLeft=String(targetPath.length);if(self){view.update(dt,self.model.position);root.dataset.selfX=self.model.position.x.toFixed(2);root.dataset.selfZ=self.model.position.z.toFixed(2);root.dataset.selfAction=self.state.action;setActionHighlight(self.state.action);}
-   for(const p of people.values())projectLabel(p.label,p.model.position,p.state.action==='beg'?2.9:3.3,48);
-   for(const [id,stall] of stalls){animatePerson(stall.owner,'beg',reduced?0:now/1000,id);projectLabel(stall.label,new THREE.Vector3(stall.group.position.x,0,stall.group.position.z+3),.25,29);}
+   const labelsDue=now-labelsAt>1000/(mobileUI?.touch?20:30);if(labelsDue){labelsAt=now;for(const p of people.values())projectLabel(p.label,p.model.position,p.state.action==='beg'?2.9:3.3,48);}
+   for(const [id,stall] of stalls){if(stall.owner.visible)animatePerson(stall.owner,'beg',reduced?0:now/1000,id);if(labelsDue)projectLabel(stall.label,{x:stall.group.position.x,y:0,z:stall.group.position.z+3},.25,29);}
    for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.age+=dt;const t=Math.min(1,p.age/.85);p.mesh.position.lerpVectors(p.start,p.target,t);p.mesh.position.y+=Math.sin(t*Math.PI)*2.6;p.mesh.rotation.z+=dt*8;if(t===1){scene.remove(p.mesh);p.mesh.geometry.dispose();particles.splice(i,1);}}
    minimap.update(now);night.update(now,camera);social.update(now);landmarks.update(now,night.roomState());fadeForeground();renderer.render(scene,camera);
    frames++;if(now-metricsAt>=1000){root.dataset.drawCalls=String(renderer.info.render.calls);root.dataset.geometries=String(renderer.info.memory.geometries);root.dataset.textures=String(renderer.info.memory.textures);root.dataset.fps=String(Math.round(frames*1000/(now-metricsAt)));frames=0;metricsAt=now;}
